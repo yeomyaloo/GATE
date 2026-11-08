@@ -1,0 +1,13 @@
+# 모든 외부 라이브러리 버전을 이 파일 한곳에서 고정한다.
+# Spring Boot BOM이 관리하는 라이브러리(JUnit, Flyway, PostgreSQL 드라이버, Testcontainers 등)는
+# 아래 spring-boot 버전에 따라 함께 고정된다.
+[versions]
+spring-boot = "4.1.2"
+spring-dependency-management = "1.1.7"
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+
+[libraries]
+spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }

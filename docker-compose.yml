@@ -1,0 +1,60 @@
+# GATE 로컬 실행 구성. 사용 전 `.env.example`을 `.env`로 복사하고 값을 채운다.
+# 모든 포트는 127.0.0.1에만 연다 (외부 노출 금지).
+# 이미지는 태그 + digest로 고정한다.
+
+name: gate
+
+services:
+  db:
+    image: postgres:18.6-alpine3.24@sha256:123b17998ccaf47e53b502e8c6a1e79afd8f579c6f3eec83c563da026f957395
+    environment:
+      POSTGRES_DB: ${GATE_DB_NAME:?set GATE_DB_NAME in .env}
+      POSTGRES_USER: ${GATE_DB_USER:?set GATE_DB_USER in .env}
+      POSTGRES_PASSWORD: ${GATE_DB_PASSWORD:?set GATE_DB_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # PostgreSQL 18 이미지는 /var/lib/postgresql 아래에 버전별 데이터 폴더를 만든다
+      - gate-db:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  cache:
+    image: redis:8.8.4-alpine3.23@sha256:c027ae0f677dcf73d74038256f5b88c9ba7b11ccbfae97e96a9f091208d36125
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  server:
+    build:
+      context: .
+      dockerfile: gate-server/Dockerfile
+    environment:
+      GATE_DB_URL: jdbc:postgresql://db:5432/${GATE_DB_NAME}
+      GATE_DB_USER: ${GATE_DB_USER}
+      GATE_DB_PASSWORD: ${GATE_DB_PASSWORD}
+      GATE_REDIS_HOST: cache
+      GATE_REDIS_PORT: "6379"
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      start_period: 40s
+      retries: 10
+
+volumes:
+  gate-db:

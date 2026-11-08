@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 520" width="1000" height="520" font-family="-apple-system, 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', Roboto, sans-serif">
+  <rect width="1000" height="520" fill="#ffffff"/>
+  <text x="40" y="44" font-size="22" font-weight="700" fill="#0f172a">Common result model · 공통 검사 결과 모델</text>
+  <text x="40" y="68" font-size="14" fill="#475569">Every module writes the same shape: what · where · severity · evidence · time</text>
+
+  <!-- scan_run -->
+  <rect x="40" y="96" width="360" height="276" rx="10" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="40" y="96" width="360" height="40" rx="10" fill="#1d4ed8"/>
+  <rect x="40" y="120" width="360" height="16" fill="#1d4ed8"/>
+  <text x="58" y="123" font-size="17" font-weight="700" fill="#ffffff">scan_run</text>
+  <text x="382" y="123" font-size="13" fill="#dbeafe" text-anchor="end">one scan · 검사 1회</text>
+  <g font-size="14" fill="#0f172a">
+    <text x="58" y="164"><tspan font-weight="700">id</tspan></text><text x="200" y="164" fill="#64748b">UUID · PK</text>
+    <text x="58" y="194">module</text><text x="200" y="194" fill="#64748b">PKG|REVIEW|AUTHZ|…</text>
+    <text x="58" y="224">trigger</text><text x="200" y="224" fill="#64748b">CLI|CLAUDE_HOOK|…</text>
+    <text x="58" y="254">target</text><text x="200" y="254" fill="#64748b">npm:lodash@4.17.21</text>
+    <text x="58" y="284">status</text><text x="200" y="284" fill="#64748b">RUNNING|DONE|FAILED</text>
+    <text x="58" y="314">started_at</text><text x="200" y="314" fill="#64748b">TIMESTAMPTZ</text>
+    <text x="58" y="344">finished_at</text><text x="200" y="344" fill="#64748b">TIMESTAMPTZ</text>
+  </g>
+
+  <!-- relation -->
+  <line x1="400" y1="160" x2="560" y2="190" stroke="#475569" stroke-width="2"/>
+  <text x="420" y="156" font-size="14" font-weight="700" fill="#475569">1</text>
+  <text x="530" y="180" font-size="14" font-weight="700" fill="#475569">N</text>
+
+  <!-- finding -->
+  <rect x="560" y="96" width="400" height="396" rx="10" fill="#ffffff" stroke="#b91c1c" stroke-width="2"/>
+  <rect x="560" y="96" width="400" height="40" rx="10" fill="#b91c1c"/>
+  <rect x="560" y="120" width="400" height="16" fill="#b91c1c"/>
+  <text x="578" y="123" font-size="17" font-weight="700" fill="#ffffff">finding</text>
+  <text x="942" y="123" font-size="13" fill="#fee2e2" text-anchor="end">one result · 발견 사항</text>
+  <g font-size="14" fill="#0f172a">
+    <text x="578" y="164"><tspan font-weight="700">id</tspan></text><text x="740" y="164" fill="#64748b">UUID · PK</text>
+    <text x="578" y="192">run_id</text><text x="740" y="192" fill="#64748b">FK → scan_run</text>
+    <text x="578" y="220">rule_id</text><text x="740" y="220" fill="#b91c1c">WHAT · 무엇이</text>
+    <text x="578" y="248">title</text><text x="740" y="248" fill="#64748b">human-readable</text>
+    <text x="578" y="276">severity</text><text x="740" y="276" fill="#b91c1c">SEVERITY · 위험도</text>
+    <text x="578" y="304">decision</text><text x="740" y="304" fill="#64748b">BLOCK|WARN|PASS</text>
+    <text x="578" y="332">location</text><text x="740" y="332" fill="#b91c1c">WHERE · 어디서 (JSONB)</text>
+    <text x="578" y="360">evidence</text><text x="740" y="360" fill="#b91c1c">EVIDENCE · 근거 (JSONB)</text>
+    <text x="578" y="388">source</text><text x="740" y="388" fill="#64748b">RULE|AI|RULE_AND_AI</text>
+    <text x="578" y="416">fingerprint</text><text x="740" y="416" fill="#64748b">SHA-256(rule+location)</text>
+    <text x="578" y="444">detected_at</text><text x="740" y="444" fill="#b91c1c">TIME · 시각</text>
+  </g>
+  <text x="578" y="476" font-size="12" fill="#7f1d1d">CHECK: source = AI ⇒ decision ≠ BLOCK (AI alone never blocks)</text>
+
+  <!-- location kinds -->
+  <rect x="40" y="396" width="480" height="96" rx="10" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="58" y="422" font-size="14" font-weight="700" fill="#0f172a">location kinds (sealed interface)</text>
+  <g font-size="13" fill="#334155" font-family="Consolas, 'SFMono-Regular', monospace">
+    <text x="58" y="446">package  {ecosystem, name, version}</text>
+    <text x="58" y="465">file     {path, line}</text>
+    <text x="58" y="484">endpoint {method, path}</text>
+  </g>
+</svg>
