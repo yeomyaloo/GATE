@@ -48,7 +48,7 @@ Stops risky packages **before** they are installed, right where an AI coding too
 | Rule | Detects | Decision |
 |---|---|---|
 | `PKG-EXIST` | package (or exact version) does not exist — likely an AI-hallucinated name | BLOCK |
-| `PKG-TYPO` | look-alike of a top-5,000 npm/PyPI package (separator, homoglyph, affix, scope, edit distance) | BLOCK if young or <1% of target downloads |
+| `PKG-TYPO` | look-alike of a top-5,000 npm/PyPI package (separator, homoglyph, affix, `@types` scope, edit distance) | BLOCK if young, or <1% of target downloads and <10k weekly; established look-alikes are recorded as INFO |
 | `PKG-VULN` | OSV malicious-package report (`MAL-`) or CRITICAL vulnerability / lower severities | BLOCK / WARN |
 | `PKG-COMBO` | new package + install script or almost no downloads | BLOCK |
 | `PKG-NEW` · `PKG-SCRIPT` · `PKG-MAINT` · `PKG-POP` | new package/version, install-time code, publisher not a previous maintainer, <100 weekly downloads | WARN |
@@ -74,7 +74,7 @@ Pull requests (GitHub Action): checks only dependencies **added or changed** in 
 ```
 Optional result store: set `GATE_SERVER_URL` and results are sent to gate-server `POST /api/scan-runs`.
 
-**Measured false positives** on 600 legitimate packages (ranks 5,001-7,000): **0 blocked**, 4.0% warned. See [docs/measurements/pkg-typo-fp.md](docs/measurements/pkg-typo-fp.md). Known limitations: npm version ranges are checked against the latest version; npm's downloads API rate-limits large batches.
+**Measured false positives** on 600 legitimate packages (ranks 5,001-7,000): **0 blocked, 0 warned** by `PKG-TYPO` (similar but established packages are recorded as INFO, not prompted). See [docs/measurements/pkg-typo-fp.md](docs/measurements/pkg-typo-fp.md). Known limitations: npm version ranges are checked against the latest version; npm's downloads API rate-limits large batches.
 
 False positives: add `ecosystem:name@version  # reason` to `.gate/pkg-allow.txt` (exact version only; nonexistent or malicious packages cannot be allowed). Design: [docs/design/stage1-gate-pkg.md](docs/design/stage1-gate-pkg.md).
 
@@ -161,7 +161,7 @@ AI 코딩 도구가 설치 명령을 실행하는 바로 그 자리에서, 위�
 | 규칙 | 찾는 것 | 판정 |
 |---|---|---|
 | `PKG-EXIST` | 레지스트리에 없는 패키지·버전 (AI가 지어낸 이름 의심) | 차단 |
-| `PKG-TYPO` | npm·PyPI 인기 패키지 5,000개와 비슷한 이름 (구분자, 닮은 글자, 접두·접미어, 스코프, 편집 거리) | 새것이거나 대상 다운로드의 1% 미만이면 차단 |
+| `PKG-TYPO` | npm·PyPI 인기 패키지 5,000개와 비슷한 이름 (구분자, 닮은 글자, 접두·접미어, `@types` 스코프, 편집 거리) | 새것이거나, 대상 다운로드의 1% 미만이면서 주간 1만 미만이면 차단. 자리 잡은 패키지는 기록(INFO)만 |
 | `PKG-VULN` | OSV 악성 패키지 보고(`MAL-`)·CRITICAL 취약점 / 그 밖의 취약점 | 차단 / 경고 |
 | `PKG-COMBO` | 새 패키지 + 설치 스크립트 또는 다운로드 거의 없음 | 차단 |
 | `PKG-NEW` · `PKG-SCRIPT` · `PKG-MAINT` · `PKG-POP` | 새 패키지·버전, 설치 시 코드 실행, 이전 관리자가 아닌 게시자, 주간 다운로드 100 미만 | 경고 |
@@ -171,7 +171,7 @@ Claude Code 훅: 차단은 `deny`(이유를 Claude가 읽음), 경고는 `ask`(�
 
 PR 검사(GitHub Action): `package.json`·`requirements*.txt`·`pyproject.toml`에서 **새로 추가되거나 바뀐 의존성만** 검사하고, 해당 줄에 주석을 달고 Job Summary 표를 남깁니다. `GATE_SERVER_URL`을 설정하면 결과를 gate-server(`POST /api/scan-runs`)에 저장합니다.
 
-**오탐 측정**: 정상 패키지 600개(인기 5,001~7,000위)에서 **차단 0건**, 경고 4.0%입니다([측정 보고서](docs/measurements/pkg-typo-fp.md)). 알려진 한계: npm 버전 범위는 최신판 기준으로 검사하고, npm 다운로드 API는 대량 조회 시 요청을 제한합니다.
+**오탐 측정**: 정상 패키지 600개(인기 5,001~7,000위)에서 `PKG-TYPO` **차단 0건, 경고 0건**입니다. 이름은 비슷하지만 자리 잡은 패키지는 확인 창 없이 기록(INFO)만 남깁니다([측정 보고서](docs/measurements/pkg-typo-fp.md)). 알려진 한계: npm 버전 범위는 최신판 기준으로 검사하고, npm 다운로드 API는 대량 조회 시 요청을 제한합니다.
 
 오탐 예외: `.gate/pkg-allow.txt`에 `생태계:이름@버전  # 이유`를 적습니다. 정확한 버전만 허용되고, 존재하지 않는 패키지와 악성 패키지는 예외로 풀 수 없습니다.
 

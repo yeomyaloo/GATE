@@ -16,7 +16,8 @@ import java.util.Map;
  *   <li>비슷함 + (첫 게시 후 {@link Thresholds#typoNewWindow()} 미만 <b>또는</b>
  *       (다운로드가 대상의 {@link Thresholds#typoMaxShare()} 미만 <b>이고</b> 주간
  *       {@link Thresholds#typoMaxWeeklyDownloads()} 미만)) → BLOCK·HIGH</li>
- *   <li>비슷하지만 자체 사용자가 충분함 → WARN·LOW (예: 오래되고 널리 쓰이는 이름이 우연히 비슷한 경우)</li>
+ *   <li>비슷하지만 자체 사용자가 충분함 → 기록만(PASS·INFO). 예: {@code progressbar}↔{@code progressbar2}.
+ *       처음에는 WARN·LOW였지만 측정에서 PyPI 설치의 6.7%가 확인 창이 되어 2026-11-09 사용자 결정으로 낮췄다</li>
  *   <li>다운로드 수를 알 수 없어 판단할 수 없음 → WARN·MEDIUM (확인 요청)</li>
  * </ul>
  */
@@ -67,8 +68,9 @@ public final class TypoCheck implements Check {
             return List.of(Rules.finding(ctx.runId(), Rules.TYPO, title, Severity.MEDIUM, Decision.WARN,
                     ctx.location(), evidence, ctx.now()));
         }
+        // 자리 잡은 패키지는 막거나 묻지 않고 기록만 남긴다 (2026-11-09 사용자 결정, 측정 보고서 참고)
         evidence.put("reason", "similar name but established package");
-        return List.of(Rules.finding(ctx.runId(), Rules.TYPO, title, Severity.LOW, Decision.WARN,
+        return List.of(Rules.finding(ctx.runId(), Rules.TYPO, title, Severity.INFO, Decision.PASS,
                 ctx.location(), evidence, ctx.now()));
     }
 }

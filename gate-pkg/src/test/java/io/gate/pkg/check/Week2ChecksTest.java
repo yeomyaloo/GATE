@@ -168,15 +168,17 @@ class Week2ChecksTest {
             // 측정에서 차단되던 bpython(ipython의 0.39%, 주간 약 4만): 비율만으로는 차단하지 않는다
             Finding f = single(eval(OLD, new DownloadsResult.Known(39_000, "u"),
                     new DownloadsResult.Known(10_000_000, "u"), true));
-            assertEquals(Decision.WARN, f.decision());
+            assertEquals(Decision.PASS, f.decision());
         }
 
         @Test
-        void establishedSimilarNameOnlyWarnsLow() {
+        void establishedSimilarNameIsRecordedNotWarned() {
+            // 2026-11-09 결정: 자리 잡은 패키지는 확인 창 없이 기록(INFO)만 남긴다
             Finding f = single(eval(OLD, new DownloadsResult.Known(5_000_000, "u"),
                     new DownloadsResult.Known(200_000_000, "u"), true));
-            assertEquals(Decision.WARN, f.decision());
-            assertEquals(Severity.LOW, f.severity());
+            assertEquals(Decision.PASS, f.decision());
+            assertEquals(Severity.INFO, f.severity());
+            assertEquals("lodash", f.evidence().get("similarTo"), "the finding and its evidence are kept");
         }
 
         @Test
