@@ -35,6 +35,22 @@ jobs:
       - name: Build and test
         run: ./gradlew build --no-daemon
 
+      # 실패한 테스트 메시지를 Actions 주석(annotation)으로 남겨 PR·실행 화면에서 바로 보이게 한다
+      - name: Report test failures as annotations
+        if: failure()
+        run: |
+          for f in $(grep -l -E '<(failure|error)' */build/test-results/test/*.xml 2>/dev/null); do
+            python3 - "$f" <<'PY'
+          import sys, xml.etree.ElementTree as ET
+          for case in ET.parse(sys.argv[1]).getroot().iter("testcase"):
+              for tag in ("failure", "error"):
+                  for el in case.findall(tag):
+                      text = ((el.get("message") or "") + "\n" + (el.text or ""))[:3000]
+                      text = text.replace("%", "%25").replace("\r", "").replace("\n", "%0A")
+                      print(f"::error title={case.get('classname')}.{case.get('name')}::{text}")
+          PY
+          done
+
       # 러너에는 Docker가 있으므로 통합 테스트가 건너뛰어지면 안 된다
       - name: Ensure integration tests actually ran
         run: |
