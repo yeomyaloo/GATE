@@ -8,12 +8,33 @@
 | 단계 | 내용 | 상태 |
 |---|---|---|
 | 0 | 뼈대 (Skeleton) | ✅ 완료 (CI로 검증, 2026-11-08) |
-| 1 | ① gate-pkg 패키지 설치 검문소 | ⚪ 시작 전 |
+| 1 | ① gate-pkg 패키지 설치 검문소 | 🔵 구현 중: 1주차 ([설계안](design/stage1-gate-pkg.md)) |
 | 2 | ⑤ gate-lab 취약점 실습장 | ⚪ 시작 전 |
 | 3 | ③ gate-authz 권한 검사 자동 테스트 | ⚪ 시작 전 |
 | 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ⚪ 시작 전 |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ⚪ 시작 전 |
 | ★ | 대시보드·데모·정리 | ⚪ 시작 전 |
+
+---
+
+## 1단계: ① gate-pkg — 설계 (2026-11-09)
+
+### 확정된 결정과 이유
+| 항목 | 결정 | 이유 |
+|---|---|---|
+| CLI 형태 | 순수 Java CLI jar (Spring 없음) | JVM 기동 0.2~0.4초는 레지스트리 조회 시간보다 작다. 서버 없이 단독으로 동작한다. 네이티브 빌드는 필요하면 나중에 추가 |
+| 대상 | npm + PyPI | AI가 지어낸 패키지 연구 대부분이 이 둘을 다룬다. npm 먼저, PyPI 이어서 |
+| 검사 불가 시 | 확인 요청 (훅 `ask`, CI는 경고) | 개발 흐름을 막지 않으면서 검사 공백을 숨기지 않는다 |
+
+### 설계 전 확인한 사실
+- npm: 없는 패키지는 404. 전체 문서에 `time`·`maintainers`가 있고, 버전 문서(`/{name}/{version}`)에 `scripts`·`_npmUser`가 있다. 축약 문서(install-v1)에는 게시 시각이 없다
+- PyPI JSON: 없는 패키지는 404. `ownership.roles`는 현재 값만 있어서 관리자 변경 이력은 얻을 수 없다
+- 다운로드 수: npm `api.npmjs.org/downloads`, PyPI `pypistats.org` recent API
+- OSV `/v1/query`: 패키지와 버전으로 조회되고, 악성 패키지 보고(`MAL-`)도 포함된다
+- Claude Code PreToolUse 훅: stdin `tool_input.command`, 응답 `permissionDecision` deny / ask
+
+### 설계 승인 (2026-11-09)
+"결정 필요" 4개 항목 모두 제안대로 확정: 임계값 그대로 시작, OSV HIGH는 WARN, 오탐 예외 파일 포함, 3주차부터 이 저장소에 훅 적용
 
 ---
 
@@ -83,5 +104,4 @@ git status                      # .env가 보이지 않아야 함
 3. 1단계 설계안(검사 규칙·임계값·API·화면)은 코드 전에 확인받는다
 
 ### 다음 할 일 (Next)
-1. 1단계(gate-pkg) 설계안 작성: 검사 규칙·임계값·API·CLI/훅 형태 → 사람 확인 → 구현
-2. 위 "결정 필요" 1~2번 답 받기
+→ 1단계 섹션으로 이동
