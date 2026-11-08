@@ -65,6 +65,17 @@ CLI:
 gate-pkg/bin/gate-pkg check npm lodash@4.17.21 lodahs     # exit 0 pass, 1 warn, 2 block, 3 could not check
 gate-pkg/bin/gate-pkg check pypi "requests==2.32.3" --format json
 ```
+Pull requests (GitHub Action): checks only dependencies **added or changed** in `package.json`, `requirements*.txt`, `pyproject.toml`; annotates the exact line and writes a job summary.
+```yaml
+- uses: actions/checkout@<pinned-sha>      # with fetch-depth: 0
+- uses: yeomyaloo/GATE/.github/actions/gate-pkg@<pinned-sha>
+  with:
+    fail-on: block                         # or warn
+```
+Optional result store: set `GATE_SERVER_URL` and results are sent to gate-server `POST /api/scan-runs`.
+
+**Measured false positives** on 600 legitimate packages (ranks 5,001-7,000): **0 blocked**, 4.0% warned. See [docs/measurements/pkg-typo-fp.md](docs/measurements/pkg-typo-fp.md). Known limitations: npm version ranges are checked against the latest version; npm's downloads API rate-limits large batches.
+
 False positives: add `ecosystem:name@version  # reason` to `.gate/pkg-allow.txt` (exact version only; nonexistent or malicious packages cannot be allowed). Design: [docs/design/stage1-gate-pkg.md](docs/design/stage1-gate-pkg.md).
 
 ### Tech stack
@@ -82,7 +93,7 @@ False positives: add `ecosystem:name@version  # reason` to `.gate/pkg-allow.txt`
 GATE/
 ├─ gate-common/   shared Finding model (pure Java)
 ├─ gate-server/   Spring Boot API: result store, health check, Flyway schema
-├─ gate-pkg/      ① package install checkpoint (stage 1): checks, CLI, Claude Code hook
+├─ gate-pkg/      ① package install checkpoint (stage 1): checks, CLI, Claude Code hook, PR diff
 ├─ docs/          progress log, ADRs, diagrams
 └─ docker-compose.yml
 ```
@@ -112,7 +123,7 @@ Integration tests (`HealthCheckIT`) start real PostgreSQL and Redis containers a
 - `gate-lab` is **never deployed publicly**.
 
 ### Status
-**Stage 0 (skeleton) is complete.** CI verifies it on every push: build and unit tests, Testcontainers integration tests, and a real `docker compose up` health check plus schema check. Next: stage 1 (`gate-pkg`). See [docs/progress.md](docs/progress.md).
+**Stages 0 and 1 are complete.** `gate-pkg` blocks hallucinated, typosquatted and malicious packages in Claude Code (hook) and in pull requests (GitHub Action). CI verifies on every push: unit and Testcontainers tests, a real `docker compose up` health check, and an Action demo that must block a typosquat PR. Next: stage 2 (`gate-lab`). See [docs/progress.md](docs/progress.md).
 
 ### License
 [MIT](LICENSE)
@@ -158,6 +169,10 @@ AI 코딩 도구가 설치 명령을 실행하는 바로 그 자리에서, 위�
 
 Claude Code 훅: 차단은 `deny`(이유를 Claude가 읽음), 경고는 `ask`(이유를 사용자가 읽음), 통과는 출력 없음입니다. `allow`는 내지 않습니다. 훅이 비정상 종료하면 Claude Code가 명령을 그대로 실행하므로, 어떤 오류든 `ask`로 바꿉니다. 설치가 아닌 명령은 래퍼 스크립트가 JVM을 띄우지 않고 바로 끝냅니다.
 
+PR 검사(GitHub Action): `package.json`·`requirements*.txt`·`pyproject.toml`에서 **새로 추가되거나 바뀐 의존성만** 검사하고, 해당 줄에 주석을 달고 Job Summary 표를 남깁니다. `GATE_SERVER_URL`을 설정하면 결과를 gate-server(`POST /api/scan-runs`)에 저장합니다.
+
+**오탐 측정**: 정상 패키지 600개(인기 5,001~7,000위)에서 **차단 0건**, 경고 4.0%입니다([측정 보고서](docs/measurements/pkg-typo-fp.md)). 알려진 한계: npm 버전 범위는 최신판 기준으로 검사하고, npm 다운로드 API는 대량 조회 시 요청을 제한합니다.
+
 오탐 예외: `.gate/pkg-allow.txt`에 `생태계:이름@버전  # 이유`를 적습니다. 정확한 버전만 허용되고, 존재하지 않는 패키지와 악성 패키지는 예외로 풀 수 없습니다.
 
 ### 기술 스택
@@ -193,7 +208,7 @@ Docker 없이 빌드·테스트:
 - `gate-lab`(취약한 앱)은 **절대 외부에 공개 배포하지 않습니다.**
 
 ### 진행 상황
-**0단계(뼈대) 완료.** 푸시할 때마다 CI가 빌드·단위 테스트, Testcontainers 통합 테스트, 실제 `docker compose up` 헬스체크와 스키마 생성을 확인합니다. 다음은 1단계(`gate-pkg`)입니다. 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
+**0·1단계 완료.** `gate-pkg`가 AI가 지어낸 패키지, 철자 흉내 패키지, 악성 패키지를 Claude Code 훅과 PR(GitHub Action) 양쪽에서 막습니다. 푸시할 때마다 CI가 단위·통합 테스트, 실제 `docker compose up` 헬스체크, 그리고 철자 흉내 PR을 실제로 막는지 Action 데모까지 확인합니다. 다음은 2단계(`gate-lab`)입니다. 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
 
 ### 라이선스
 [MIT](LICENSE)

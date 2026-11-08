@@ -1,0 +1,423 @@
+{
+  "seed": 42,
+  "results": [
+    {
+      "ecosystem": "npm",
+      "ranks": "5001-7000",
+      "sampled": 300,
+      "typoWarn": 29,
+      "typoBlock": 0,
+      "typoWarnRate": 0.0967,
+      "typoBlockRate": 0.0,
+      "unchecked": 242,
+      "otherBlocksByRule": {},
+      "flagged": [
+        {
+          "name": "@aws-sdk/client-ses",
+          "decision": "WARN",
+          "similarTo": "@aws-sdk/client-sts",
+          "technique": "edit-distance",
+          "downloadShare": 0.199608,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "@edge-runtime/format",
+          "decision": "WARN",
+          "similarTo": "format",
+          "technique": "scope",
+          "downloadShare": 0.317933,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "@fastify/deepmerge",
+          "decision": "WARN",
+          "similarTo": "deepmerge",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@langchain/openai",
+          "decision": "WARN",
+          "similarTo": "openai",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@lexical/history",
+          "decision": "WARN",
+          "similarTo": "history",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@lit-labs/react",
+          "decision": "WARN",
+          "similarTo": "react",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@lydell/node-pty",
+          "decision": "WARN",
+          "similarTo": "node-pty",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@react-aria/color",
+          "decision": "WARN",
+          "similarTo": "color",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@react-aria/table",
+          "decision": "WARN",
+          "similarTo": "table",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@react-native/metro-babel-transformer",
+          "decision": "WARN",
+          "similarTo": "metro-babel-transformer",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@stoplight/path",
+          "decision": "WARN",
+          "similarTo": "path",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@types/concat-stream",
+          "decision": "WARN",
+          "similarTo": "concat-stream",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@types/conventional-commits-parser",
+          "decision": "WARN",
+          "similarTo": "conventional-commits-parser",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@types/html-to-text",
+          "decision": "WARN",
+          "similarTo": "html-to-text",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@types/mapbox-gl",
+          "decision": "WARN",
+          "similarTo": "mapbox-gl",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@types/marked",
+          "decision": "WARN",
+          "similarTo": "marked",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@types/micromatch",
+          "decision": "WARN",
+          "similarTo": "micromatch",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@types/passport-jwt",
+          "decision": "WARN",
+          "similarTo": "passport-jwt",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@types/react-helmet",
+          "decision": "WARN",
+          "similarTo": "react-helmet",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@types/strip-bom",
+          "decision": "WARN",
+          "similarTo": "strip-bom",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@types/tinycolor2",
+          "decision": "WARN",
+          "similarTo": "tinycolor2",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@types/zen-observable",
+          "decision": "WARN",
+          "similarTo": "zen-observable",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@unhead/vue",
+          "decision": "WARN",
+          "similarTo": "vue",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@vercel/koa",
+          "decision": "WARN",
+          "similarTo": "koa",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@wdio/protocols",
+          "decision": "WARN",
+          "similarTo": "protocols",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@xhmikosr/decompress-tar",
+          "decision": "WARN",
+          "similarTo": "decompress-tar",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "@xstate/react",
+          "decision": "WARN",
+          "similarTo": "react",
+          "technique": "scope",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "charset",
+          "decision": "WARN",
+          "similarTo": "chardet",
+          "technique": "edit-distance",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        },
+        {
+          "name": "clipboard",
+          "decision": "WARN",
+          "similarTo": "clipboardy",
+          "technique": "edit-distance",
+          "downloadShare": null,
+          "reason": "download counts unavailable; cannot rule out typosquatting"
+        }
+      ]
+    },
+    {
+      "ecosystem": "pypi",
+      "ranks": "5001-7000",
+      "sampled": 300,
+      "typoWarn": 16,
+      "typoBlock": 4,
+      "typoWarnRate": 0.0533,
+      "typoBlockRate": 0.0133,
+      "unchecked": 2,
+      "otherBlocksByRule": {},
+      "flagged": [
+        {
+          "name": "acachecontrol",
+          "decision": "BLOCK",
+          "similarTo": "cachecontrol",
+          "technique": "edit-distance",
+          "downloadShare": 0.004062,
+          "reason": "look-alike with a tiny fraction of the target's downloads"
+        },
+        {
+          "name": "bpython",
+          "decision": "BLOCK",
+          "similarTo": "ipython",
+          "technique": "edit-distance",
+          "downloadShare": 0.003904,
+          "reason": "look-alike with a tiny fraction of the target's downloads"
+        },
+        {
+          "name": "google-reauth",
+          "decision": "BLOCK",
+          "similarTo": "google-auth",
+          "technique": "edit-distance",
+          "downloadShare": 0.000926,
+          "reason": "look-alike with a tiny fraction of the target's downloads"
+        },
+        {
+          "name": "pytest-cover",
+          "decision": "BLOCK",
+          "similarTo": "pytest-cov",
+          "technique": "edit-distance",
+          "downloadShare": 0.001406,
+          "reason": "look-alike with a tiny fraction of the target's downloads"
+        },
+        {
+          "name": "asyncmy2",
+          "decision": "WARN",
+          "similarTo": "asyncmy",
+          "technique": "edit-distance",
+          "downloadShare": 0.260866,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "clint",
+          "decision": "WARN",
+          "similarTo": "cint",
+          "technique": "edit-distance",
+          "downloadShare": 0.462291,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "google-cloud-dns",
+          "decision": "WARN",
+          "similarTo": "google-cloud-kms",
+          "technique": "edit-distance",
+          "downloadShare": 0.02761,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "msg-parser",
+          "decision": "WARN",
+          "similarTo": "myst-parser",
+          "technique": "edit-distance",
+          "downloadShare": 0.066466,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "mypy-boto3-apigatewayv2",
+          "decision": "WARN",
+          "similarTo": "mypy-boto3-apigateway",
+          "technique": "edit-distance",
+          "downloadShare": 0.382635,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "mypy-boto3-fis",
+          "decision": "WARN",
+          "similarTo": "mypy-boto3-sqs",
+          "technique": "edit-distance",
+          "downloadShare": 0.028962,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "mypy-boto3-iot",
+          "decision": "WARN",
+          "similarTo": "mypy-boto3-iam",
+          "technique": "edit-distance",
+          "downloadShare": 0.121773,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "pgmpy",
+          "decision": "WARN",
+          "similarTo": "pgpy",
+          "technique": "edit-distance",
+          "downloadShare": 0.036882,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "postgres",
+          "decision": "WARN",
+          "similarTo": "postgrest",
+          "technique": "edit-distance",
+          "downloadShare": 0.020036,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "progressbar",
+          "decision": "WARN",
+          "similarTo": "progressbar2",
+          "technique": "edit-distance",
+          "downloadShare": 0.036786,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "pulumi-eks",
+          "decision": "WARN",
+          "similarTo": "pulumi-aws",
+          "technique": "edit-distance",
+          "downloadShare": 0.136877,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "pygraphviz",
+          "decision": "WARN",
+          "similarTo": "graphviz",
+          "technique": "edit-distance",
+          "downloadShare": 0.015096,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "pytest-spark",
+          "decision": "WARN",
+          "similarTo": "pytest-shard",
+          "technique": "edit-distance",
+          "downloadShare": 0.117043,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "ratelimiter",
+          "decision": "WARN",
+          "similarTo": "ratelimit",
+          "technique": "edit-distance",
+          "downloadShare": 0.024109,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "tree-sitter-hcl",
+          "decision": "WARN",
+          "similarTo": "tree-sitter-c",
+          "technique": "edit-distance",
+          "downloadShare": 0.072725,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "types-aiobotocore-kms",
+          "decision": "WARN",
+          "similarTo": "types-aiobotocore-sqs",
+          "technique": "edit-distance",
+          "downloadShare": 0.156995,
+          "reason": "similar name but established package"
+        }
+      ]
+    }
+  ]
+}

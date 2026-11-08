@@ -24,7 +24,9 @@ import java.util.Optional;
  *   <li>separator: 구분자만 다름 ({@code react-dom} / {@code reactdom} / {@code react_dom})</li>
  *   <li>homoglyph: 비슷하게 생긴 글자 ({@code rn}↔{@code m}, {@code l}↔{@code 1}↔{@code i}, {@code 0}↔{@code o})</li>
  *   <li>affix: 흔한 접두·접미어 추가 ({@code python-}, {@code -js} …)</li>
- *   <li>scope: npm 스코프 흉내 ({@code types-node} ↔ {@code @types/node}, {@code @evil/lodash} ↔ {@code lodash})</li>
+ *   <li>scope: {@code @types} 흉내 ({@code types-node} ↔ {@code @types/node}).
+ *       "{@code @아무스코프/인기이름}" 규칙은 측정(2026-11-09)에서 정상 스코프 패키지
+ *       ({@code @types/marked}, {@code @xstate/react} 등)를 npm 표본 300개 중 25개나 잡아서 뺐다</li>
  *   <li>edit-distance: Damerau-Levenshtein 거리. 5~9자는 1, 10자 이상은 2 이하. 4자 이하는 오탐이 많아 보지 않는다</li>
  * </ol>
  */
@@ -121,10 +123,6 @@ public final class TypoDetector {
         if (ecosystem == Ecosystem.NPM) {
             if (name.startsWith("types-") && rank.containsKey("@types/" + name.substring(6))) {
                 return match("@types/" + name.substring(6), "scope");
-            }
-            int slash = name.indexOf('/');
-            if (name.startsWith("@") && slash > 0 && rank.containsKey(name.substring(slash + 1))) {
-                return match(name.substring(slash + 1), "scope");
             }
         }
 

@@ -31,7 +31,6 @@ class TypoDetectorTest {
         "react_dom, react-dom, separator",
         "reactdom, react-dom, separator",
         "types-node, @types/node, scope",
-        "@evil-corp/lodash, lodash, scope",
         "rnoment, moment, homoglyph",
         "express-js, express, affix",
         "node-axios, axios, affix",
@@ -52,7 +51,9 @@ class TypoDetectorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"lodash", "preact", "react", "express", "@types/node", "my-company-internal-tool-xyz"})
+    @ValueSource(strings = {"lodash", "preact", "react", "express", "@types/node", "my-company-internal-tool-xyz",
+        // 측정에서 오탐이던 정상 스코프 패키지: 스코프 규칙을 @types 흉내로 좁힌 뒤 걸리지 않아야 한다
+        "@types/marked", "@xstate/react", "@lit-labs/react", "@langchain/openai"})
     void popularOrUnrelatedNamesDoNotMatch(String name) {
         assertTrue(NPM.find(name).isEmpty(), () -> name + " -> " + NPM.find(name));
     }

@@ -13,8 +13,9 @@ import java.util.Map;
 /**
  * PKG-TYPO: 인기 패키지와 철자가 비슷한 패키지 (설계안 4.1).
  * <ul>
- *   <li>비슷함 + (다운로드가 대상의 {@link Thresholds#typoMaxShare()} 미만 <b>또는</b> 첫 게시 후
- *       {@link Thresholds#typoNewWindow()} 미만) → BLOCK·HIGH</li>
+ *   <li>비슷함 + (첫 게시 후 {@link Thresholds#typoNewWindow()} 미만 <b>또는</b>
+ *       (다운로드가 대상의 {@link Thresholds#typoMaxShare()} 미만 <b>이고</b> 주간
+ *       {@link Thresholds#typoMaxWeeklyDownloads()} 미만)) → BLOCK·HIGH</li>
  *   <li>비슷하지만 자체 사용자가 충분함 → WARN·LOW (예: 오래되고 널리 쓰이는 이름이 우연히 비슷한 경우)</li>
  *   <li>다운로드 수를 알 수 없어 판단할 수 없음 → WARN·MEDIUM (확인 요청)</li>
  * </ul>
@@ -34,7 +35,7 @@ public final class TypoCheck implements Check {
         Long own = ctx.downloads() instanceof DownloadsResult.Known k ? k.weekly() : null;
         Long target = typo.targetDownloads() instanceof DownloadsResult.Known k ? k.weekly() : null;
         Double share = own != null && target != null && target > 0 ? (double) own / target : null;
-        boolean tiny = share != null && share < t.typoMaxShare();
+        boolean tiny = share != null && share < t.typoMaxShare() && own < t.typoMaxWeeklyDownloads();
 
         Map<String, Object> evidence = new LinkedHashMap<>();
         evidence.put("similarTo", typo.match().target());

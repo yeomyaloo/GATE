@@ -85,7 +85,7 @@ public final class GatePkgCli {
 
     /** 실제 레지스트리 + 파일 캐시 + 전체 검사 구성. */
     static PackageScanner defaultScanner() {
-        HttpFetcher http = new CachingFetcher(new JdkHttpFetcher(), new FileCache(FileCache.defaultDir(),
+        HttpFetcher http = new CachingFetcher(new io.gate.pkg.http.RetryingFetcher(new JdkHttpFetcher()), new FileCache(FileCache.defaultDir(),
                 Clock.systemUTC()));
         return new PackageScanner(
                 List.of(new NpmRegistryClient(http), new PyPiRegistryClient(http)),

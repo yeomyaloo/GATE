@@ -8,8 +8,8 @@
 | 단계 | 내용 | 상태 |
 |---|---|---|
 | 0 | 뼈대 (Skeleton) | ✅ 완료 (CI로 검증, 2026-11-08) |
-| 1 | ① gate-pkg 패키지 설치 검문소 | 🔵 구현 중: 3주차 완료 (훅 차단 데모 성공), 4주차 대기 ([설계안](design/stage1-gate-pkg.md)) |
-| 2 | ⑤ gate-lab 취약점 실습장 | ⚪ 시작 전 |
+| 1 | ① gate-pkg 패키지 설치 검문소 | ✅ 완료 (2026-11-09) · [측정](measurements/pkg-typo-fp.md) ([설계안](design/stage1-gate-pkg.md)) |
+| 2 | ⑤ gate-lab 취약점 실습장 | ⚪ 시작 전 (다음 단계) |
 | 3 | ③ gate-authz 권한 검사 자동 테스트 | ⚪ 시작 전 |
 | 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ⚪ 시작 전 |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ⚪ 시작 전 |
@@ -115,8 +115,46 @@
 - 악성 패키지 차단 이유에 "예외 파일에 추가하라"는 안내가 나오던 문제를 고쳤다 (풀 수 없는 결과에는 안내하지 않음)
 - `npx`(패키지를 내려받아 바로 실행)는 설계안 범위 밖이라 넣지 않았다. AI 도구가 MCP 서버 실행에 자주 쓰므로 다음 단계 후보로 남긴다
 
-### 다음 할 일 (4주차)
-`diff` 명령과 GitHub Action(PR에서 추가·변경된 의존성 검사), gate-server 결과 저장 API(`POST /api/scan-runs`)와 CLI 선택 전송, `PKG-TYPO` 오탐률 측정(인기 목록 5,001~7,000위 정상 패키지), 1단계 문서 정리
+### 4주차 구현 (2026-11-09) — 완료 → **1단계 완료**
+| 항목 | 내용 |
+|---|---|
+| 결과 저장 API | gate-server `POST /api/scan-runs`. 입력은 gate-common `Finding` 규칙으로 검증(근거 없는 BLOCK·WARN, AI 단독 BLOCK은 400), 같은 지문은 하나로. 실제 PostgreSQL 통합 테스트(`ScanRunApiIT`)는 CI에서 실행 |
+| CLI 결과 전송 | `GATE_SERVER_URL`이 있을 때만, 제한 시간 1초, 실패해도 판정 영향 없음. trigger는 CLI·CLAUDE_HOOK·GITHUB_ACTION 자동 구분 |
+| `diff` 명령 | `gate-pkg diff --base <ref> [--head <ref>]`: `package.json`·`requirements*.txt`·`pyproject.toml`에서 **새로 추가·변경된 직접 의존성만** 검사. git ref는 형식 검증 후 셸 없이 실행(옵션 주입 방지). GitHub Actions에서는 해당 파일·줄에 주석, Job Summary 표 |
+| GitHub Action | `.github/actions/gate-pkg` 복합 Action(입력값은 환경 변수로 전달 → 스크립트 주입 방지). BLOCK 실패, WARN 경고(`fail-on: warn` 선택), 검사 불가는 경고만. PR 워크플로 `gate-pkg.yml` |
+| Action 데모 | CI `action-demo` 잡: 임시 저장소에서 lodahs를 추가하는 커밋 → Action이 **실제로 실패(종료 코드 2)**하고 `package.json`에 "GATE BLOCK npm:lodahs" 주석. 푸시마다 확인 |
+| 측정 | [PKG-TYPO 오탐률](measurements/pkg-typo-fp.md): 정상 패키지 600개 중 **차단 4건(0.7%) → 0건**, 경고 45건(7.5%) → 24건(4.0%) |
+
+**측정으로 바꾼 것 (설계 확정 결정 1번 "실제로 돌려 본 뒤 조정")**
+- `PKG-TYPO` 차단 조건: "대상 다운로드의 1% 미만"에 **"자기 주간 다운로드 1만 미만"**을 추가. `bpython`·`google-reauth` 등 주간 수만 건의 정상 패키지가 차단되고 있었다
+- 스코프 흉내 규칙을 **`@types` 흉내만**으로 축소. `@types/marked`·`@xstate/react` 같은 정상 스코프 패키지를 대량으로 잡고 있었다
+- 429·503에 짧게 다시 시도(`RetryingFetcher`): npm 다운로드 API가 몰린 요청 60건 중 17건을 거절했다
+- 테스트 하나(`@evil-corp/lodash`는 걸려야 함)를 규칙 축소에 맞춰 뺐고, 대신 측정에서 오탐이던 패키지들이 걸리지 않는지 확인하는 테스트를 넣었다
+
+**CI에서 잡은 문제**
+- 서버 컨트롤러에 생성자가 두 개라 Spring이 컨텍스트를 만들지 못했다 → 생성자 하나로. CI 주석에 `Caused by` 줄을 함께 남기도록 개선
+- 워크플로 YAML의 `printf` 줄바꿈이 실제 줄바꿈으로 들어가 워크플로 전체가 무효가 됐다 → 수정. 이후 푸시 전에 YAML 문법을 확인한다
+
+**테스트:** gate-pkg 284개, gate-server 단위 6개 + 통합 5개(CI). CI 잡: 빌드·테스트, compose 검증, Action 데모, 주간 실제 레지스트리
+
+**알려진 한계 (다음 과제 후보)**
+1. **npm 버전 범위를 풀지 않는다.** `^4.21.2`도 최신판(예: 5.3.0) 기준으로 검사한다. `package.json`은 대부분 범위로 적으므로 PR 검사에서 영향이 크다 → semver 범위 해석 추가
+2. **npm 다운로드 API 요청 제한.** 의존성이 수십 개 추가되는 PR에서는 다운로드 수를 못 받아 "검사 불가"가 늘 수 있다 → 묶음 조회 API(`/downloads/point/last-week/a,b,c`) 사용
+3. **"비슷하지만 자리 잡은 패키지" 경고가 PyPI에서 6.7%.** 훅에서는 확인 창이 된다 → 경고 대신 기록(INFO)으로 낮출지 결정 필요
+4. 탐지율(진짜 철자 흉내를 잡는 비율)은 아직 재지 않았다 → OSV `MAL-` 목록으로 측정
+5. `npx`(받아서 바로 실행)는 범위 밖 → AI 도구의 MCP 서버 실행에 자주 쓰여 우선순위가 높다
+
+### 1단계 완료 기준 확인
+| 기준 | 결과 |
+|---|---|
+| 존재하지 않는 패키지 설치 시 훅이 실제로 막는다 | ✅ `pip install reqeusts` → deny (3주차, 이 저장소에서 실제 Claude Code Bash 호출) |
+| 철자 흉내 패키지 설치 시 훅이 실제로 막는다 | ✅ `npm install lodahs` → deny |
+| 정상 패키지는 통과 | ✅ `npm install lodash` → 개입 없음. 정상 패키지 600개 표본에서 차단 0건 |
+| 각 검사 항목에 테스트 | ✅ 규칙 9종(EXIST·NEW·SCRIPT·POP·MAINT·VULN·TYPO·COMBO·UNCHECKED) 모두 해당·비해당 테스트 |
+
+### 다음 할 일
+1. 위 "알려진 한계" 중 1단계 보강으로 할 것을 고르기 (특히 3번은 사용자 결정)
+2. 2단계(⑤ gate-lab 취약점 실습장) 설계안 작성 → 확인 → 구현
 ---
 
 ## 0단계: 뼈대 — 2026-11-08

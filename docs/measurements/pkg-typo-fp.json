@@ -1,0 +1,223 @@
+{
+  "seed": 42,
+  "results": [
+    {
+      "ecosystem": "npm",
+      "ranks": "5001-7000",
+      "sampled": 300,
+      "typoWarn": 4,
+      "typoBlock": 0,
+      "typoWarnRate": 0.0133,
+      "typoBlockRate": 0.0,
+      "unchecked": 181,
+      "otherBlocksByRule": {},
+      "flagged": [
+        {
+          "name": "@aws-sdk/client-ses",
+          "decision": "WARN",
+          "similarTo": "@aws-sdk/client-sts",
+          "technique": "edit-distance",
+          "downloadShare": 0.199608,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "@react-aria/table",
+          "decision": "WARN",
+          "similarTo": "@react-aria/label",
+          "technique": "edit-distance",
+          "downloadShare": 0.719223,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "charset",
+          "decision": "WARN",
+          "similarTo": "chardet",
+          "technique": "edit-distance",
+          "downloadShare": 0.027206,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "clipboard",
+          "decision": "WARN",
+          "similarTo": "clipboardy",
+          "technique": "edit-distance",
+          "downloadShare": 0.250834,
+          "reason": "similar name but established package"
+        }
+      ]
+    },
+    {
+      "ecosystem": "pypi",
+      "ranks": "5001-7000",
+      "sampled": 300,
+      "typoWarn": 20,
+      "typoBlock": 0,
+      "typoWarnRate": 0.0667,
+      "typoBlockRate": 0.0,
+      "unchecked": 0,
+      "otherBlocksByRule": {},
+      "flagged": [
+        {
+          "name": "acachecontrol",
+          "decision": "WARN",
+          "similarTo": "cachecontrol",
+          "technique": "edit-distance",
+          "downloadShare": 0.004062,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "asyncmy2",
+          "decision": "WARN",
+          "similarTo": "asyncmy",
+          "technique": "edit-distance",
+          "downloadShare": 0.260866,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "bpython",
+          "decision": "WARN",
+          "similarTo": "ipython",
+          "technique": "edit-distance",
+          "downloadShare": 0.003904,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "clint",
+          "decision": "WARN",
+          "similarTo": "cint",
+          "technique": "edit-distance",
+          "downloadShare": 0.462291,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "google-cloud-dns",
+          "decision": "WARN",
+          "similarTo": "google-cloud-kms",
+          "technique": "edit-distance",
+          "downloadShare": 0.02761,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "google-reauth",
+          "decision": "WARN",
+          "similarTo": "google-auth",
+          "technique": "edit-distance",
+          "downloadShare": 0.000926,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "msg-parser",
+          "decision": "WARN",
+          "similarTo": "myst-parser",
+          "technique": "edit-distance",
+          "downloadShare": 0.066466,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "mypy-boto3-apigatewayv2",
+          "decision": "WARN",
+          "similarTo": "mypy-boto3-apigateway",
+          "technique": "edit-distance",
+          "downloadShare": 0.382635,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "mypy-boto3-fis",
+          "decision": "WARN",
+          "similarTo": "mypy-boto3-sqs",
+          "technique": "edit-distance",
+          "downloadShare": 0.028962,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "mypy-boto3-iot",
+          "decision": "WARN",
+          "similarTo": "mypy-boto3-iam",
+          "technique": "edit-distance",
+          "downloadShare": 0.121773,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "pgmpy",
+          "decision": "WARN",
+          "similarTo": "pgpy",
+          "technique": "edit-distance",
+          "downloadShare": 0.036882,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "postgres",
+          "decision": "WARN",
+          "similarTo": "postgrest",
+          "technique": "edit-distance",
+          "downloadShare": 0.020036,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "progressbar",
+          "decision": "WARN",
+          "similarTo": "progressbar2",
+          "technique": "edit-distance",
+          "downloadShare": 0.036786,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "pulumi-eks",
+          "decision": "WARN",
+          "similarTo": "pulumi-aws",
+          "technique": "edit-distance",
+          "downloadShare": 0.136877,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "pygraphviz",
+          "decision": "WARN",
+          "similarTo": "graphviz",
+          "technique": "edit-distance",
+          "downloadShare": 0.015096,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "pytest-cover",
+          "decision": "WARN",
+          "similarTo": "pytest-cov",
+          "technique": "edit-distance",
+          "downloadShare": 0.001406,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "pytest-spark",
+          "decision": "WARN",
+          "similarTo": "pytest-shard",
+          "technique": "edit-distance",
+          "downloadShare": 0.117043,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "ratelimiter",
+          "decision": "WARN",
+          "similarTo": "ratelimit",
+          "technique": "edit-distance",
+          "downloadShare": 0.024109,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "tree-sitter-hcl",
+          "decision": "WARN",
+          "similarTo": "tree-sitter-c",
+          "technique": "edit-distance",
+          "downloadShare": 0.072725,
+          "reason": "similar name but established package"
+        },
+        {
+          "name": "types-aiobotocore-kms",
+          "decision": "WARN",
+          "similarTo": "types-aiobotocore-sqs",
+          "technique": "edit-distance",
+          "downloadShare": 0.156995,
+          "reason": "similar name but established package"
+        }
+      ]
+    }
+  ]
+}

@@ -164,6 +164,14 @@ class Week2ChecksTest {
         }
 
         @Test
+        void tinyShareButManyDownloadsIsNotBlocked() {
+            // 측정에서 차단되던 bpython(ipython의 0.39%, 주간 약 4만): 비율만으로는 차단하지 않는다
+            Finding f = single(eval(OLD, new DownloadsResult.Known(39_000, "u"),
+                    new DownloadsResult.Known(10_000_000, "u"), true));
+            assertEquals(Decision.WARN, f.decision());
+        }
+
+        @Test
         void establishedSimilarNameOnlyWarnsLow() {
             Finding f = single(eval(OLD, new DownloadsResult.Known(5_000_000, "u"),
                     new DownloadsResult.Known(200_000_000, "u"), true));
