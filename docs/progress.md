@@ -7,7 +7,7 @@
 
 | 단계 | 내용 | 상태 |
 |---|---|---|
-| 0 | 뼈대 (Skeleton) | 🟡 코드 완료 · `docker compose up` 검증 대기 |
+| 0 | 뼈대 (Skeleton) | ✅ 완료 (CI로 검증, 2026-11-08) |
 | 1 | ① gate-pkg 패키지 설치 검문소 | ⚪ 시작 전 |
 | 2 | ⑤ gate-lab 취약점 실습장 | ⚪ 시작 전 |
 | 3 | ③ gate-authz 권한 검사 자동 테스트 | ⚪ 시작 전 |
@@ -54,14 +54,19 @@
 | 테스트 | 결과 |
 |---|---|
 | `gate-common` `FindingTest` (6개) | ✅ 통과 |
-| `gate-server` `HealthCheckIT` (2개: 헬스 UP, 테이블 생성) | ⏭️ 건너뜀: 작업 PC에 Docker 없음 (`disabledWithoutDocker`) |
-| `./gradlew build` | ✅ 성공 |
+| `gate-server` `HealthCheckIT` (2개: 헬스 UP, 테이블 생성) | ✅ CI에서 통과 (로컬은 Docker 없어 건너뜀) |
+| `./gradlew build` | ✅ 성공 (로컬·CI) |
+| CI `compose-smoke`: `docker compose up --wait` → 헬스 UP(db·redis) → `scan_run`·`finding` 테이블 확인 | ✅ 통과 |
 
-### 막힌 것 (Blockers)
-- **작업 PC에 Docker가 설치되어 있지 않음** (WSL 배포판도 없음). 그래서 0단계 완료 기준인 `docker compose up` → 헬스체크 응답을 아직 확인하지 못했다. `HealthCheckIT`도 같은 이유로 실행되지 않았다.
-- → Docker Desktop 설치 후 아래 "0단계 완료 확인 절차"를 실행해야 0단계가 끝난다.
+### 막힌 것과 해결 (Blockers → resolved)
+- 작업 PC에 Docker가 없다(설치하지 않기로 함). → **GitHub Actions(`.github/workflows/ci.yml`)에서 0단계 완료 기준을 검증**하도록 했다. GitHub 러너에는 Docker가 있다.
+  - `build` 잡: `./gradlew build` + `HealthCheckIT`가 **실제로 실행됐는지(skipped=0)** 확인. 건너뛰면 실패 처리
+  - `compose-smoke` 잡: 임시 `.env`(무작위 비밀번호) → `docker compose up --wait` → 헬스체크 → Flyway 테이블 확인 → `down -v`
+  - 실패한 테스트 메시지는 Actions 주석(annotation)으로 남겨 로그인 없이도 원인을 볼 수 있게 했다
+  - Action 버전은 커밋 SHA로 고정. 공개 2주 미만 릴리스는 피했다 (checkout v7.0.1, setup-java v6.1.0, setup-gradle v6.4.0, upload-artifact v7.0.2)
+- CI 첫 실행에서 `HealthCheckIT`가 실패했다. Testcontainers `DockerImageName`이 `이름:태그@digest` 형식을 받지 않아서다. → 테스트 코드는 `이름@digest`만 쓰고 태그는 주석으로 남겼다 (compose는 `태그@digest` 그대로)
 
-### 0단계 완료 확인 절차 (Docker 설치 후)
+### 로컬에서 직접 확인하고 싶을 때 (Docker 설치 시)
 ```bash
 cp .env.example .env            # GATE_DB_PASSWORD 채우기
 docker compose up -d --build
@@ -78,5 +83,5 @@ git status                      # .env가 보이지 않아야 함
 3. 1단계 설계안(검사 규칙·임계값·API·화면)은 코드 전에 확인받는다
 
 ### 다음 할 일 (Next)
-1. Docker 설치 후 0단계 완료 확인 절차 실행 → 통과하면 이 파일의 0단계 상태를 ✅로 변경
-2. 1단계(gate-pkg) 설계안 작성 → 사람 확인 → 구현
+1. 1단계(gate-pkg) 설계안 작성: 검사 규칙·임계값·API·CLI/훅 형태 → 사람 확인 → 구현
+2. 위 "결정 필요" 1~2번 답 받기

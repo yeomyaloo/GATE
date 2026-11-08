@@ -91,7 +91,7 @@
 
   <!-- Platform -->
   <rect x="40" y="434" width="1120" height="190" rx="12" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
-  <text x="60" y="462" font-size="13" font-weight="600" fill="#1d4ed8">SHARED PLATFORM · 공통 기반 (Stage 0)</text>
+  <text x="60" y="462" font-size="13" font-weight="600" fill="#1d4ed8">SHARED PLATFORM · 공통 기반 (Stage 0 ✔)</text>
 
   <rect x="60" y="478" width="280" height="122" rx="10" fill="#ffffff" stroke="#1d4ed8"/>
   <text x="76" y="506" font-size="16" font-weight="700" fill="#1e3a8a">gate-common</text>

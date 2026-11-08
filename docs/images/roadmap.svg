@@ -11,7 +11,7 @@
     <text x="100" y="126" font-size="15" font-weight="700" fill="#ffffff">0</text>
     <text x="100" y="166" font-size="14" font-weight="700" fill="#0f172a">Skeleton</text>
     <text x="100" y="186" font-size="13" fill="#475569">뼈대</text>
-    <text x="100" y="206" font-size="12" fill="#16a34a" font-weight="700">IN PROGRESS</text>
+    <text x="100" y="206" font-size="12" fill="#16a34a" font-weight="700">DONE ✔</text>
 
     <circle cx="250" cy="120" r="18" fill="#ffffff" stroke="#b91c1c" stroke-width="3"/>
     <text x="250" y="126" font-size="15" font-weight="700" fill="#b91c1c">1</text>

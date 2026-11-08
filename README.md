@@ -3,6 +3,8 @@
 **Guard for AI-assisted Toolchain & Endpoints**
 AI 보조 개발 도구와 서비스 접점을 지키는 관문
 
+[![ci](https://github.com/yeomyaloo/GATE/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/yeomyaloo/GATE/actions/workflows/ci.yml)
+
 [English](#english) · [한국어](#한국어) · [Progress / 진행 상황](docs/progress.md)
 
 ![GATE architecture](docs/images/architecture.svg)
@@ -46,6 +48,7 @@ Design rules enforced in both code (`gate-common`) and the database:
 | Frontend | React + Vite (TypeScript) — final stage |
 | Runtime | Docker Compose; all images pinned by tag **and digest** |
 | Tests | JUnit 5, Testcontainers |
+| CI | GitHub Actions (actions pinned by commit SHA) |
 
 ### Repository layout
 ```
@@ -72,7 +75,7 @@ Build and test without Docker:
 ```bash
 ./gradlew build
 ```
-Integration tests (`HealthCheckIT`) start real PostgreSQL and Redis containers and are skipped automatically when Docker is not available.
+Integration tests (`HealthCheckIT`) start real PostgreSQL and Redis containers and are skipped automatically when Docker is not available. CI always runs them (no Docker install needed locally).
 
 ### Security principles of this repo
 - No secrets in code, docs or commits. `.env` is git-ignored; `.env.example` holds key names only.
@@ -81,7 +84,7 @@ Integration tests (`HealthCheckIT`) start real PostgreSQL and Redis containers a
 - `gate-lab` is **never deployed publicly**.
 
 ### Status
-**Stage 0 (skeleton)** is built; the `docker compose up` health check still needs to be run on a machine with Docker. See [docs/progress.md](docs/progress.md).
+**Stage 0 (skeleton) is complete.** CI verifies it on every push: build and unit tests, Testcontainers integration tests, and a real `docker compose up` health check plus schema check. Next: stage 1 (`gate-pkg`). See [docs/progress.md](docs/progress.md).
 
 ### License
 [MIT](LICENSE)
@@ -121,6 +124,7 @@ GATE는 **코드가 만들어지고 배포되기까지의 길목마다 보안 �
 | 프론트 | React + Vite (TypeScript), 마지막 단계 |
 | 실행 | Docker Compose, 모든 이미지는 태그 **+ digest**로 고정 |
 | 테스트 | JUnit 5, Testcontainers |
+| CI | GitHub Actions (Action은 커밋 SHA로 고정) |
 
 ### 실행 방법
 준비물: Docker Desktop(Compose v2), 로컬 빌드용 JDK 17
@@ -136,7 +140,7 @@ Docker 없이 빌드·테스트:
 ```bash
 ./gradlew build
 ```
-통합 테스트(`HealthCheckIT`)는 실제 PostgreSQL·Redis 컨테이너를 띄우며, Docker가 없으면 자동으로 건너뜁니다.
+통합 테스트(`HealthCheckIT`)는 실제 PostgreSQL·Redis 컨테이너를 띄우며, Docker가 없으면 자동으로 건너뜁니다. CI에서는 항상 실행되므로 로컬에 Docker가 없어도 검증됩니다.
 
 ### 이 저장소의 보안 원칙
 - 비밀값(API 키, 토큰, DB 비밀번호, 서버 주소)을 코드·문서·커밋에 넣지 않습니다. `.env`는 Git에서 제외합니다.
@@ -145,7 +149,7 @@ Docker 없이 빌드·테스트:
 - `gate-lab`(취약한 앱)은 **절대 외부에 공개 배포하지 않습니다.**
 
 ### 진행 상황
-**0단계(뼈대)** 코드 작성 완료. Docker가 있는 환경에서 `docker compose up` 헬스체크 확인이 남아 있습니다. 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
+**0단계(뼈대) 완료.** 푸시할 때마다 CI가 빌드·단위 테스트, Testcontainers 통합 테스트, 실제 `docker compose up` 헬스체크와 스키마 생성을 확인합니다. 다음은 1단계(`gate-pkg`)입니다. 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
 
 ### 라이선스
 [MIT](LICENSE)
