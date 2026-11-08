@@ -54,6 +54,7 @@
 - npm 다운로드 API는 통계가 아직 없는 새 패키지에 404를 준다 → 다운로드 0으로 처리
 - 버전 범위(`^4`)는 1주차에서 풀지 않고 latest로 검사하며, 근거(`resolutionNote`)에 남긴다. semver 라이브러리 추가 여부는 3주차 명령 파서 때 판단
 - 패키지가 새것이면 "새 버전" 경고는 중복이므로 내지 않는다
+- 모듈을 추가하자 CI의 compose 검증이 실패했다. 서버 이미지 빌드에 `gate-pkg` 폴더가 없어서 Gradle 9가 설정 단계에서 멈췄다 → Dockerfile에 `gate-pkg/build.gradle.kts`만 복사. **모듈을 추가할 때마다 Dockerfile에도 한 줄 추가해야 한다**
 
 ### 다음 할 일 (2주차)
 PyPI 클라이언트, `PKG-TYPO`(인기 목록 스냅샷 포함), `PKG-VULN`(OSV), `PKG-MAINT`(npm), `PKG-COMBO`
