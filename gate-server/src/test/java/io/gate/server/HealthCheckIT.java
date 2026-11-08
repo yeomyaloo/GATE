@@ -26,16 +26,18 @@ import org.testcontainers.utility.DockerImageName;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class HealthCheckIT {
 
+    // Testcontainers는 "이름:태그@digest" 형식을 읽지 못하므로 digest만 쓰고 태그는 주석으로 남긴다.
     @Container
     @ServiceConnection
     static PostgreSQLContainer postgres = new PostgreSQLContainer(DockerImageName.parse(
-            "postgres:18.6-alpine3.24@sha256:123b17998ccaf47e53b502e8c6a1e79afd8f579c6f3eec83c563da026f957395")
-            .asCompatibleSubstituteFor("postgres"));
+            // postgres:18.6-alpine3.24
+            "postgres@sha256:123b17998ccaf47e53b502e8c6a1e79afd8f579c6f3eec83c563da026f957395"));
 
     @Container
     @ServiceConnection(name = "redis")
     static GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse(
-            "redis:8.8.4-alpine3.23@sha256:c027ae0f677dcf73d74038256f5b88c9ba7b11ccbfae97e96a9f091208d36125"))
+            // redis:8.8.4-alpine3.23
+            "redis@sha256:c027ae0f677dcf73d74038256f5b88c9ba7b11ccbfae97e96a9f091208d36125"))
             .withExposedPorts(6379);
 
     @LocalServerPort
