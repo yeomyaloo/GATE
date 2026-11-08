@@ -48,7 +48,9 @@ jobs:
           for case in ET.parse(sys.argv[1]).getroot().iter("testcase"):
               for tag in ("failure", "error"):
                   for el in case.findall(tag):
-                      text = ((el.get("message") or "") + "\n" + (el.text or ""))[:3000]
+                      body = el.text or ""
+                      causes = [l.strip() for l in body.splitlines() if l.strip().startswith("Caused by")]
+                      text = ((el.get("message") or "")[:1500] + "\n" + "\n".join(causes[-4:]))[:3500]
                       text = text.replace("%", "%25").replace("\r", "").replace("\n", "%0A")
                       print(f"::error title={case.get('classname')}.{case.get('name')}::{text}")
           PY

@@ -14,12 +14,13 @@ import tools.jackson.databind.json.JsonMapper;
 @Repository
 public class ScanRunRepository {
 
-    private final JdbcTemplate jdbc;
-    private final JsonMapper json;
+    // JSONB 문자열을 만드는 용도라 자체 매퍼를 쓴다 (자동 구성 빈에 의존하지 않음)
+    private static final JsonMapper JSON = JsonMapper.builder().build();
 
-    public ScanRunRepository(JdbcTemplate jdbc, JsonMapper json) {
+    private final JdbcTemplate jdbc;
+
+    public ScanRunRepository(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
-        this.json = json;
     }
 
     @Transactional
@@ -34,8 +35,8 @@ public class ScanRunRepository {
             jdbc.update("INSERT INTO finding (id, run_id, rule_id, title, severity, decision, location, evidence, "
                             + "source, fingerprint, detected_at) VALUES (?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb, ?, ?, ?)",
                     f.id(), runId, f.ruleId(), f.title(), f.severity().name(), f.decision().name(),
-                    json.writeValueAsString(ScanRunRequest.locationJson(f.location())),
-                    json.writeValueAsString(f.evidence()),
+                    JSON.writeValueAsString(ScanRunRequest.locationJson(f.location())),
+                    JSON.writeValueAsString(f.evidence()),
                     f.source().name(), f.fingerprint(), Timestamp.from(f.detectedAt()));
         }
     }

@@ -23,15 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ScanRunController {
 
     private final ScanRunRepository repository;
-    private final Clock clock;
+    private final Clock clock = Clock.systemUTC();
 
+    // 생성자는 하나만 둔다 (여러 개면 Spring이 주입할 생성자를 고르지 못한다)
     public ScanRunController(ScanRunRepository repository) {
-        this(repository, Clock.systemUTC());
-    }
-
-    ScanRunController(ScanRunRepository repository, Clock clock) {
         this.repository = repository;
-        this.clock = clock;
     }
 
     @PostMapping
