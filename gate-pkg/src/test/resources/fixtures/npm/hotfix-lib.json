@@ -1,0 +1,13 @@
+{
+  "name": "hotfix-lib",
+  "dist-tags": { "latest": "2.1.0" },
+  "time": {
+    "created": "2018-03-01T00:00:00.000Z",
+    "2.0.0": "2024-01-01T00:00:00.000Z",
+    "2.1.0": "2026-11-08T18:00:00.000Z"
+  },
+  "versions": {
+    "2.0.0": { "name": "hotfix-lib", "version": "2.0.0" },
+    "2.1.0": { "name": "hotfix-lib", "version": "2.1.0" }
+  }
+}

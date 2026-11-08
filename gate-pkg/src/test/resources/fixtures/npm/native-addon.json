@@ -1,0 +1,6 @@
+{
+  "name": "native-addon",
+  "dist-tags": { "latest": "3.0.0" },
+  "time": { "created": "2019-01-01T00:00:00.000Z", "3.0.0": "2025-05-01T00:00:00.000Z" },
+  "versions": { "3.0.0": { "name": "native-addon", "version": "3.0.0", "gypfile": true } }
+}

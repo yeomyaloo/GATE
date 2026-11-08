@@ -1,0 +1,6 @@
+{
+  "name": "@types/node",
+  "dist-tags": { "latest": "24.9.1" },
+  "time": { "created": "2016-05-17T00:00:00.000Z", "24.9.1": "2026-09-01T00:00:00.000Z" },
+  "versions": { "24.9.1": { "name": "@types/node", "version": "24.9.1" } }
+}

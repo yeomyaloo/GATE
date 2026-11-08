@@ -1,0 +1,13 @@
+{
+  "name": "esbuild",
+  "dist-tags": { "latest": "0.28.2", "next": "0.29.0-beta.1" },
+  "time": {
+    "created": "2016-06-21T00:00:00.000Z",
+    "0.28.2": "2026-10-01T00:00:00.000Z",
+    "0.29.0-beta.1": "2026-10-20T00:00:00.000Z"
+  },
+  "versions": {
+    "0.28.2": { "name": "esbuild", "version": "0.28.2", "scripts": { "postinstall": "node install.js" } },
+    "0.29.0-beta.1": { "name": "esbuild", "version": "0.29.0-beta.1", "scripts": { "postinstall": "node install.js" } }
+  }
+}

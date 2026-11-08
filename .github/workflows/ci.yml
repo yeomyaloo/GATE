@@ -7,6 +7,9 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  # 매주 월요일: 실제 레지스트리 응답 형식이 녹화본과 어긋나지 않았는지 확인 (live 테스트)
+  schedule:
+    - cron: "0 0 * * 1"
 
 permissions:
   contents: read
@@ -65,6 +68,26 @@ jobs:
           name: test-reports
           path: "**/build/reports/tests/"
           retention-days: 7
+
+  live:
+    name: Live registry check (weekly)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Live tests against real registries
+        run: ./gradlew :gate-pkg:liveTest --no-daemon
 
   compose-smoke:
     name: Stage 0 check - docker compose health

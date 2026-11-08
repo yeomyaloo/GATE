@@ -55,10 +55,11 @@ Design rules enforced in both code (`gate-common`) and the database:
 GATE/
 ├─ gate-common/   shared Finding model (pure Java)
 ├─ gate-server/   Spring Boot API: result store, health check, Flyway schema
+├─ gate-pkg/      ① package install checkpoint (stage 1, in progress)
 ├─ docs/          progress log, ADRs, diagrams
 └─ docker-compose.yml
 ```
-Later stages add `gate-pkg/`, `gate-lab/`, `gate-authz/`, `gate-review/`, `gate-prompt/`, `dashboard/`.
+Later stages add `gate-lab/`, `gate-authz/`, `gate-review/`, `gate-prompt/`, `dashboard/`.
 
 ### Getting started
 Requirements: Docker Desktop (with Compose v2), JDK 17 for local builds.

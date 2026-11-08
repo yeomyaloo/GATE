@@ -1,0 +1,73 @@
+package io.gate.pkg;
+
+import io.gate.pkg.http.HttpFetcher;
+import io.gate.pkg.http.HttpResult;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/** 녹화본(fixture)을 돌려주는 가짜 HTTP. 등록하지 않은 URL은 404로 답한다. 테스트는 네트워크를 쓰지 않는다. */
+public final class FakeFetcher implements HttpFetcher {
+
+    private final Map<String, HttpResult> responses = new HashMap<>();
+    private final Set<String> failing = new HashSet<>();
+    private final List<String> calls = new ArrayList<>();
+
+    public FakeFetcher on(String url, int status, String body) {
+        responses.put(url, new HttpResult(status, body));
+        return this;
+    }
+
+    public FakeFetcher onFixture(String url, String fixturePath) {
+        return on(url, 200, fixture(fixturePath));
+    }
+
+    /** 이 URL은 네트워크 오류(시간 초과 등)를 낸다. */
+    public FakeFetcher failing(String url) {
+        failing.add(url);
+        return this;
+    }
+
+    public synchronized List<String> calls() {
+        return List.copyOf(calls);
+    }
+
+    @Override
+    public HttpResult get(URI uri) throws IOException {
+        return respond(uri.toString());
+    }
+
+    @Override
+    public HttpResult postJson(URI uri, String json) throws IOException {
+        return respond(uri.toString());
+    }
+
+    private HttpResult respond(String url) throws IOException {
+        synchronized (this) {
+            calls.add(url);
+        }
+        if (failing.contains(url)) {
+            throw new IOException("simulated timeout");
+        }
+        return responses.getOrDefault(url, new HttpResult(404, "{\"error\":\"Not found\"}"));
+    }
+
+    public static String fixture(String path) {
+        try (InputStream in = FakeFetcher.class.getResourceAsStream("/fixtures/" + path)) {
+            if (in == null) {
+                throw new IllegalArgumentException("missing fixture " + path);
+            }
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+}

