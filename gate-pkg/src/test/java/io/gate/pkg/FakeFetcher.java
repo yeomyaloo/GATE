@@ -38,6 +38,12 @@ public final class FakeFetcher implements HttpFetcher {
         return this;
     }
 
+    /** 이미 등록된 규칙보다 먼저 확인할 POST 규칙 (기본 응답을 덮어쓸 때). */
+    public FakeFetcher onPostFirst(String url, String bodyContains, int status, String body) {
+        postRules.add(0, new Object[] {url, bodyContains, new HttpResult(status, body)});
+        return this;
+    }
+
     public synchronized List<String> postBodies() {
         return List.copyOf(postBodies);
     }

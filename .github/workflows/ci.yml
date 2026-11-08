@@ -54,6 +54,19 @@ jobs:
           PY
           done
 
+      # 훅 래퍼 계약: 설치가 아닌 명령은 출력 없음, jar가 없으면 통과가 아니라 ask (네트워크 없이 확인)
+      - name: Hook wrapper contract
+        run: |
+          ./gradlew :gate-pkg:cliJar --no-daemon -q
+          in='{"tool_name":"Bash","tool_input":{"command":"git status"}}'
+          out=$(printf '%s' "$in" | sh gate-pkg/bin/gate-pkg-hook); test -z "$out"
+          in='{"tool_name":"Bash","tool_input":{"command":"npm install lodash"}}'
+          out=$(printf '%s' "$in" | GATE_PKG_JAR=/nonexistent.jar sh gate-pkg/bin/gate-pkg-hook)
+          echo "$out" | grep -q '"permissionDecision":"ask"'
+          in='{"tool_name":"Bash","tool_input":{"command":"npm ci"}}'
+          out=$(printf '%s' "$in" | sh gate-pkg/bin/gate-pkg-hook)
+          echo "$out"; echo "$out" | grep -q '"permissionDecision":"ask"'
+
       # 러너에는 Docker가 있으므로 통합 테스트가 건너뛰어지면 안 된다
       - name: Ensure integration tests actually ran
         run: |

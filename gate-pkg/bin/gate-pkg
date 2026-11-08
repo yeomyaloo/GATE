@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+# GATE gate-pkg command-line wrapper:  gate-pkg check npm lodash@4.17.21
+dir=$(cd "$(dirname "$0")" && pwd)
+jar="${GATE_PKG_JAR:-$dir/../build/libs/gate-pkg.jar}"
+if [ ! -f "$jar" ]; then
+  echo "gate-pkg.jar not found at $jar. Build it with ./gradlew :gate-pkg:cliJar" >&2
+  exit 3
+fi
+if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then java="$JAVA_HOME/bin/java"; else java=java; fi
+exec "$java" -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Xshare:auto -jar "$jar" "$@"

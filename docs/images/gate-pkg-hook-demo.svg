@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 560" width="1100" height="560" font-family="Consolas, 'SFMono-Regular', 'D2Coding', 'Malgun Gothic', monospace">
+  <rect width="1100" height="560" fill="#ffffff"/>
+  <text x="40" y="40" font-size="20" font-weight="700" fill="#0f172a" font-family="-apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">gate-pkg as a Claude Code hook · Claude Code 훅으로 동작하는 gate-pkg</text>
+  <text x="40" y="64" font-size="13" fill="#475569" font-family="-apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">Real output recorded on 2026-11-09 in this repository (PreToolUse hook, matcher Bash|PowerShell)</text>
+
+  <rect x="40" y="84" width="1020" height="452" rx="10" fill="#0f172a"/>
+  <circle cx="62" cy="104" r="6" fill="#ef4444"/><circle cx="82" cy="104" r="6" fill="#f59e0b"/><circle cx="102" cy="104" r="6" fill="#22c55e"/>
+
+  <g font-size="14">
+    <text x="62" y="142" fill="#94a3b8">● Claude wants to run:</text>
+    <text x="252" y="142" fill="#e2e8f0">npm install lodahs</text>
+    <text x="62" y="168" fill="#f87171" font-weight="700">✗ PreToolUse hook: permissionDecision = deny</text>
+    <text x="80" y="192" fill="#e2e8f0">GATE gate-pkg: install BLOCKED</text>
+    <text x="80" y="214" fill="#fca5a5">[BLOCK] npm lodahs@0.0.1-security</text>
+    <text x="96" y="236" fill="#e2e8f0">- PKG-VULN (CRITICAL): 'lodahs' is reported as MALICIOUS (MAL-2025-25502)</text>
+    <text x="96" y="258" fill="#e2e8f0">- PKG-TYPO (HIGH): 'lodahs' looks like popular package 'lodash' (edit-distance)</text>
+    <text x="80" y="280" fill="#93c5fd">Next: do not retry with another spelling ... Did you mean 'lodash'?</text>
+
+    <text x="62" y="322" fill="#94a3b8">● Claude wants to run:</text>
+    <text x="252" y="322" fill="#e2e8f0">pip install reqeusts</text>
+    <text x="62" y="348" fill="#f87171" font-weight="700">✗ PreToolUse hook: permissionDecision = deny</text>
+    <text x="80" y="372" fill="#fca5a5">[BLOCK] pypi reqeusts</text>
+    <text x="96" y="394" fill="#e2e8f0">- PKG-EXIST (CRITICAL): Package 'reqeusts' does not exist on pypi</text>
+
+    <text x="62" y="436" fill="#94a3b8">● Claude wants to run:</text>
+    <text x="252" y="436" fill="#e2e8f0">npm install lodash</text>
+    <text x="62" y="462" fill="#4ade80" font-weight="700">✓ no hook output → normal permission flow (installed)</text>
+
+    <text x="62" y="504" fill="#94a3b8">● git status / ./gradlew build → wrapper exits before starting the JVM (not an install)</text>
+  </g>
+</svg>

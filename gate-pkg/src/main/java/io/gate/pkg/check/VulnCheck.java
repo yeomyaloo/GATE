@@ -22,6 +22,7 @@ import java.util.TreeSet;
 public final class VulnCheck implements Check {
 
     static final int MAX_LISTED = 10;
+    public static final String MALICIOUS_KEY = "malicious";
 
     @Override
     public List<Finding> evaluate(CheckContext ctx) {
@@ -46,9 +47,11 @@ public final class VulnCheck implements Check {
         List<Finding> findings = new ArrayList<>();
         List<OsvClient.Vulnerability> malicious = vulns.stream().filter(OsvClient.Vulnerability::malicious).toList();
         if (!malicious.isEmpty()) {
+            Map<String, Object> evidence = evidence(malicious);
+            evidence.put(MALICIOUS_KEY, true); // 오탐 예외 파일로도 풀 수 없는 결과라는 표시
             findings.add(Rules.finding(ctx.runId(), Rules.VULN,
                     "'" + ctx.info().name() + "' is reported as MALICIOUS (" + malicious.get(0).id() + ")",
-                    Severity.CRITICAL, Decision.BLOCK, ctx.location(), evidence(malicious), ctx.now()));
+                    Severity.CRITICAL, Decision.BLOCK, ctx.location(), evidence, ctx.now()));
         }
 
         List<OsvClient.Vulnerability> regular = vulns.stream().filter(v -> !v.malicious()).toList();

@@ -8,7 +8,7 @@
 | 단계 | 내용 | 상태 |
 |---|---|---|
 | 0 | 뼈대 (Skeleton) | ✅ 완료 (CI로 검증, 2026-11-08) |
-| 1 | ① gate-pkg 패키지 설치 검문소 | 🔵 구현 중: 2주차 완료, 3주차 대기 ([설계안](design/stage1-gate-pkg.md)) |
+| 1 | ① gate-pkg 패키지 설치 검문소 | 🔵 구현 중: 3주차 완료 (훅 차단 데모 성공), 4주차 대기 ([설계안](design/stage1-gate-pkg.md)) |
 | 2 | ⑤ gate-lab 취약점 실습장 | ⚪ 시작 전 |
 | 3 | ③ gate-authz 권한 검사 자동 테스트 | ⚪ 시작 전 |
 | 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ⚪ 시작 전 |
@@ -82,8 +82,41 @@
 - Windows에서 Python이 CRLF로 파일을 써서 목록 검색이 실패했다 → 스크립트를 LF 고정으로 수정
 - 남은 측정 과제(4주차): 인기 목록 바로 바깥(5,001~7,000위)의 정상 패키지로 `PKG-TYPO` 오탐률 측정
 
-### 다음 할 일 (3주차)
-설치 명령 파서(npm·yarn·pnpm·pip·uv·poetry), `check`·`hook` CLI, 실행 가능한 단일 jar와 래퍼 스크립트, 오탐 예외 파일(`.gate/pkg-allow.txt`), Claude Code 훅 데모, 이 저장소에 훅 적용
+### 3주차 구현 (2026-11-09) — 완료
+| 항목 | 내용 |
+|---|---|
+| 명령 파서 | `ShellSplitter`(따옴표·`&& \|\| ; \|`·리다이렉트·줄 이어쓰기)와 `InstallCommandParser`. npm·yarn·pnpm·pip·`python -m pip`·uv·poetry, `sudo`·`env`·`VAR=` 접두어, `bash -c "…"` 안쪽 재해석. 매니페스트 설치·사설 레지스트리·URL/Git/로컬 경로·셸 치환(`$(…)`, `$VAR`)은 "검사 불가"로 기록 |
+| 오탐 예외 | `.gate/pkg-allow.txt` (`생태계:이름@버전  # 이유`, 버전·이유 필수). 결과를 지우지 않고 PASS로 바꿔 `allowedBy`를 남김. `PKG-EXIST`와 OSV 악성 보고는 풀 수 없음 |
+| CLI | `check <npm\|pypi> <spec>... [--format text\|json]` (종료 코드 0/1/2/3), `hook claude`, `version`. 실행용 단일 jar `gate-pkg.jar`(2.8MB) |
+| 훅 | BLOCK→`deny`, WARN·검사 불가→`ask`, PASS→출력 없음. `allow`는 내지 않음. 내부 오류는 모두 `ask` |
+| 래퍼 | `gate-pkg/bin/gate-pkg-hook`: 명령에 패키지 관리자 이름이 없으면 JVM 없이 종료(빠른 경로). jar 없음·java 없음·비정상 종료는 모두 `ask`로 바꾸고 항상 0으로 끝남 |
+| 저장소 적용 | `.claude/settings.json`에 훅 적용 (matcher `Bash\|PowerShell`) |
+
+**설계 중 확인한 사실 (Claude Code 훅 문서)**
+- 훅이 2가 아닌 0이 아닌 코드로 끝나면(예: java 없음) **명령이 그대로 실행된다(fail-open)** → 래퍼가 모든 실패를 `ask`로 바꾸고 항상 0으로 끝나게 했다
+- Windows에서는 PowerShell 도구도 있으므로 matcher를 `Bash|PowerShell`로 했다
+- deny 이유는 Claude가, ask 이유는 사용자가 읽는다 → deny 이유에 "다른 철자로 재시도하지 말 것, 사용자에게 확인할 것"을 넣었다
+
+**완료 기준 데모 (2026-11-09, 이 세션의 실제 Bash 도구 호출)**
+| Claude가 실행하려 한 명령 | 결과 |
+|---|---|
+| `npm install --dry-run lodahs` | **훅이 차단(deny)**. `PKG-VULN`(OSV `MAL-2025-25502`) + `PKG-TYPO`(lodash 흉내). npm은 이미 `0.0.1-security` 자리 표시 패키지로 바꿔 둔 상태 |
+| `pip install --dry-run reqeusts` | **훅이 차단(deny)**. `PKG-EXIST` |
+| `npm install --dry-run --no-save lodash` | 훅 개입 없이 실행됨 |
+(데모는 안전을 위해 `--dry-run`으로 했다. 훅이 동작하지 않았더라도 설치 스크립트가 실행되거나 파일이 생기지 않는다.)
+
+래퍼 측정(이 PC, Windows + Git Bash): 설치가 아닌 명령 약 0.3초(셸 기동 시간, JVM 미기동), 설치 명령은 캐시 없이 약 2~3초, 캐시가 있으면 약 1.8초(JVM 기동 포함)
+
+**테스트:** 245개 통과 (파서 표 기반 78개, 예외 파일 7개, CLI·훅 계약 24개 포함). CI에 래퍼 계약 확인 추가(설치가 아닌 명령은 출력 없음, jar가 없거나 매니페스트 설치면 ask)
+
+**알게 된 것 / 결정**
+- `2>&1` 같은 리다이렉트가 패키지 이름으로 잘못 잡히는 버그를 테스트로 발견해 고쳤다
+- 깨끗한 PASS에도 실제로 검사한 버전을 보여 주도록 `PackageVerdict`에 `checkedVersion`을 추가했다
+- 악성 패키지 차단 이유에 "예외 파일에 추가하라"는 안내가 나오던 문제를 고쳤다 (풀 수 없는 결과에는 안내하지 않음)
+- `npx`(패키지를 내려받아 바로 실행)는 설계안 범위 밖이라 넣지 않았다. AI 도구가 MCP 서버 실행에 자주 쓰므로 다음 단계 후보로 남긴다
+
+### 다음 할 일 (4주차)
+`diff` 명령과 GitHub Action(PR에서 추가·변경된 의존성 검사), gate-server 결과 저장 API(`POST /api/scan-runs`)와 CLI 선택 전송, `PKG-TYPO` 오탐률 측정(인기 목록 5,001~7,000위 정상 패키지), 1단계 문서 정리
 ---
 
 ## 0단계: 뼈대 — 2026-11-08

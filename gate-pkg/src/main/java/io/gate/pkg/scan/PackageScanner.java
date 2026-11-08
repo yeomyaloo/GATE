@@ -147,14 +147,14 @@ public final class PackageScanner {
             Finding finding = unchecked(runId, request, unavailable.reason());
             return PackageVerdict.of(request, List.of(withUrl(finding, unavailable.url())));
         }
-        CheckContext ctx = new CheckContext(runId, ((LookupResult.Found) lookup).info(), downloads, vulns, typo, now,
-                thresholds);
+        PackageInfo info = ((LookupResult.Found) lookup).info();
+        CheckContext ctx = new CheckContext(runId, info, downloads, vulns, typo, now, thresholds);
         List<Finding> findings = new ArrayList<>();
         for (Check check : checks) {
             findings.addAll(check.evaluate(ctx));
         }
         ComboRule.evaluate(ctx, findings).ifPresent(findings::add);
-        return PackageVerdict.of(request, findings);
+        return PackageVerdict.of(request, info.resolvedVersion(), findings);
     }
 
     private Finding unchecked(UUID runId, PackageRequest request, String reason) {

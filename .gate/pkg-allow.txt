@@ -1,0 +1,9 @@
+# GATE gate-pkg false-positive exceptions (this repository).
+#
+# Format:  ecosystem:name@version  # reason
+#   - ecosystem is npm or pypi; version and reason are required
+#   - only the exact version is allowed; a new version is checked again
+#   - nonexistent packages (PKG-EXIST) and OSV malicious reports cannot be allowed
+#
+# Example:
+#   npm:preact-compat@3.19.0  # 2026-11-10 reviewed by <name>: react compatibility layer

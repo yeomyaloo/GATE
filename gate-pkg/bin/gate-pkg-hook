@@ -1,0 +1,48 @@
+#!/usr/bin/env sh
+# GATE gate-pkg: Claude Code PreToolUse hook wrapper.
+#
+# Settings (.claude/settings.json):
+#   "matcher": "Bash|PowerShell",
+#   "command": "sh \"$CLAUDE_PROJECT_DIR/gate-pkg/bin/gate-pkg-hook\""
+#
+# 1. Fast path: when the command cannot be a package install, exit without starting the JVM.
+# 2. Always exit 0. Claude Code runs the command anyway when a hook exits non-zero (other than 2),
+#    so any failure here (no java, jar not built, crash) is turned into an "ask" decision instead.
+
+input=$(cat)
+
+case "$input" in
+  *npm*|*yarn*|*pnpm*|*pip*|*uv*|*poetry*) ;;
+  *) exit 0 ;;
+esac
+
+ask() {
+  # $1 must not contain double quotes or backslashes
+  printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"%s"}}\n' "$1"
+  exit 0
+}
+
+dir=$(cd "$(dirname "$0")" && pwd)
+jar="${GATE_PKG_JAR:-$dir/../build/libs/gate-pkg.jar}"
+if [ ! -f "$jar" ]; then
+  ask "GATE gate-pkg is not built, so this install was not checked. Build it with ./gradlew :gate-pkg:cliJar"
+fi
+
+if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then
+  java="$JAVA_HOME/bin/java"
+elif command -v java >/dev/null 2>&1; then
+  java=java
+else
+  ask "GATE gate-pkg needs Java 17+ but java was not found, so this install was not checked."
+fi
+
+out=$(printf '%s' "$input" | "$java" -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Xshare:auto -jar "$jar" hook claude 2>/dev/null)
+status=$?
+if [ $status -ne 0 ]; then
+  ask "GATE gate-pkg failed (exit $status), so this install was not checked. Review it manually."
+fi
+case "$out" in
+  ""|"{"*) printf '%s' "$out"; [ -n "$out" ] && echo ;;
+  *) ask "GATE gate-pkg returned unexpected output, so this install was not checked. Review it manually." ;;
+esac
+exit 0

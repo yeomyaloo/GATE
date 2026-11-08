@@ -40,6 +40,33 @@ Design rules enforced in both code (`gate-common`) and the database:
 - A finding produced by **AI alone cannot `BLOCK`**; a rule must back it.
 - A fingerprint (`SHA-256(rule + location)`) de-duplicates the same finding.
 
+### ① gate-pkg — package install checkpoint (stage 1)
+Stops risky packages **before** they are installed, right where an AI coding tool runs the install command.
+
+![gate-pkg hook demo](docs/images/gate-pkg-hook-demo.svg)
+
+| Rule | Detects | Decision |
+|---|---|---|
+| `PKG-EXIST` | package (or exact version) does not exist — likely an AI-hallucinated name | BLOCK |
+| `PKG-TYPO` | look-alike of a top-5,000 npm/PyPI package (separator, homoglyph, affix, scope, edit distance) | BLOCK if young or <1% of target downloads |
+| `PKG-VULN` | OSV malicious-package report (`MAL-`) or CRITICAL vulnerability / lower severities | BLOCK / WARN |
+| `PKG-COMBO` | new package + install script or almost no downloads | BLOCK |
+| `PKG-NEW` · `PKG-SCRIPT` · `PKG-MAINT` · `PKG-POP` | new package/version, install-time code, publisher not a previous maintainer, <100 weekly downloads | WARN |
+| `PKG-UNCHECKED` | registry unreachable, manifest install, custom index, URL/Git source, shell expansion | WARN (never silently passed) |
+
+Claude Code hook (`.claude/settings.json`) — BLOCK → `deny` (reason goes to Claude), WARN → `ask` (reason goes to you), PASS → no output. It never returns `allow`, and any failure becomes `ask`, because Claude Code runs the command when a hook crashes.
+```json
+{ "hooks": { "PreToolUse": [ { "matcher": "Bash|PowerShell",
+  "hooks": [ { "type": "command", "command": "sh \"$CLAUDE_PROJECT_DIR/gate-pkg/bin/gate-pkg-hook\"", "timeout": 60 } ] } ] } }
+```
+CLI:
+```bash
+./gradlew :gate-pkg:cliJar
+gate-pkg/bin/gate-pkg check npm lodash@4.17.21 lodahs     # exit 0 pass, 1 warn, 2 block, 3 could not check
+gate-pkg/bin/gate-pkg check pypi "requests==2.32.3" --format json
+```
+False positives: add `ecosystem:name@version  # reason` to `.gate/pkg-allow.txt` (exact version only; nonexistent or malicious packages cannot be allowed). Design: [docs/design/stage1-gate-pkg.md](docs/design/stage1-gate-pkg.md).
+
 ### Tech stack
 | Area | Choice |
 |---|---|
@@ -55,7 +82,7 @@ Design rules enforced in both code (`gate-common`) and the database:
 GATE/
 ├─ gate-common/   shared Finding model (pure Java)
 ├─ gate-server/   Spring Boot API: result store, health check, Flyway schema
-├─ gate-pkg/      ① package install checkpoint (stage 1, in progress)
+├─ gate-pkg/      ① package install checkpoint (stage 1): checks, CLI, Claude Code hook
 ├─ docs/          progress log, ADRs, diagrams
 └─ docker-compose.yml
 ```
@@ -116,6 +143,22 @@ GATE는 **코드가 만들어지고 배포되기까지의 길목마다 보안 �
 - `BLOCK`·`WARN` 판정에는 반드시 근거가 있어야 합니다.
 - **AI 단독 판단으로는 `BLOCK`할 수 없습니다.** 규칙이 뒷받침해야 합니다.
 - 지문(`SHA-256(규칙 + 위치)`)으로 같은 발견의 중복 저장을 막습니다.
+
+### ① gate-pkg: 패키지 설치 검문소 (1단계)
+AI 코딩 도구가 설치 명령을 실행하는 바로 그 자리에서, 위험한 패키지를 **설치 전에** 막습니다. (위 영어 섹션의 데모 그림 참고)
+
+| 규칙 | 찾는 것 | 판정 |
+|---|---|---|
+| `PKG-EXIST` | 레지스트리에 없는 패키지·버전 (AI가 지어낸 이름 의심) | 차단 |
+| `PKG-TYPO` | npm·PyPI 인기 패키지 5,000개와 비슷한 이름 (구분자, 닮은 글자, 접두·접미어, 스코프, 편집 거리) | 새것이거나 대상 다운로드의 1% 미만이면 차단 |
+| `PKG-VULN` | OSV 악성 패키지 보고(`MAL-`)·CRITICAL 취약점 / 그 밖의 취약점 | 차단 / 경고 |
+| `PKG-COMBO` | 새 패키지 + 설치 스크립트 또는 다운로드 거의 없음 | 차단 |
+| `PKG-NEW` · `PKG-SCRIPT` · `PKG-MAINT` · `PKG-POP` | 새 패키지·버전, 설치 시 코드 실행, 이전 관리자가 아닌 게시자, 주간 다운로드 100 미만 | 경고 |
+| `PKG-UNCHECKED` | 레지스트리 접속 불가, 매니페스트 설치, 사설 인덱스, URL·Git 설치, 셸 치환 | 경고 (조용히 통과시키지 않음) |
+
+Claude Code 훅: 차단은 `deny`(이유를 Claude가 읽음), 경고는 `ask`(이유를 사용자가 읽음), 통과는 출력 없음입니다. `allow`는 내지 않습니다. 훅이 비정상 종료하면 Claude Code가 명령을 그대로 실행하므로, 어떤 오류든 `ask`로 바꿉니다. 설치가 아닌 명령은 래퍼 스크립트가 JVM을 띄우지 않고 바로 끝냅니다.
+
+오탐 예외: `.gate/pkg-allow.txt`에 `생태계:이름@버전  # 이유`를 적습니다. 정확한 버전만 허용되고, 존재하지 않는 패키지와 악성 패키지는 예외로 풀 수 없습니다.
 
 ### 기술 스택
 | 영역 | 선택 |
