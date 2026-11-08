@@ -70,9 +70,13 @@ jobs:
       # 러너에는 Docker가 있으므로 통합 테스트가 건너뛰어지면 안 된다
       - name: Ensure integration tests actually ran
         run: |
-          f=gate-server/build/test-results/test/TEST-io.gate.server.HealthCheckIT.xml
-          grep -o '<testsuite [^>]*>' "$f"
-          grep -q 'skipped="0"' "$f" || { echo "HealthCheckIT was skipped"; exit 1; }
+          found=0
+          for f in gate-server/build/test-results/test/TEST-*IT.xml; do
+            found=1
+            grep -o '<testsuite [^>]*>' "$f"
+            grep -q 'skipped="0"' "$f" || { echo "$f was skipped"; exit 1; }
+          done
+          test "$found" = 1 || { echo "no integration test results"; exit 1; }
 
       - name: Upload test reports
         if: always()
