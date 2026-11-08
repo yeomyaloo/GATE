@@ -92,6 +92,22 @@ class NpmRegistryClientTest {
     }
 
     @Test
+    void publisherHistoryUsesPreviousVersionByPublishTime() {
+        http.onFixture(REG + "hijacked-lib", "npm/hijacked-lib.json");
+        PublisherHistory h = found("hijacked-lib", null).publishers();
+        assertEquals("right9ctrl", h.publisher());
+        assertEquals("3.3.5", h.previousVersion());
+        assertEquals("original-author", h.previousPublisher());
+        assertEquals(java.util.Set.of("original-author", "co-maintainer"), h.previousMaintainers());
+    }
+
+    @Test
+    void firstVersionHasNoPrevious() {
+        http.onFixture(REG + "fresh-helper-utils", "npm/fresh-helper-utils.json");
+        assertNull(found("fresh-helper-utils", null).publishers().previousVersion());
+    }
+
+    @Test
     void notFound() {
         assertInstanceOf(LookupResult.NotFound.class, client.lookup(PackageRequest.npm("no-such-pkg", null)));
     }

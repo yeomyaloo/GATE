@@ -64,11 +64,11 @@ class PackageScannerTest {
     }
 
     @Test
-    void freshPackageWithInstallScriptAndNoDownloadsWarnsOnAllThree() {
+    void freshPackageWithInstallScriptAndNoDownloadsIsBlockedByCombo() {
         PackageVerdict v = scanner.scan(List.of(PackageRequest.npm("fresh-helper-utils", null))).packages().get(0);
-        // 세 신호가 겹치면 2주차 PKG-COMBO가 BLOCK으로 올린다. 1주차에는 각각 WARN.
-        assertEquals(Decision.WARN, v.decision());
-        assertEquals(Set.of(Rules.NEW, Rules.SCRIPT, Rules.POP), rules(v));
+        // 각 신호는 WARN이지만, 2주차부터 PKG-COMBO가 겹친 신호를 BLOCK으로 올린다 (1주차 때는 WARN이었다)
+        assertEquals(Decision.BLOCK, v.decision());
+        assertEquals(Set.of(Rules.NEW, Rules.SCRIPT, Rules.POP, Rules.COMBO), rules(v));
     }
 
     @Test

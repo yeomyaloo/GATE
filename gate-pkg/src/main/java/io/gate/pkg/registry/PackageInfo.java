@@ -13,6 +13,7 @@ import java.util.Objects;
  * @param versionPublishedAt 기준 버전의 게시 시각. 알 수 없으면 null
  * @param installScripts    설치 중 자동 실행되는 스크립트 (npm 생명주기 스크립트 등)
  * @param sdistOnly         PyPI에서 wheel 없이 소스 배포본만 있는지 (npm은 항상 false)
+ * @param publishers        게시자 이력 (npm만). 없으면 null
  */
 public record PackageInfo(
         Ecosystem ecosystem,
@@ -25,7 +26,16 @@ public record PackageInfo(
         Instant createdAt,
         Instant versionPublishedAt,
         Map<String, String> installScripts,
-        boolean sdistOnly) {
+        boolean sdistOnly,
+        PublisherHistory publishers) {
+
+    /** 게시자 이력이 없는 경우(PyPI, 테스트). */
+    public PackageInfo(Ecosystem ecosystem, String name, String registryUrl, String requestedSpec,
+            String latestVersion, String resolvedVersion, String resolutionNote, Instant createdAt,
+            Instant versionPublishedAt, Map<String, String> installScripts, boolean sdistOnly) {
+        this(ecosystem, name, registryUrl, requestedSpec, latestVersion, resolvedVersion, resolutionNote, createdAt,
+                versionPublishedAt, installScripts, sdistOnly, null);
+    }
 
     public PackageInfo {
         Objects.requireNonNull(ecosystem, "ecosystem");

@@ -1,0 +1,1 @@
+{"vulns":[{"id":"MAL-2022-2490","summary":"Malicious code in discord-selfbot-v14 (npm)","database_specific":{"malicious-packages-origins":[{"source":"ghsa-malware"}]}}]}

@@ -7,8 +7,10 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
@@ -155,7 +157,38 @@ public final class NpmRegistryClient implements RegistryClient {
                 instantOrNull(time.path("created")),
                 resolved == null ? null : instantOrNull(time.path(resolved)),
                 scripts,
-                false);
+                false,
+                resolved == null ? null : publishers(versions, time, resolved));
+    }
+
+    /** 기준 버전의 게시자와, 게시 시각상 바로 전 버전의 게시자·관리자를 찾는다. */
+    static PublisherHistory publishers(JsonNode versions, JsonNode time, String resolved) {
+        Instant resolvedAt = instantOrNull(time.path(resolved));
+        String previous = null;
+        Instant previousAt = null;
+        if (resolvedAt != null) {
+            for (String v : versions.propertyNames()) {
+                Instant at = instantOrNull(time.path(v));
+                if (at != null && at.isBefore(resolvedAt) && (previousAt == null || at.isAfter(previousAt))) {
+                    previous = v;
+                    previousAt = at;
+                }
+            }
+        }
+        Set<String> previousMaintainers = new LinkedHashSet<>();
+        if (previous != null) {
+            for (JsonNode m : versions.path(previous).path("maintainers")) {
+                String name = textOrNull(m.path("name"));
+                if (name != null) {
+                    previousMaintainers.add(name);
+                }
+            }
+        }
+        return new PublisherHistory(
+                textOrNull(versions.path(resolved).path("_npmUser").path("name")),
+                previous,
+                previous == null ? null : textOrNull(versions.path(previous).path("_npmUser").path("name")),
+                previousMaintainers);
     }
 
     private static String stripV(String spec) {

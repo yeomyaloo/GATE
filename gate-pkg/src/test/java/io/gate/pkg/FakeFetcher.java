@@ -20,6 +20,8 @@ public final class FakeFetcher implements HttpFetcher {
     private final Map<String, HttpResult> responses = new HashMap<>();
     private final Set<String> failing = new HashSet<>();
     private final List<String> calls = new ArrayList<>();
+    private final List<String> postBodies = new ArrayList<>();
+    private final List<Object[]> postRules = new ArrayList<>();
 
     public FakeFetcher on(String url, int status, String body) {
         responses.put(url, new HttpResult(status, body));
@@ -28,6 +30,16 @@ public final class FakeFetcher implements HttpFetcher {
 
     public FakeFetcher onFixture(String url, String fixturePath) {
         return on(url, 200, fixture(fixturePath));
+    }
+
+    /** POST 본문에 {@code bodyContains}가 들어 있으면 이 응답을 준다. 먼저 등록한 규칙이 이긴다. */
+    public FakeFetcher onPost(String url, String bodyContains, int status, String body) {
+        postRules.add(new Object[] {url, bodyContains, new HttpResult(status, body)});
+        return this;
+    }
+
+    public synchronized List<String> postBodies() {
+        return List.copyOf(postBodies);
     }
 
     /** 이 URL은 네트워크 오류(시간 초과 등)를 낸다. */
@@ -47,6 +59,20 @@ public final class FakeFetcher implements HttpFetcher {
 
     @Override
     public HttpResult postJson(URI uri, String json) throws IOException {
+        synchronized (this) {
+            postBodies.add(json);
+        }
+        for (Object[] rule : postRules) {
+            if (rule[0].equals(uri.toString()) && json.contains((String) rule[1])) {
+                synchronized (this) {
+                    calls.add(uri.toString());
+                }
+                if (failing.contains(uri.toString())) {
+                    throw new IOException("simulated timeout");
+                }
+                return (HttpResult) rule[2];
+            }
+        }
         return respond(uri.toString());
     }
 

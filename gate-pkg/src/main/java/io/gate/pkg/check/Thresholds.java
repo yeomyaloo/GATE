@@ -8,10 +8,13 @@ import java.time.Duration;
  * @param newPackage          첫 게시 후 이 기간 안이면 PKG-NEW
  * @param newVersion          요청 버전 게시 후 이 기간 안이면 PKG-NEW
  * @param minWeeklyDownloads  주간 다운로드가 이 값 미만이면 PKG-POP
+ * @param typoMaxShare        철자 흉내 의심 패키지의 다운로드가 대상의 이 비율 미만이면 PKG-TYPO 차단
+ * @param typoNewWindow       철자 흉내 의심 패키지가 첫 게시 후 이 기간 안이면 PKG-TYPO 차단
  */
-public record Thresholds(Duration newPackage, Duration newVersion, long minWeeklyDownloads) {
+public record Thresholds(Duration newPackage, Duration newVersion, long minWeeklyDownloads, double typoMaxShare,
+        Duration typoNewWindow) {
 
     public static Thresholds defaults() {
-        return new Thresholds(Duration.ofDays(7), Duration.ofHours(24), 100);
+        return new Thresholds(Duration.ofDays(7), Duration.ofHours(24), 100, 0.01, Duration.ofDays(90));
     }
 }

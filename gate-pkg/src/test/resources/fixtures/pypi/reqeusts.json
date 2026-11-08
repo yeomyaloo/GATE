@@ -1,0 +1,7 @@
+{
+  "info": { "name": "reqeusts", "version": "2.32.3" },
+  "releases": {
+    "2.32.3": [ { "packagetype": "sdist", "upload_time_iso_8601": "2026-10-28T00:00:00.000000Z", "yanked": false } ]
+  },
+  "urls": []
+}

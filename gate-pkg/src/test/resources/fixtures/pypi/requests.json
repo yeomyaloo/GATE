@@ -1,0 +1,18 @@
+{
+  "info": { "name": "requests", "version": "2.32.3" },
+  "releases": {
+    "0.0.1": [],
+    "2.0.0": [
+      { "packagetype": "sdist", "upload_time_iso_8601": "2013-09-24T19:10:00.000000Z", "yanked": false }
+    ],
+    "2.31.0": [
+      { "packagetype": "bdist_wheel", "upload_time_iso_8601": "2023-05-22T15:12:42.313790Z", "yanked": false },
+      { "packagetype": "sdist", "upload_time_iso_8601": "2023-05-22T15:12:44.000000Z", "yanked": false }
+    ],
+    "2.32.3": [
+      { "packagetype": "bdist_wheel", "upload_time_iso_8601": "2024-05-29T15:37:47.027275Z", "yanked": false },
+      { "packagetype": "sdist", "upload_time_iso_8601": "2024-05-29T15:37:49.536140Z", "yanked": false }
+    ]
+  },
+  "urls": []
+}

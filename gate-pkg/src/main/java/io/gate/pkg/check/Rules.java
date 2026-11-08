@@ -16,6 +16,10 @@ public final class Rules {
     public static final String NEW = "PKG-NEW";
     public static final String SCRIPT = "PKG-SCRIPT";
     public static final String POP = "PKG-POP";
+    public static final String MAINT = "PKG-MAINT";
+    public static final String VULN = "PKG-VULN";
+    public static final String TYPO = "PKG-TYPO";
+    public static final String COMBO = "PKG-COMBO";
     public static final String UNCHECKED = "PKG-UNCHECKED";
 
     private Rules() {

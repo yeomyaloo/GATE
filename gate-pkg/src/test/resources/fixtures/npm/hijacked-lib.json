@@ -1,0 +1,15 @@
+{
+  "name": "hijacked-lib",
+  "dist-tags": { "latest": "3.3.6" },
+  "time": {
+    "created": "2014-02-01T00:00:00.000Z",
+    "3.3.4": "2024-06-01T00:00:00.000Z",
+    "3.3.5": "2025-09-01T00:00:00.000Z",
+    "3.3.6": "2026-10-20T00:00:00.000Z"
+  },
+  "versions": {
+    "3.3.4": { "version": "3.3.4", "_npmUser": { "name": "original-author" }, "maintainers": [{ "name": "original-author" }] },
+    "3.3.5": { "version": "3.3.5", "_npmUser": { "name": "original-author" }, "maintainers": [{ "name": "original-author" }, { "name": "co-maintainer" }] },
+    "3.3.6": { "version": "3.3.6", "_npmUser": { "name": "right9ctrl" }, "maintainers": [{ "name": "right9ctrl" }] }
+  }
+}

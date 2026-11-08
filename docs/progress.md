@@ -8,7 +8,7 @@
 | 단계 | 내용 | 상태 |
 |---|---|---|
 | 0 | 뼈대 (Skeleton) | ✅ 완료 (CI로 검증, 2026-11-08) |
-| 1 | ① gate-pkg 패키지 설치 검문소 | 🔵 구현 중: 1주차 완료, 2주차 대기 ([설계안](design/stage1-gate-pkg.md)) |
+| 1 | ① gate-pkg 패키지 설치 검문소 | 🔵 구현 중: 2주차 완료, 3주차 대기 ([설계안](design/stage1-gate-pkg.md)) |
 | 2 | ⑤ gate-lab 취약점 실습장 | ⚪ 시작 전 |
 | 3 | ③ gate-authz 권한 검사 자동 테스트 | ⚪ 시작 전 |
 | 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ⚪ 시작 전 |
@@ -56,8 +56,34 @@
 - 패키지가 새것이면 "새 버전" 경고는 중복이므로 내지 않는다
 - 모듈을 추가하자 CI의 compose 검증이 실패했다. 서버 이미지 빌드에 `gate-pkg` 폴더가 없어서 Gradle 9가 설정 단계에서 멈췄다 → Dockerfile에 `gate-pkg/build.gradle.kts`만 복사. **모듈을 추가할 때마다 Dockerfile에도 한 줄 추가해야 한다**
 
-### 다음 할 일 (2주차)
-PyPI 클라이언트, `PKG-TYPO`(인기 목록 스냅샷 포함), `PKG-VULN`(OSV), `PKG-MAINT`(npm), `PKG-COMBO`
+### 2주차 구현 (2026-11-09) — 완료
+| 항목 | 내용 |
+|---|---|
+| PyPI 클라이언트 | `pypi.org/pypi/{name}/json` + `pypistats` 주간 다운로드. 이름은 PEP 503으로 정규화(pypistats는 정규화된 이름만 받음). `==1.0`과 `1.0.0`처럼 표기가 다른 버전도 찾음. wheel 없이 sdist만 있으면 `PKG-SCRIPT`(LOW) |
+| `PKG-MAINT` (npm) | 요청 버전 게시자(`_npmUser`)가 게시 시각상 직전 버전의 게시자·관리자에 없으면 WARN·HIGH |
+| `PKG-VULN` | OSV `/v1/query`. GHSA·PYSEC·CVE 별칭을 하나로 묶음(`requests==2.19.0`: 원본 10건 → 실제 5건). `MAL-`·CRITICAL은 BLOCK, 나머지 WARN, 심각도 모르면 MEDIUM |
+| `PKG-TYPO` | 인기 목록 스냅샷(npm·PyPI 각 5,000개, `scripts/update_popular_lists.py`). 기법 5종: 구분자, 비슷한 글자, 접두·접미어, npm 스코프, 편집 거리. 판정: 새것(90일)이거나 대상 다운로드의 1% 미만이면 BLOCK·HIGH, 자리 잡은 패키지면 WARN·LOW, 다운로드를 모르면 WARN·MEDIUM |
+| `PKG-COMBO` | `PKG-NEW` + (`PKG-SCRIPT` 또는 `PKG-POP`)이면 BLOCK·HIGH. 스캐너가 다른 검사 뒤에 적용 |
+
+**테스트:** 녹화본 기반 136개 통과 (1주차 49개 포함). 실제 API `liveTest` 7개 통과.
+
+**실제 API로 확인한 결과 (2026-11-09)**
+| 요청 | 판정 | 근거 |
+|---|---|---|
+| npm `lodash`, `express`, `react`, `@types/node`, `axios`, `typescript` / PyPI `requests`, `numpy`, `django`, `Flask_SQLAlchemy` | PASS (결과 0건) | 오탐 없음 |
+| npm `lodahs` | **BLOCK** | `PKG-TYPO`(lodash 흉내) + `PKG-VULN`(OSV에 악성 패키지 보고 있음) |
+| PyPI `reqeusts` | **BLOCK** | `PKG-EXIST`(PyPI에 없음) |
+| 무작위 이름 (npm·PyPI) | **BLOCK** | `PKG-EXIST` |
+| PyPI `requests==2.19.0` | WARN | `PKG-VULN` 5건, 최고 HIGH |
+
+**알게 된 것 / 결정**
+- PyPI에서는 `Flask_SQLAlchemy`와 `flask-sqlalchemy`가 같은 프로젝트다(PEP 503). 그래서 PyPI는 구분자 차이를 철자 흉내로 보지 않는다
+- 1주차 테스트 하나(`fresh-helper-utils`)의 기대값을 WARN에서 BLOCK으로 바꿨다. 1주차에는 조합 규칙이 없어서 WARN이었고, 테스트 주석에 "2주차에 BLOCK으로 올라간다"고 적혀 있던 설계상 변경이다. 테스트는 지우지 않았다
+- Windows에서 Python이 CRLF로 파일을 써서 목록 검색이 실패했다 → 스크립트를 LF 고정으로 수정
+- 남은 측정 과제(4주차): 인기 목록 바로 바깥(5,001~7,000위)의 정상 패키지로 `PKG-TYPO` 오탐률 측정
+
+### 다음 할 일 (3주차)
+설치 명령 파서(npm·yarn·pnpm·pip·uv·poetry), `check`·`hook` CLI, 실행 가능한 단일 jar와 래퍼 스크립트, 오탐 예외 파일(`.gate/pkg-allow.txt`), Claude Code 훅 데모, 이 저장소에 훅 적용
 ---
 
 ## 0단계: 뼈대 — 2026-11-08

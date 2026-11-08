@@ -1,0 +1,1 @@
+{"vulns":[{"id":"GHSA-crit-0000-0000","aliases":["CVE-2026-0001"],"summary":"Remote code execution","database_specific":{"severity":"CRITICAL"}}]}

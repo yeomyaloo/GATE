@@ -1,0 +1,6 @@
+{"vulns":[
+ {"id":"GHSA-x84v-xcm2-53pg","aliases":["CVE-2018-18074","PYSEC-2018-28"],"summary":"Insufficiently Protected Credentials in Requests","database_specific":{"severity":"HIGH"}},
+ {"id":"PYSEC-2018-28","aliases":["CVE-2018-18074","GHSA-x84v-xcm2-53pg"]},
+ {"id":"GHSA-j8r2-6x86-q33q","aliases":["CVE-2023-32681","PYSEC-2023-74"],"summary":"Unintended leak of Proxy-Authorization header","database_specific":{"severity":"MODERATE"}},
+ {"id":"PYSEC-2023-74","aliases":["CVE-2023-32681","GHSA-j8r2-6x86-q33q"]}
+]}
