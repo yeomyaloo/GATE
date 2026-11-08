@@ -33,12 +33,19 @@ public final class HookHandler {
     private final InstallCommandParser parser;
     private final Supplier<PackageScanner> scanner;
     private final Function<Path, AllowList> allowLoader;
+    private final Optional<ResultReporter> reporter;
 
     public HookHandler(InstallCommandParser parser, Supplier<PackageScanner> scanner,
             Function<Path, AllowList> allowLoader) {
+        this(parser, scanner, allowLoader, Optional.empty());
+    }
+
+    public HookHandler(InstallCommandParser parser, Supplier<PackageScanner> scanner,
+            Function<Path, AllowList> allowLoader, Optional<ResultReporter> reporter) {
         this.parser = parser;
         this.scanner = scanner;
         this.allowLoader = allowLoader;
+        this.reporter = reporter;
     }
 
     /**
@@ -62,11 +69,16 @@ public final class HookHandler {
                     : input.path("cwd").isString() ? Path.of(input.path("cwd").asString()) : null;
             AllowList allow = allowLoader.apply(dir);
 
+            java.time.Instant started = java.time.Instant.now();
             // 검사할 패키지가 없으면(예: npm ci) 스캐너를 만들지 않는다 (인기 목록 로딩 비용 절약)
             ScanReport raw = parsed.packages().isEmpty() ? new ScanReport(java.util.UUID.randomUUID(), List.of())
                     : scanner.get().scan(parsed.packages());
             List<PackageVerdict> verdicts = raw.packages().stream().map(allow::apply).toList();
             ScanReport report = new ScanReport(raw.runId(), verdicts);
+            if (!report.packages().isEmpty()) {
+                reporter.ifPresent(r -> r.report(report, io.gate.common.finding.Trigger.CLAUDE_HOOK, command, started,
+                        java.time.Instant.now()));
+            }
 
             Decision d = report.decision();
             if (d == Decision.BLOCK) {

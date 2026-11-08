@@ -25,7 +25,15 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import io.gate.pkg.manifest.DependencyDiff;
+import io.gate.pkg.manifest.GitReader;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.Map;
 import java.time.Clock;
+import java.time.Instant;
+import java.util.Optional;
+import io.gate.common.finding.Trigger;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -54,16 +62,24 @@ public final class GatePkgCli {
 
     private final Supplier<PackageScanner> scanner;
     private final Function<Path, AllowList> allowLoader;
+    private final Supplier<Optional<ResultReporter>> reporter;
 
     GatePkgCli(Supplier<PackageScanner> scanner, Function<Path, AllowList> allowLoader) {
+        this(scanner, allowLoader, Optional::empty);
+    }
+
+    GatePkgCli(Supplier<PackageScanner> scanner, Function<Path, AllowList> allowLoader,
+            Supplier<Optional<ResultReporter>> reporter) {
         this.scanner = scanner;
         this.allowLoader = allowLoader;
+        this.reporter = reporter;
     }
 
     public static void main(String[] args) {
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         PrintStream err = new PrintStream(System.err, true, StandardCharsets.UTF_8);
-        int code = new GatePkgCli(GatePkgCli::defaultScanner, AllowList::load).run(args, System.in, out, err);
+        int code = new GatePkgCli(GatePkgCli::defaultScanner, AllowList::load, ResultReporter::fromEnv)
+                .run(args, System.in, out, err);
         System.exit(code);
     }
 
@@ -92,6 +108,8 @@ public final class GatePkgCli {
                 return hook(args, in, out, err);
             case "check":
                 return check(args, out, err);
+            case "diff":
+                return diff(args, out, err);
             default:
                 err.println("unknown command: " + args[0]);
                 err.print(usage());
@@ -113,7 +131,7 @@ public final class GatePkgCli {
         }
         String envDir = System.getenv("CLAUDE_PROJECT_DIR");
         Path projectDir = envDir == null || envDir.isBlank() ? null : Path.of(envDir);
-        new HookHandler(new InstallCommandParser(), scanner, allowLoader).handle(stdin, projectDir)
+        new HookHandler(new InstallCommandParser(), scanner, allowLoader, reporter.get()).handle(stdin, projectDir)
                 .ifPresent(out::println);
         return PASS; // 훅은 항상 0으로 끝내고 판단은 JSON으로 전달한다
     }
@@ -161,11 +179,99 @@ public final class GatePkgCli {
 
         AllowList allow = allowLoader.apply(projectDir);
         allow.problems().forEach(err::println);
+        Instant started = Instant.now();
         ScanReport raw = scanner.get().scan(List.copyOf(requests));
         ScanReport report = new ScanReport(raw.runId(), raw.packages().stream().map(allow::apply).toList());
+        String target = "check " + String.join(" ", java.util.Arrays.asList(args).subList(1, args.length));
+        reporter.get().ifPresent(r -> err.println(r.report(report, triggerFromEnv(), target, started, Instant.now())));
         out.print(format.equals("json") ? Reports.json(report, unchecked) + System.lineSeparator()
                 : Reports.text(report, unchecked));
         return exitCode(report, unchecked);
+    }
+
+    /**
+     * PR 검사: base와 head 사이에 매니페스트에서 새로 추가·변경된 직접 의존성만 검사한다.
+     * GitHub Actions 안이면 주석과 Job Summary도 남긴다.
+     */
+    private int diff(String[] args, PrintStream out, PrintStream err) {
+        String base = null;
+        String head = "HEAD";
+        String format = "text";
+        Path repo = Path.of("").toAbsolutePath();
+        for (int i = 1; i < args.length; i++) {
+            String a = args[i];
+            if (a.equals("--base") && i + 1 < args.length) {
+                base = args[++i];
+            } else if (a.equals("--head") && i + 1 < args.length) {
+                head = args[++i];
+            } else if (a.equals("--repo") && i + 1 < args.length) {
+                repo = Path.of(args[++i]);
+            } else if (a.equals("--format") && i + 1 < args.length) {
+                format = args[++i];
+            } else {
+                err.println("unknown option: " + a);
+                return UNCHECKABLE;
+            }
+        }
+        if (base == null || (!format.equals("text") && !format.equals("json"))) {
+            err.println("usage: gate-pkg diff --base <ref> [--head <ref>] [--repo DIR] [--format text|json]");
+            return UNCHECKABLE;
+        }
+
+        DependencyDiff.Result changes;
+        try {
+            changes = DependencyDiff.between(new GitReader(repo), base, head);
+        } catch (IOException | IllegalArgumentException e) {
+            err.println("diff failed: " + e.getMessage());
+            return UNCHECKABLE;
+        }
+
+        Instant started = Instant.now();
+        AllowList allow = allowLoader.apply(repo);
+        allow.problems().forEach(err::println);
+        List<PackageRequest> requests = changes.changes().stream().map(DependencyDiff.Change::request).distinct()
+                .toList();
+        ScanReport raw = requests.isEmpty() ? new ScanReport(java.util.UUID.randomUUID(), List.of())
+                : scanner.get().scan(requests);
+        ScanReport report = new ScanReport(raw.runId(), raw.packages().stream().map(allow::apply).toList());
+
+        Map<PackageVerdict, DependencyDiff.Change> where = new java.util.IdentityHashMap<>();
+        for (PackageVerdict v : report.packages()) {
+            changes.changes().stream().filter(c -> c.request().equals(v.request())).findFirst()
+                    .ifPresent(c -> where.put(v, c));
+        }
+
+        if (requests.isEmpty() && changes.unchecked().isEmpty()) {
+            out.println("No new or changed dependencies"
+                    + (changes.manifests().isEmpty() ? " (no manifest changed)." : " in " + changes.manifests()));
+        } else {
+            out.print(format.equals("json") ? Reports.json(report, changes.unchecked()) + System.lineSeparator()
+                    : Reports.text(report, changes.unchecked()));
+        }
+        if ("true".equals(System.getenv("GITHUB_ACTIONS"))) {
+            out.print(GitHubOutput.annotations(report, where));
+            String summaryFile = System.getenv("GITHUB_STEP_SUMMARY");
+            if (summaryFile != null && !summaryFile.isBlank()) {
+                try {
+                    Files.writeString(Path.of(summaryFile),
+                            GitHubOutput.summary(report, where, changes.unchecked(), changes.manifests()),
+                            StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                } catch (IOException e) {
+                    err.println("could not write job summary: " + e.getMessage());
+                }
+            }
+        }
+        if (!report.packages().isEmpty()) {
+            String target = "diff " + base + ".." + head;
+            reporter.get().ifPresent(r -> err.println(r.report(report, triggerFromEnv(), target, started,
+                    Instant.now())));
+        }
+        return exitCode(report, changes.unchecked());
+    }
+
+    /** GitHub Actions 안에서 실행되면 GITHUB_ACTION, 아니면 CLI. */
+    static Trigger triggerFromEnv() {
+        return "true".equals(System.getenv("GITHUB_ACTIONS")) ? Trigger.GITHUB_ACTION : Trigger.CLI;
     }
 
     static int exitCode(ScanReport report, List<String> unchecked) {
@@ -193,6 +299,8 @@ public final class GatePkgCli {
                 "",
                 "Usage:",
                 "  gate-pkg check <npm|pypi> <spec>... [--format text|json] [--project-dir DIR]",
+                "  gate-pkg diff --base <ref> [--head <ref>] [--repo DIR] [--format text|json]",
+                "                            check dependencies added or changed between two commits",
                 "  gate-pkg hook claude      Claude Code PreToolUse hook (reads hook JSON on stdin)",
                 "  gate-pkg version",
                 "",

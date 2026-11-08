@@ -1,0 +1,25 @@
+# PR에서 의존성 매니페스트가 바뀌면 GATE gate-pkg로 검사한다.
+name: gate-pkg
+
+on:
+  pull_request:
+    paths:
+      - "**/package.json"
+      - "**/requirements*.txt"
+      - "**/pyproject.toml"
+
+permissions:
+  contents: read
+
+jobs:
+  dependencies:
+    name: Check new dependencies
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: ./.github/actions/gate-pkg

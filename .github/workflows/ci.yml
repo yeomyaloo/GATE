@@ -108,6 +108,49 @@ jobs:
       - name: Live tests against real registries
         run: ./gradlew :gate-pkg:liveTest --no-daemon
 
+  action-demo:
+    name: gate-pkg Action demo (typosquat PR is blocked)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # 임시 저장소: base에는 lodash만, head에서 lodahs(철자 흉내)를 추가한다
+      - name: Create a demo repository that adds a typosquat
+        id: demo
+        run: |
+          demo="$RUNNER_TEMP/demo"
+          mkdir -p "$demo" && cd "$demo"
+          git init -q
+          git config user.name demo && git config user.email demo@example.invalid
+          echo '{"dependencies":{"lodash":"4.17.21"}}' > package.json
+          git add . && git commit -qm base && git tag base
+          printf '{"dependencies":{
+  "lodash":"4.17.21",
+  "lodahs":"^4.17.21"
+}}
+' > package.json
+          git commit -qam "add lodahs"
+          echo "dir=$demo" >> "$GITHUB_OUTPUT"
+
+      - name: Run the gate-pkg Action (expected to fail)
+        id: gate
+        continue-on-error: true
+        uses: ./.github/actions/gate-pkg
+        with:
+          base: base
+          working-directory: ${{ steps.demo.outputs.dir }}
+
+      - name: The Action must have blocked the change
+        env:
+          OUTCOME: ${{ steps.gate.outcome }}
+          CODE: ${{ steps.gate.outputs.exit-code }}
+        run: |
+          echo "outcome=$OUTCOME exit-code=$CODE"
+          test "$OUTCOME" = failure && test "$CODE" = 2
+
   compose-smoke:
     name: Stage 0 check - docker compose health
     runs-on: ubuntu-24.04

@@ -1,0 +1,78 @@
+# GATE gate-pkg: PR 의존성 검사 (복합 Action)
+# 두 커밋 사이에서 package.json · requirements*.txt · pyproject.toml에 새로 추가되거나 바뀐 직접 의존성만 검사한다.
+#   BLOCK → 실패, WARN → 경고 주석 (fail-on: warn이면 실패), 검사 불가 → 경고만 (CI를 막지 않음)
+# 사용하는 쪽은 actions/checkout에 fetch-depth: 0을 줘야 base 커밋을 읽을 수 있다.
+name: GATE gate-pkg
+description: Check dependencies added or changed in a pull request for hallucinated, typosquatted, malicious or risky packages.
+
+inputs:
+  base:
+    description: Base commit or ref. Defaults to the pull request base SHA.
+    required: false
+    default: ""
+  head:
+    description: Head commit or ref.
+    required: false
+    default: HEAD
+  working-directory:
+    description: Git repository to check.
+    required: false
+    default: "."
+  fail-on:
+    description: "block (default) or warn"
+    required: false
+    default: block
+  server-url:
+    description: Optional gate-server URL to store results (GATE_SERVER_URL).
+    required: false
+    default: ""
+
+outputs:
+  exit-code:
+    description: "gate-pkg exit code: 0 pass, 1 warn, 2 block, 3 could not check"
+    value: ${{ steps.check.outputs.exit-code }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+      with:
+        distribution: temurin
+        java-version: "17"
+
+    - name: Build gate-pkg
+      shell: bash
+      run: |
+        root="$GITHUB_ACTION_PATH/../../.."
+        "$root/gradlew" -p "$root" :gate-pkg:cliJar --no-daemon -q
+
+    - name: Check changed dependencies
+      id: check
+      shell: bash
+      # 입력값은 스크립트에 직접 넣지 않고 환경 변수로 넘긴다 (스크립트 주입 방지)
+      env:
+        GATE_BASE: ${{ inputs.base != '' && inputs.base || github.event.pull_request.base.sha }}
+        GATE_HEAD: ${{ inputs.head }}
+        GATE_DIR: ${{ inputs.working-directory }}
+        GATE_FAIL_ON: ${{ inputs.fail-on }}
+        GATE_SERVER_URL: ${{ inputs.server-url }}
+        GATE_CACHE_DIR: ${{ runner.temp }}/gate-cache
+      run: |
+        if [ -z "$GATE_BASE" ]; then
+          echo "::error title=GATE gate-pkg::No base ref. Set the 'base' input or run on pull_request."
+          exit 1
+        fi
+        jar="$GITHUB_ACTION_PATH/../../../gate-pkg/build/libs/gate-pkg.jar"
+        set +e
+        java -jar "$jar" diff --base "$GATE_BASE" --head "$GATE_HEAD" --repo "$GATE_DIR"
+        code=$?
+        set -e
+        echo "exit-code=$code" >> "$GITHUB_OUTPUT"
+        case "$code" in
+          0) ;;
+          1) [ "$GATE_FAIL_ON" = "warn" ] && exit 1 ;;
+          2) exit 1 ;;
+          3) echo "::warning title=GATE gate-pkg::Some dependencies could not be checked. See the job summary." ;;
+          *) echo "::error title=GATE gate-pkg::gate-pkg failed with exit code $code"; exit 1 ;;
+        esac
+        exit 0
