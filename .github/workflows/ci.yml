@@ -178,10 +178,28 @@ jobs:
           grep -qx scan_run tables.txt
           grep -qx finding tables.txt
 
+      # gate-lab: 컨테이너로 잠깐 띄워 같은 공격이 vulnerable에서는 통하고 fixed에서는 막히는지 확인한 뒤 내린다
+      - name: gate-lab containers (local-only practice app)
+        run: docker compose --profile lab up -d --build --wait --wait-timeout 300 lab-vulnerable lab-fixed
+
+      - name: gate-lab forged token works only on the vulnerable variant
+        run: |
+          b64() { printf '%s' "$1" | base64 -w0 | tr '+/' '-_' | tr -d '='; }
+          forged="$(b64 '{"alg":"none"}').$(b64 '{"sub":"bob"}')."
+          v=$(curl -s -o /tmp/v.json -w '%{http_code}' -H "Authorization: Bearer $forged" http://127.0.0.1:8081/api/me)
+          f=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $forged" http://127.0.0.1:8082/api/me)
+          echo "vulnerable=$v $(cat /tmp/v.json)  fixed=$f"
+          test "$v" = 200 && grep -q '"username":"bob"' /tmp/v.json && test "$f" = 401
+
+      - name: gate-lab is published on 127.0.0.1 only
+        run: |
+          docker compose --profile lab port lab-vulnerable 8081 | tee /tmp/port.txt
+          grep -q '^127.0.0.1:8081$' /tmp/port.txt
+
       - name: Logs on failure
         if: failure()
-        run: docker compose logs --no-color
+        run: docker compose --profile lab logs --no-color
 
       - name: Tear down
         if: always()
-        run: docker compose down -v
+        run: docker compose --profile lab down -v

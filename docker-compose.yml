@@ -56,5 +56,43 @@ services:
       start_period: 40s
       retries: 10
 
+  # ⚠️ gate-lab: 일부러 취약한 실습용 앱. `docker compose --profile lab up`으로만 뜬다.
+  # 호스트의 127.0.0.1에만 포트를 연다. 절대 0.0.0.0이나 외부 주소로 바꾸지 않는다.
+  lab-vulnerable:
+    profiles: [lab]
+    build:
+      context: .
+      dockerfile: gate-lab/Dockerfile
+    image: gate-lab:local
+    environment:
+      SPRING_PROFILES_ACTIVE: vulnerable
+      GATE_LAB_ACK: local-only
+    ports:
+      - "127.0.0.1:8081:8081"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/openapi.yaml > /dev/null"]
+      interval: 5s
+      timeout: 3s
+      start_period: 30s
+      retries: 20
+
+  lab-fixed:
+    profiles: [lab]
+    build:
+      context: .
+      dockerfile: gate-lab/Dockerfile
+    image: gate-lab:local
+    environment:
+      SPRING_PROFILES_ACTIVE: fixed
+      GATE_LAB_ACK: local-only
+    ports:
+      - "127.0.0.1:8082:8082"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8082/openapi.yaml > /dev/null"]
+      interval: 5s
+      timeout: 3s
+      start_period: 30s
+      retries: 20
+
 volumes:
   gate-db:
