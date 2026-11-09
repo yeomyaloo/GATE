@@ -160,6 +160,10 @@ jobs:
         run: |
           cp .env.example .env
           sed -i "s/^GATE_DB_PASSWORD=.*/GATE_DB_PASSWORD=$(openssl rand -hex 16)/" .env
+          # 실습장 데모 비밀번호도 이번 실행에서만 쓰는 무작위 값 (gate-authz가 로그인에 사용)
+          pw=$(openssl rand -hex 12)
+          echo "::add-mask::$pw"
+          sed -i "s/^GATE_LAB_DEMO_PASSWORD=.*/GATE_LAB_DEMO_PASSWORD=$pw/" .env
 
       - name: docker compose up (wait for healthy)
         run: docker compose up -d --build --wait --wait-timeout 300
@@ -195,6 +199,45 @@ jobs:
         run: |
           docker compose --profile lab port lab-vulnerable 8081 | tee /tmp/port.txt
           grep -q '^127.0.0.1:8081$' /tmp/port.txt
+
+      # 3단계 완료 기준: gate-authz가 실제 네트워크로 실습장을 검사하고, 결과를 gate-server에 저장한다
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: gate-authz finds IDOR on the vulnerable lab and stores results in gate-server
+        run: |
+          ./gradlew :gate-authz:cliJar --no-daemon -q
+          pw=$(grep '^GATE_LAB_DEMO_PASSWORD=' .env | cut -d= -f2)
+          export GATE_AUTHZ_PASSWORD_A="$pw" GATE_AUTHZ_PASSWORD_B="$pw"
+          set +e
+          GATE_SERVER_URL=http://127.0.0.1:8080 java -jar gate-authz/build/libs/gate-authz.jar \
+            scan --config gate-authz/gate-authz.lab.yml --format json > /tmp/authz-vulnerable.json
+          code=$?
+          set -e
+          jq '{decision, findings: [.findings[] | {ruleId, location}], coverage}' /tmp/authz-vulnerable.json
+          test "$code" = 2
+          rules=$(jq -r '[.findings[].ruleId] | sort | join(",")' /tmp/authz-vulnerable.json)
+          test "$rules" = "AUTHZ-BOLA-DELETE,AUTHZ-BOLA-READ,AUTHZ-BOLA-WRITE"
+
+      - name: gate-authz finds nothing on the fixed lab
+        run: |
+          pw=$(grep '^GATE_LAB_DEMO_PASSWORD=' .env | cut -d= -f2)
+          export GATE_AUTHZ_PASSWORD_A="$pw" GATE_AUTHZ_PASSWORD_B="$pw"
+          sed 's/127.0.0.1:8081/127.0.0.1:8082/g' gate-authz/gate-authz.lab.yml > /tmp/gate-authz.fixed.yml
+          java -jar gate-authz/build/libs/gate-authz.jar scan --config /tmp/gate-authz.fixed.yml --format json \
+            > /tmp/authz-fixed.json
+          jq '{decision, findings: (.findings | length), coverage}' /tmp/authz-fixed.json
+          test "$(jq '.findings | length' /tmp/authz-fixed.json)" = 0
+
+      - name: gate-authz findings are stored in PostgreSQL
+        run: |
+          echo "SELECT r.module, f.rule_id, f.location->>'method', f.location->>'path' FROM finding f JOIN scan_run r ON r.id = f.run_id WHERE r.module = 'AUTHZ' ORDER BY f.rule_id;" \
+            | docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tA' | tee /tmp/stored.txt
+          test "$(grep -c '^AUTHZ|AUTHZ-BOLA-' /tmp/stored.txt)" = 3
 
       - name: Logs on failure
         if: failure()
