@@ -12,6 +12,7 @@ COPY gate-server ./gate-server
 # 서버 이미지에 필요 없는 소스는 넣지 않고 빌드 파일만 복사한다. (모듈을 추가하면 여기에도 한 줄 추가)
 COPY gate-pkg/build.gradle.kts ./gate-pkg/
 COPY gate-lab/build.gradle.kts ./gate-lab/
+COPY gate-authz/build.gradle.kts ./gate-authz/
 RUN chmod +x gradlew && ./gradlew --no-daemon :gate-server:bootJar -x test
 
 FROM eclipse-temurin:17.0.21_9-jre-alpine-3.24@sha256:e2ba4e947bd5e236a9866fbdda03e4936036cb9e9d16ea0d84d103d6634a5c21

@@ -168,17 +168,17 @@ components:
       type: object
       required: [productId, quantity]
       properties:
-        productId: { type: integer, format: int64 }
-        quantity: { type: integer, minimum: 1, maximum: 100 }
-        note: { type: string, maxLength: 500 }
-        shippingAddress: { type: string, maxLength: 300 }
+        productId: { type: integer, format: int64, example: 1 }
+        quantity: { type: integer, minimum: 1, maximum: 100, example: 1 }
+        note: { type: string, maxLength: 500, example: "leave at the door" }
+        shippingAddress: { type: string, maxLength: 300, example: "Seoul, Example-ro 1" }
     OrderUpdate:
       type: object
       required: [quantity]
       properties:
-        quantity: { type: integer, minimum: 1, maximum: 100 }
-        note: { type: string, maxLength: 500 }
-        shippingAddress: { type: string, maxLength: 300 }
+        quantity: { type: integer, minimum: 1, maximum: 100, example: 2 }
+        note: { type: string, maxLength: 500, example: "changed" }
+        shippingAddress: { type: string, maxLength: 300, example: "Seoul, Example-ro 2" }
     Order:
       type: object
       properties:

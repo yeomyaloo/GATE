@@ -110,6 +110,7 @@ GATE/
 ├─ gate-server/   Spring Boot API: result store, health check, Flyway schema
 ├─ gate-pkg/      ① package install checkpoint (stage 1): checks, CLI, Claude Code hook, PR diff
 ├─ gate-lab/      ⑤ intentionally vulnerable practice app (stage 2, local only)
+├─ gate-authz/    ③ automated authorization tests from OpenAPI (stage 3, in progress)
 ├─ docs/          progress log, ADRs, diagrams
 └─ docker-compose.yml
 ```

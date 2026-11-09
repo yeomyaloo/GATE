@@ -18,6 +18,7 @@ tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     archiveFileName.set("gate-lab.jar")
 }
 
+// 일반 jar(-plain)는 남겨 둔다: gate-authz 테스트가 실습장을 직접 띄우려고 이 모듈 클래스를 쓴다
 tasks.named<Jar>("jar") {
-    enabled = false
+    archiveClassifier.set("plain")
 }
