@@ -14,3 +14,30 @@ dependencies {
     testImplementation(project(":gate-lab"))
     testImplementation("org.springframework.boot:spring-boot")
 }
+
+// 실행 가능한 단일 jar: build/libs/gate-authz.jar (의존성 포함). 래퍼 스크립트 bin/gate-authz*가 실행한다.
+val cliJar by tasks.registering(Jar::class) {
+    description = "Builds the runnable gate-authz.jar including dependencies."
+    group = "build"
+    archiveFileName.set("gate-authz.jar")
+    manifest {
+        attributes(
+            "Main-Class" to "io.gate.authz.cli.GateAuthzCli",
+            "Multi-Release" to "true",
+            "Implementation-Title" to "gate-authz",
+            "Implementation-Version" to project.version,
+        )
+    }
+    from(sourceSets.main.get().output)
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith(".jar") }.map { zipTree(it) }
+    })
+    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA", "META-INF/*.EC", "module-info.class",
+        "META-INF/versions/*/module-info.class")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named("assemble") {
+    dependsOn(cliJar)
+}

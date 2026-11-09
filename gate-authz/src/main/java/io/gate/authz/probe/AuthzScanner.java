@@ -66,24 +66,192 @@ public final class AuthzScanner {
         String tokenA = login.token(config.userA());
         String tokenB = login.token(config.userB());
 
-        for (ApiSpec.Resource resource : spec.resources()) {
-            Optional<OwnedObject> owned = findOwnedByB(resource, tokenB);
-            for (ApiSpec.Operation op : resource.itemOperations()) {
-                if (owned.isEmpty()) {
-                    inconclusive(op, "no object owned by user B could be found (no list endpoint result, "
-                            + (config.allowMutation() ? "create failed" : "creating is disabled without allowMutation")
-                            + ", no seed id)", Map.of("resource", resource.collectionPath()));
-                    continue;
+        try {
+            for (ApiSpec.Resource resource : spec.resources()) {
+                Optional<OwnedObject> owned = findOwnedByB(resource, tokenB);
+                for (ApiSpec.Operation op : resource.itemOperations()) {
+                    if (op.method().equals("GET")) {
+                        if (owned.isEmpty()) {
+                            inconclusive(op, "no object owned by user B could be found (no list endpoint result, "
+                                    + (config.allowMutation() ? "create failed"
+                                            : "creating is disabled without allowMutation")
+                                    + ", no seed id)", Map.of("resource", resource.collectionPath()));
+                        } else {
+                            probeRead(op, owned.get(), tokenA, tokenB);
+                        }
+                    } else if (MUTATING.contains(op.method())) {
+                        probeMutation(resource, op, tokenA, tokenB);
+                    }
                 }
-                if (op.method().equals("GET")) {
-                    probeRead(op, owned.get(), tokenA, tokenB);
-                } else {
-                    coverage.add(new AuthzReport.Coverage(op.label(), "as user A", AuthzReport.Status.SKIPPED,
-                            "write/delete checks are not implemented yet (stage 3 week 2)"));
+            }
+        } finally {
+            cleanup(tokenB);
+        }
+        return new AuthzReport(runId, findings, coverage);
+    }
+
+    static final Set<String> MUTATING = Set.of("PUT", "PATCH", "DELETE");
+    /** 수정 시도에 넣는 표시 문자열. B가 다시 읽었을 때 이 값이 보이면 A의 수정이 실제로 반영된 것이다. */
+    static final String MARKER = "gate-authz-probe";
+
+    /** 이 검사에서 B로 만든 객체: 검사 후 B로 지운다. */
+    private final List<CreatedObject> created = new ArrayList<>();
+
+    record CreatedObject(ApiSpec.Resource resource, String id) {
+    }
+
+    // ---------- 수정·삭제: AUTHZ-BOLA-WRITE, AUTHZ-BOLA-DELETE (설계안 2.1, 3장) ----------
+
+    /**
+     * 기존 데이터는 건드리지 않는다: allowMutation일 때만, 이 검사를 위해 B로 새로 만든 객체에만 시도한다.
+     * 판정은 응답 코드가 아니라 B가 다시 읽은 결과로 한다.
+     */
+    void probeMutation(ApiSpec.Resource resource, ApiSpec.Operation op, String tokenA, String tokenB)
+            throws IOException {
+        if (!config.allowMutation()) {
+            coverage.add(new AuthzReport.Coverage(op.label(), "as user A", AuthzReport.Status.SKIPPED,
+                    "read-only by default; set allowMutation: true to test writes on objects created for the test"));
+            return;
+        }
+        Optional<ApiSpec.Operation> read = resource.itemOperations().stream()
+                .filter(o -> o.method().equals("GET")).findFirst();
+        if (read.isEmpty()) {
+            inconclusive(op, "no GET on '" + resource.itemPath() + "' to verify the effect", Map.of());
+            return;
+        }
+        Optional<OwnedObject> fresh = createForB(resource, tokenB);
+        if (fresh.isEmpty()) {
+            inconclusive(op, "could not create a fresh object as user B to test on", Map.of());
+            return;
+        }
+        OwnedObject owned = fresh.get();
+        URI target = itemUri(op, owned.id());
+        ApiClient.Response before = client.send("GET", target, tokenB, null);
+        JsonNode beforeNode = parse(before.body());
+        if (!before.ok() || !idOf(beforeNode).map(owned.id()::equals).orElse(false)) {
+            inconclusive(op, "baseline failed: user B could not read the object it just created (HTTP "
+                    + before.status() + ")", Map.of("objectId", owned.id()));
+            return;
+        }
+
+        if (op.method().equals("DELETE")) {
+            ApiClient.Response attack = client.send("DELETE", target, tokenA, null);
+            ApiClient.Response after = client.send("GET", target, tokenB, null);
+            boolean gone = after.status() == 404 || after.status() == 410;
+            if (gone) {
+                Map<String, Object> ev = evidence(owned, target, before, attack);
+                ev.put("verifiedBy", "user B re-read the object: HTTP " + after.status());
+                findings.add(finding(Rules.BOLA_DELETE, "User A can delete user B's object via '" + op.label() + "'",
+                        Severity.CRITICAL, Decision.BLOCK, op, ev));
+                coverage.add(new AuthzReport.Coverage(op.label(), "as user A", AuthzReport.Status.FINDING,
+                        "HTTP " + attack.status() + ", object gone for its owner (verified)"));
+            } else if (after.ok()) {
+                coverage.add(new AuthzReport.Coverage(op.label(), "as user A", AuthzReport.Status.PASS,
+                        "HTTP " + attack.status() + ", object still there for its owner (verified)"));
+            } else {
+                inconclusive(op, "could not verify: user B re-read returned HTTP " + after.status(),
+                        Map.of("objectId", owned.id()));
+            }
+            return;
+        }
+
+        String body = mutationBody(op);
+        ApiClient.Response attack = client.send(op.method(), target, tokenA, body);
+        ApiClient.Response after = client.send("GET", target, tokenB, null);
+        if (!after.ok()) {
+            inconclusive(op, "could not verify: user B re-read returned HTTP " + after.status(),
+                    Map.of("objectId", owned.id(), "attackStatus", attack.status()));
+            return;
+        }
+        List<String> changed = changedBy(parse(body), beforeNode, parse(after.body()));
+        if (!changed.isEmpty()) {
+            Map<String, Object> ev = evidence(owned, target, before, attack);
+            ev.put("changedFields", changed);
+            ev.put("verifiedBy", "user B re-read the object and saw the attacker's values");
+            findings.add(finding(Rules.BOLA_WRITE, "User A can modify user B's object via '" + op.label() + "'",
+                    Severity.CRITICAL, Decision.BLOCK, op, ev));
+            coverage.add(new AuthzReport.Coverage(op.label(), "as user A", AuthzReport.Status.FINDING,
+                    "HTTP " + attack.status() + ", changed " + String.join(", ", changed) + " (verified)"));
+        } else {
+            coverage.add(new AuthzReport.Coverage(op.label(), "as user A", AuthzReport.Status.PASS,
+                    "HTTP " + attack.status() + (attack.ok() ? " but nothing changed" : "")
+                            + " (verified by owner re-read)"));
+        }
+    }
+
+    /** 요청 본문: 명세 예시로 만들고, 문자열 필드는 표시 문자열로 바꿔 변경 여부를 확실히 알 수 있게 한다. */
+    String mutationBody(ApiSpec.Operation op) {
+        if (op.requestSchema() == null) {
+            return null;
+        }
+        JsonNode generated = bodies.generate(op.requestSchema());
+        if (generated.isObject()) {
+            var obj = (tools.jackson.databind.node.ObjectNode) generated;
+            for (String name : new ArrayList<>(obj.propertyNames())) {
+                if (obj.get(name).isString()) {
+                    obj.put(name, MARKER);
                 }
             }
         }
-        return new AuthzReport(runId, findings, coverage);
+        return JSON.writeValueAsString(generated);
+    }
+
+    /** 보낸 값이 다시 읽은 객체에 나타났고 원래 값과 다른 필드. */
+    static List<String> changedBy(JsonNode sent, JsonNode before, JsonNode after) {
+        List<String> changed = new ArrayList<>();
+        if (!sent.isObject()) {
+            return changed;
+        }
+        for (String name : sent.propertyNames()) {
+            JsonNode value = sent.get(name);
+            if (after.has(name) && after.get(name).equals(value) && !before.path(name).equals(value)) {
+                changed.add(name);
+            }
+        }
+        return changed;
+    }
+
+    Optional<OwnedObject> createForB(ApiSpec.Resource resource, String tokenB) throws IOException {
+        if (resource.create().isEmpty()) {
+            return Optional.empty();
+        }
+        ApiSpec.Operation create = resource.create().get();
+        String body = create.requestSchema() == null ? null
+                : JSON.writeValueAsString(bodies.generate(create.requestSchema()));
+        ApiClient.Response r = client.send("POST", uri(resource.collectionPath()), tokenB, body);
+        Optional<String> id = r.ok() ? idOf(parse(r.body())) : Optional.empty();
+        id.ifPresent(i -> created.add(new CreatedObject(resource, i)));
+        return id.map(i -> new OwnedObject(i, "created by user B"));
+    }
+
+    /** 검사가 만든 객체를 주인(B)으로 지운다. 실패해도 검사 결과에는 영향이 없고 커버리지에 남긴다. */
+    void cleanup(String tokenB) {
+        for (CreatedObject c : created) {
+            Optional<ApiSpec.Operation> delete = c.resource().itemOperations().stream()
+                    .filter(o -> o.method().equals("DELETE")).findFirst();
+            if (delete.isEmpty()) {
+                coverage.add(new AuthzReport.Coverage(c.resource().itemPath(), "cleanup", AuthzReport.Status.SKIPPED,
+                        "no DELETE operation; object " + c.id() + " was left in place"));
+                continue;
+            }
+            try {
+                ApiClient.Response r = client.send("DELETE", itemUri(delete.get(), c.id()), tokenB, null);
+                if (!r.ok() && r.status() != 404) {
+                    coverage.add(new AuthzReport.Coverage(c.resource().itemPath(), "cleanup",
+                            AuthzReport.Status.INCONCLUSIVE, "could not delete test object " + c.id() + ": HTTP "
+                                    + r.status()));
+                }
+            } catch (IOException | RuntimeException e) {
+                coverage.add(new AuthzReport.Coverage(c.resource().itemPath(), "cleanup",
+                        AuthzReport.Status.INCONCLUSIVE, "could not delete test object " + c.id() + ": " + e));
+            }
+        }
+        created.clear();
+    }
+
+    private URI itemUri(ApiSpec.Operation op, String id) {
+        return uri(op.path().replace("{" + op.pathParams().get(op.pathParams().size() - 1) + "}",
+                URLEncoder.encode(id, StandardCharsets.UTF_8)));
     }
 
     // ---------- B의 객체 확보 (설계안 2.2) ----------
@@ -96,14 +264,10 @@ public final class AuthzScanner {
                 return Optional.of(new OwnedObject(id.get(), "listed by user B"));
             }
         }
-        if (config.allowMutation() && resource.create().isPresent()) {
-            ApiSpec.Operation create = resource.create().get();
-            String body = create.requestSchema() == null ? null
-                    : JSON.writeValueAsString(bodies.generate(create.requestSchema()));
-            ApiClient.Response r = client.send("POST", uri(resource.collectionPath()), tokenB, body);
-            Optional<String> id = r.ok() ? idOf(parse(r.body())) : Optional.empty();
-            if (id.isPresent()) {
-                return Optional.of(new OwnedObject(id.get(), "created by user B"));
+        if (config.allowMutation()) {
+            Optional<OwnedObject> createdObject = createForB(resource, tokenB);
+            if (createdObject.isPresent()) {
+                return createdObject;
             }
         }
         List<String> seeds = config.seeds().getOrDefault(resource.collectionPath(), List.of());

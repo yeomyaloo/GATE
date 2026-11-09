@@ -10,7 +10,7 @@
 | 0 | 뼈대 (Skeleton) | ✅ 완료 (CI로 검증, 2026-11-08) |
 | 1 | ① gate-pkg 패키지 설치 검문소 | ✅ 완료 (2026-11-09) · [측정](measurements/pkg-typo-fp.md) ([설계안](design/stage1-gate-pkg.md)) |
 | 2 | ⑤ gate-lab 취약점 실습장 | ✅ 완료 (2026-11-09) · [취약점 설명서](lab/vulnerabilities.md) |
-| 3 | ③ gate-authz 권한 검사 자동 테스트 | 🔵 구현 중: 1주차 완료 (조회 BOLA·인증 누락), 2주차 대기 ([설계안](design/stage3-gate-authz.md)) |
+| 3 | ③ gate-authz 권한 검사 자동 테스트 | 🔵 구현 중: 2주차 완료 (조회·수정·삭제 BOLA, CLI), 3주차 대기 ([설계안](design/stage3-gate-authz.md)) |
 | 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ⚪ 시작 전 |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ⚪ 시작 전 |
 | ★ | 대시보드·데모·정리 | ⚪ 시작 전 |
@@ -53,8 +53,30 @@
 - 판정 함수에서 `{id}`가 남은 경로로 URI를 만드는 버그를 테스트 전에 코드 읽기로 발견해 고쳤다 (중괄호는 URI에 쓸 수 없어 예외가 난다)
 - gate-authz 테스트가 실습장을 띄우려면 gate-lab의 일반 jar가 필요해 `-plain` jar를 다시 켰다. 모듈을 추가했으므로 서버·실습장 Dockerfile에 `gate-authz/build.gradle.kts` 복사 줄을 넣었다(1단계에서 정한 규칙)
 
-### 다음 할 일 (2주차)
-수정·삭제 검사(B가 다시 읽어 실제로 바뀌었는지·사라졌는지 확인, 테스트가 만든 객체에만), 만든 객체 정리, CLI(`gate-authz scan --config`)·설정 파일(YAML), 결과 출력(text·json)·gate-server 전송
+### 2주차 구현 (2026-11-09) — 완료
+| 항목 | 내용 |
+|---|---|
+| 수정 검사 `AUTHZ-BOLA-WRITE` | `allowMutation`일 때만. 검사마다 B로 **새 객체를 만들어** 그 객체에만 A의 토큰으로 PUT·PATCH. 문자열 필드는 표시 문자열로 채워 보내고, **B가 다시 읽어** 보낸 값이 반영됐는지로 판정 |
+| 삭제 검사 `AUTHZ-BOLA-DELETE` | 같은 방식. A가 DELETE한 뒤 B가 다시 읽어 404·410이면 발견 |
+| 정리 | 검사가 만든 객체를 끝에 B로 삭제(실패해도 결과에 영향 없이 커버리지에 기록). 기존 데이터에는 쓰지 않음 |
+| CLI | `gate-authz scan --config gate-authz.yml [--format text\|json]`. 종료 코드 0 없음 · 2 발견 · 3 판단 불가·설정·로그인·대상 오류. 로그인 전에 대상 허용 여부부터 확인 |
+| 설정 | YAML. 명세는 URL 또는 설정 파일 기준 상대 경로. **설정에 비밀번호를 적으면 거부**(`users.*.password`, 로그인 본문의 비밀번호 값이 `{password}`가 아님) |
+| 출력·전송 | 작업별 커버리지 표 + 발견 목록(text), JSON. `GATE_SERVER_URL`이 있으면 gate-server `POST /api/scan-runs`로 전송(module AUTHZ) |
+| 실행 파일 | `gate-authz.jar`(3MB) + `bin/gate-authz`·`gate-authz.cmd`. 실습장 예시 설정 `gate-authz/gate-authz.lab.yml` |
+
+**테스트 (45개 통과)**
+- 상태 있는 가짜 메모 서비스로 판정 확인: 주인 확인 없음 → 조회·수정·삭제 3건 발견 + 만든 객체 모두 정리 / 주인 확인 있음 → 0건 / **200·204를 주지만 실제로는 아무것도 바꾸지 않는 서비스 → 발견 아님**(응답 코드만 믿었다면 오탐) / 쓰기 미허용 시 GET 외 호출 0회 / 쓰기를 허용해도 **기존 객체에는 PUT·DELETE를 보내지 않음**
+- **실습장 대상**: vulnerable(쓰기 허용) → 조회·수정·삭제 BOLA 각 1건, 판단 불가 0건, bob의 주문 수 검사 전후 동일(정리 확인) / fixed(쓰기 허용·미허용 모두) → 0건
+- CLI 6개: 발견 시 종료 코드 2·JSON(비밀번호·토큰 미출력), fixed 0, 상대 경로 명세, 루프백 밖 대상은 요청 전에 거부, 설정 속 비밀번호 거부, 환경 변수 없음·잘못된 사용법 3
+
+**실제 jar로 확인:** 실습장 jar(vulnerable) + `bin/gate-authz scan --config gate-authz/gate-authz.lab.yml` → 조회·수정(수량·메모·주소 변경 확인)·삭제(주인에게서 사라짐 확인) 3건, 토큰 없는 접근 401, 종료 코드 2
+
+**알게 된 것**
+- 1주차 실습장 테스트 3개를 공용 실습장 도우미(`LabServers`)로 옮기면서 2개로 합쳤다("조회만"과 "기본 설정에서 쓰기 건너뜀"을 한 테스트에서 확인). 확인하는 내용은 줄지 않았다
+- gate-pkg와 gate-authz의 서버 전송 코드가 비슷하게 중복된다. 공통 모듈(gate-common)은 JSON 라이브러리 없이 두기로 했으므로 지금은 중복을 감수한다
+
+### 다음 할 일 (3주차)
+CI에서 실습장 컨테이너를 대상으로 gate-authz 실행(실제 네트워크 경로, vulnerable 발견·fixed 0건 확인), 결과를 gate-server에 저장하는 흐름 확인, README·설계안·데모 정리 → 3단계 완료 기준 확인
 
 ---
 

@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+# GATE gate-authz command-line wrapper:  gate-authz scan --config gate-authz.yml
+dir=$(cd "$(dirname "$0")" && pwd)
+jar="${GATE_AUTHZ_JAR:-$dir/../build/libs/gate-authz.jar}"
+if [ ! -f "$jar" ]; then
+  echo "gate-authz.jar not found at $jar. Build it with ./gradlew :gate-authz:cliJar" >&2
+  exit 3
+fi
+if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then java="$JAVA_HOME/bin/java"; else java=java; fi
+exec "$java" -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Xshare:auto -jar "$jar" "$@"

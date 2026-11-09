@@ -1,0 +1,15 @@
+# gate-authz 설정 예시: 로컬 실습장(gate-lab vulnerable, 127.0.0.1:8081)을 검사한다.
+# 비밀번호는 여기에 적지 않는다. 실습장 콘솔에 출력된 데모 비밀번호를 환경 변수로 넘긴다:
+#   GATE_AUTHZ_PASSWORD_A=... GATE_AUTHZ_PASSWORD_B=... gate-authz/bin/gate-authz scan --config gate-authz/gate-authz.lab.yml
+spec: http://127.0.0.1:8081/openapi.yaml
+baseUrl: http://127.0.0.1:8081
+login:
+  path: /api/auth/login
+  body: { username: "{username}", password: "{password}" }
+  tokenField: accessToken
+users:
+  a: { username: alice, passwordEnv: GATE_AUTHZ_PASSWORD_A }
+  b: { username: bob, passwordEnv: GATE_AUTHZ_PASSWORD_B }
+allowMutation: true        # 기본은 false(조회만). 실습장이라 수정·삭제까지 검사한다 (테스트가 만든 객체에만)
+allowedHosts: []           # 루프백은 기본 허용
+maxRequestsPerSecond: 20
