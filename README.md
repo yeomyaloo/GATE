@@ -1,5 +1,8 @@
 # GATE
 
+> ⚠️ **`gate-lab/` is an intentionally vulnerable practice app. Never deploy it publicly; run it on 127.0.0.1 only.**
+> **`gate-lab/`은 일부러 취약하게 만든 실습용 앱입니다. 절대 외부에 공개 배포하지 말고 127.0.0.1에서만 띄우세요.**
+
 **Guard for AI-assisted Toolchain & Endpoints**
 AI 보조 개발 도구와 서비스 접점을 지키는 관문
 
@@ -94,10 +97,11 @@ GATE/
 ├─ gate-common/   shared Finding model (pure Java)
 ├─ gate-server/   Spring Boot API: result store, health check, Flyway schema
 ├─ gate-pkg/      ① package install checkpoint (stage 1): checks, CLI, Claude Code hook, PR diff
+├─ gate-lab/      ⑤ intentionally vulnerable practice app (stage 2, local only)
 ├─ docs/          progress log, ADRs, diagrams
 └─ docker-compose.yml
 ```
-Later stages add `gate-lab/`, `gate-authz/`, `gate-review/`, `gate-prompt/`, `dashboard/`.
+Later stages add `gate-authz/`, `gate-review/`, `gate-prompt/`, `dashboard/`.
 
 ### Getting started
 Requirements: Docker Desktop (with Compose v2), JDK 17 for local builds.

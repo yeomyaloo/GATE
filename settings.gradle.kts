@@ -1,3 +1,3 @@
 rootProject.name = "gate"
 
-include("gate-common", "gate-server", "gate-pkg")
+include("gate-common", "gate-server", "gate-pkg", "gate-lab")

@@ -9,7 +9,7 @@
 |---|---|---|
 | 0 | 뼈대 (Skeleton) | ✅ 완료 (CI로 검증, 2026-11-08) |
 | 1 | ① gate-pkg 패키지 설치 검문소 | ✅ 완료 (2026-11-09) · [측정](measurements/pkg-typo-fp.md) ([설계안](design/stage1-gate-pkg.md)) |
-| 2 | ⑤ gate-lab 취약점 실습장 | 🟡 설계 결정 확정, 착수 대기 ([설계안](design/stage2-gate-lab.md)) |
+| 2 | ⑤ gate-lab 취약점 실습장 | 🔵 구현 중: 1주차 완료 (V1·V3), 2주차 대기 ([설계안](design/stage2-gate-lab.md)) |
 | 3 | ③ gate-authz 권한 검사 자동 테스트 | ⚪ 시작 전 |
 | 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ⚪ 시작 전 |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ⚪ 시작 전 |
@@ -32,8 +32,40 @@
 - 안전장치: 루프백 주소가 아니면 시작 거부, `GATE_LAB_ACK=local-only` 필요, compose `lab` 프로필로만 기동, 시작 배너, 가짜 데이터만
 - 4단계 측정을 위해 취약 코드에 "여기가 취약점" 주석을 달지 않고, 정답은 `docs/lab/ground-truth.json`에만 둔다
 
-### 다음 할 일
-설계안대로 1주차(뼈대·안전장치·로그인과 V3·V1, 공격 테스트) 착수 확인 받기
+### 1주차 구현 (2026-11-09) — 완료
+| 항목 | 내용 |
+|---|---|
+| 모듈 | `gate-lab` (Spring Boot 4.1.2: webmvc, jdbc, security-oauth2-resource-server, H2 2.4.240). 모두 Spring 공식 스타터·BOM 관리 |
+| 안전장치 | `LabSafetyGuard`: `GATE_LAB_ACK=local-only` 없으면 거부, 루프백 주소가 아니면 거부(컨테이너 안에서 명시적으로 허용한 0.0.0.0만 예외), 프로필은 vulnerable·fixed 중 정확히 하나. 다른 빈보다 먼저 확인해 포트를 열기 전에 중단 |
+| 데이터 | 스키마·가짜 데이터를 앱이 직접 생성. 데모 계정(alice·bob) 비밀번호와 JWT 서명 키는 시작할 때마다 무작위(콘솔에만 출력, 환경 변수로 지정 가능) |
+| 로그인 | `POST /api/auth/login` → HS256 JWT(1시간). 두 버전 공통 |
+| V3 JWT | vulnerable: Bearer 토큰의 payload만 Base64로 풀어 `sub`를 믿는다(서명·알고리즘·만료 미검증). fixed: Spring Security 리소스 서버, HS256 고정, 서명·만료 검증 |
+| V1 IDOR | vulnerable: `GET·PUT·DELETE /api/orders/{id}`가 주인 확인 없음. fixed: 주인이 아니면 404(존재 여부도 숨김) |
+| 공통 API | `GET /api/me`, `GET·POST /api/orders` |
+
+**테스트 (30개 통과, Docker 없이 로컬에서 실행)**
+| 공격 | vulnerable | fixed |
+|---|---|---|
+| `alg:none` 서명 없는 위조 토큰으로 bob 행세 | 성공 (200, bob) | 401 |
+| 공격자 키로 서명한 토큰 | 성공 | 401 |
+| 만료된 토큰 | 성공 | 401 |
+| alice가 bob의 주문 조회 (배송 주소 노출) | 성공 | 404, 주소 노출 없음 |
+| alice가 bob의 주문 수정 | 성공 (bob이 보는 값이 바뀜) | 404, 원래 값 유지 |
+| alice가 bob의 주문 삭제 | 성공 | 404, 주문 유지 |
+| 주문 번호 1~3 차례로 시도해 남의 주문 수집 | 2건 이상 | 0건 |
+| 정상 흐름(로그인 → 내 주문 CRUD), 잘못된 자격 증명 401 | 동작 | 동작 |
+
+안전장치 테스트 12개: 동의 없음·공개 주소(0.0.0.0, ::, 사설 IP, 도메인)·프로필 0개/2개는 거부, 실제 앱 기동도 공개 주소·동의 없음에서 실패
+
+**실제 jar로 확인:** 동의 없이 시작하면 종료 코드 1로 거부. `vulnerable`로 띄우면 배너·데모 계정 안내가 콘솔에 나오고, **127.0.0.1:8081에서만 LISTEN**. 서명 없는 위조 토큰으로 `/api/me`가 bob을 돌려줌
+
+**알게 된 것**
+- 1단계 서버와 같은 실수를 다시 했다: 생성자 두 개 → Spring이 빈을 만들지 못함. 이번에는 로컬 테스트에서 바로 잡혔다(H2 덕분). 빈에는 생성자를 하나만 두는 것을 규칙으로 삼는다
+- H2 메모리 DB 이름이 고정이면 같은 JVM의 여러 테스트 앱이 DB를 함께 써서 충돌한다 → DB 이름에 `${random.uuid}`
+- `SpringApplicationBuilder.properties()`는 `application.yml`보다 우선순위가 낮다 → 테스트에서는 명령줄 인자로 넘김
+
+### 다음 할 일 (2주차)
+V2(SQL 인젝션)·V4(에러 노출) 두 버전, `openapi.yaml`과 컨트롤러 일치 테스트, compose `lab` 프로필과 Dockerfile, 취약점 설명서(`docs/lab/vulnerabilities.md`)·정답지(`docs/lab/ground-truth.json`), CI
 
 ---
 
