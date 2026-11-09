@@ -10,8 +10,8 @@
 | 0 | 뼈대 (Skeleton) | ✅ 완료 (CI로 검증, 2026-11-08) |
 | 1 | ① gate-pkg 패키지 설치 검문소 | ✅ 완료 (2026-11-09) · [측정](measurements/pkg-typo-fp.md) ([설계안](design/stage1-gate-pkg.md)) |
 | 2 | ⑤ gate-lab 취약점 실습장 | ✅ 완료 (2026-11-09) · [취약점 설명서](lab/vulnerabilities.md) |
-| 3 | ③ gate-authz 권한 검사 자동 테스트 | 🔵 구현 중: 2주차 완료 (조회·수정·삭제 BOLA, CLI), 3주차 대기 ([설계안](design/stage3-gate-authz.md)) |
-| 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ⚪ 시작 전 |
+| 3 | ③ gate-authz 권한 검사 자동 테스트 | ✅ 완료 (2026-11-09) · **0~3단계로 핵심 제품 완성** |
+| 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ⚪ 시작 전 (다음 단계 후보) |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ⚪ 시작 전 |
 | ★ | 대시보드·데모·정리 | ⚪ 시작 전 |
 
@@ -75,8 +75,36 @@
 - 1주차 실습장 테스트 3개를 공용 실습장 도우미(`LabServers`)로 옮기면서 2개로 합쳤다("조회만"과 "기본 설정에서 쓰기 건너뜀"을 한 테스트에서 확인). 확인하는 내용은 줄지 않았다
 - gate-pkg와 gate-authz의 서버 전송 코드가 비슷하게 중복된다. 공통 모듈(gate-common)은 JSON 라이브러리 없이 두기로 했으므로 지금은 중복을 감수한다
 
-### 다음 할 일 (3주차)
-CI에서 실습장 컨테이너를 대상으로 gate-authz 실행(실제 네트워크 경로, vulnerable 발견·fixed 0건 확인), 결과를 gate-server에 저장하는 흐름 확인, README·설계안·데모 정리 → 3단계 완료 기준 확인
+### 3주차 (2026-11-09) — 완료 → **3단계 완료**
+| 항목 | 내용 |
+|---|---|
+| CI 실제 네트워크 검사 | compose-smoke 잡: 실습장 컨테이너(vulnerable 8081·fixed 8082)를 대상으로 `gate-authz.jar` 실행. 실습장 데모 비밀번호는 실행마다 무작위(`.env`, 로그 마스킹) |
+| vulnerable | 종료 코드 2, 발견 규칙이 **정확히** `AUTHZ-BOLA-DELETE, AUTHZ-BOLA-READ, AUTHZ-BOLA-WRITE` |
+| fixed | 발견 0건 |
+| 서버 저장 | `GATE_SERVER_URL`로 gate-server에 전송 → PostgreSQL을 직접 조회해 module `AUTHZ`, 엔드포인트 위치(`PUT /api/orders/{id}` 등)로 3건 저장 확인 |
+| 문서 | README(영·한) gate-authz 섹션과 데모 그림(`docs/images/gate-authz-demo.svg`, 실제 출력) |
+
+### 3단계 완료 기준 확인
+| 기준 | 결과 |
+|---|---|
+| API 명세(OpenAPI)를 읽고 A의 토큰으로 B의 데이터 접근을 자동 시도 | ✅ 조회·수정·삭제·토큰 없음 |
+| 결과를 공통 검사 결과 저장소에 저장 | ✅ CI에서 PostgreSQL 저장까지 확인 |
+| 실습장의 뚫린 버전에서 IDOR를 찾음 | ✅ 조회·수정·삭제 3건 (테스트 + CI 컨테이너 + 실제 jar) |
+| 고친 버전에서는 찾지 않음 | ✅ 0건 (쓰기 허용·미허용 모두) |
+
+**알게 된 것**
+- 지금까지 CI YAML을 Python 문자열로 고치다가 두 번 깨졌다. 이번에는 Edit 도구로 직접 넣고 푸시 전에 YAML 문법을 확인해서 한 번에 통과했다
+
+### 핵심 제품(0~3단계) 정리
+| 모듈 | 하는 일 | 증명 |
+|---|---|---|
+| ① gate-pkg | AI 코딩 도구가 설치하려는 위험 패키지(존재하지 않음·철자 흉내·악성)를 훅·PR에서 차단 | 실제 Claude Code 훅 차단, PR Action 데모, 정상 패키지 600개 오탐 0 |
+| ⑤ gate-lab | API 취약점 4종과 고친 버전 | 같은 공격이 vulnerable 성공·fixed 차단 (테스트·컨테이너) |
+| ③ gate-authz | OpenAPI만으로 IDOR 자동 발견 | vulnerable 3건·fixed 0건, 결과 DB 저장 |
+| 공통 | 결과 저장소(gate-server), CI, 문서 | 푸시마다 전체 검증 |
+
+### 다음 할 일 (선택 단계)
+4단계 ② gate-review(정적 분석 + AI 리뷰, 실습장 정답지로 검출·오탐·미탐 측정) 설계. 리뷰어에게 코드를 줄 때 경로·프로필 이름 중립화 필요(2단계에서 기록). 또는 1단계 알려진 한계(npm 버전 범위, 묶음 다운로드 조회, 탐지율 측정, npx) 보강
 
 ---
 

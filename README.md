@@ -81,6 +81,26 @@ Optional result store: set `GATE_SERVER_URL` and results are sent to gate-server
 
 False positives: add `ecosystem:name@version  # reason` to `.gate/pkg-allow.txt` (exact version only; nonexistent or malicious packages cannot be allowed). Design: [docs/design/stage1-gate-pkg.md](docs/design/stage1-gate-pkg.md).
 
+### ③ gate-authz — automated authorization tests from OpenAPI (stage 3)
+Reads an OpenAPI spec and tries to access user B's objects with user A's token (BOLA/IDOR), and without any token.
+
+![gate-authz demo](docs/images/gate-authz-demo.svg)
+
+| Rule | Attempt | Counted as a finding when |
+|---|---|---|
+| `AUTHZ-BOLA-READ` | A reads B's object | 2xx and the same object (id and owner field) as B's own read |
+| `AUTHZ-BOLA-WRITE` | A updates B's object | **B re-reads the object and sees A's values** (status codes alone are not trusted) |
+| `AUTHZ-BOLA-DELETE` | A deletes B's object | **B re-reads and the object is gone** |
+| `AUTHZ-NOAUTH` | no token | 2xx on an operation the spec marks as authenticated |
+| `AUTHZ-INCONCLUSIVE` | — | B's own baseline failed, 5xx, or no object to test: reported, never passed |
+
+Safety: targets are loopback only unless a host is listed in `allowedHosts` (the spec's `servers` are not trusted, redirects are not followed); read-only by default, writes/deletes only with `allowMutation: true` and only on objects the scan created (cleaned up afterwards); passwords only from environment variables; tokens and personal data are masked in evidence.
+```bash
+./gradlew :gate-authz:cliJar
+GATE_AUTHZ_PASSWORD_A=... GATE_AUTHZ_PASSWORD_B=... gate-authz/bin/gate-authz scan --config gate-authz/gate-authz.lab.yml
+```
+Against gate-lab: **vulnerable → read, write and delete BOLA found; fixed → 0 findings.** CI runs this over the network against the lab containers and checks that the findings are stored in PostgreSQL via gate-server. Design: [docs/design/stage3-gate-authz.md](docs/design/stage3-gate-authz.md).
+
 ### ⑤ gate-lab — intentionally vulnerable practice app (stage 2, local only)
 The same order API served by two profiles: `vulnerable` (127.0.0.1:8081) and `fixed` (127.0.0.1:8082). Each attack is sent to both over real HTTP in tests: it must **succeed on vulnerable and fail on fixed**.
 
@@ -110,7 +130,7 @@ GATE/
 ├─ gate-server/   Spring Boot API: result store, health check, Flyway schema
 ├─ gate-pkg/      ① package install checkpoint (stage 1): checks, CLI, Claude Code hook, PR diff
 ├─ gate-lab/      ⑤ intentionally vulnerable practice app (stage 2, local only)
-├─ gate-authz/    ③ automated authorization tests from OpenAPI (stage 3, in progress)
+├─ gate-authz/    ③ automated authorization tests from OpenAPI (stage 3)
 ├─ docs/          progress log, ADRs, diagrams
 └─ docker-compose.yml
 ```
@@ -140,7 +160,7 @@ Integration tests (`HealthCheckIT`) start real PostgreSQL and Redis containers a
 - `gate-lab` is **never deployed publicly**.
 
 ### Status
-**Stages 0, 1 and 2 are complete.** `gate-pkg` blocks hallucinated, typosquatted and malicious packages in Claude Code (hook) and in pull requests (GitHub Action). `gate-lab` reproduces four API vulnerabilities next to their fixes. CI verifies on every push: unit and Testcontainers tests, a real `docker compose up` health check, an Action demo that must block a typosquat PR, and the lab containers (a forged token must work only on the vulnerable variant). Next: stage 3 (`gate-authz`). See [docs/progress.md](docs/progress.md).
+**Stages 0-3 are complete: the core product.** `gate-pkg` blocks hallucinated, typosquatted and malicious packages in Claude Code (hook) and in pull requests (GitHub Action). `gate-lab` reproduces four API vulnerabilities next to their fixes, and `gate-authz` finds the IDORs automatically from the OpenAPI spec. CI verifies on every push: unit and Testcontainers tests, a real `docker compose up` health check, an Action demo that must block a typosquat PR, the lab containers, and a gate-authz scan over the network whose findings must land in PostgreSQL. Next (optional): stage 4 (`gate-review`). See [docs/progress.md](docs/progress.md).
 
 ### License
 [MIT](LICENSE)
@@ -192,6 +212,24 @@ PR 검사(GitHub Action): `package.json`·`requirements*.txt`·`pyproject.toml`�
 
 오탐 예외: `.gate/pkg-allow.txt`에 `생태계:이름@버전  # 이유`를 적습니다. 정확한 버전만 허용되고, 존재하지 않는 패키지와 악성 패키지는 예외로 풀 수 없습니다.
 
+### ③ gate-authz: OpenAPI 기반 권한 자동 테스트 (3단계)
+OpenAPI 명세를 읽고, 사용자 A의 토큰으로 B의 객체에 접근해 봅니다(BOLA/IDOR). 토큰 없이도 시도합니다. (위 영어 섹션의 데모 그림 참고)
+
+| 규칙 | 시도 | 발견으로 보는 조건 |
+|---|---|---|
+| `AUTHZ-BOLA-READ` | A가 B의 객체 조회 | 2xx이고 B가 조회한 것과 같은 객체(ID·소유자 필드) |
+| `AUTHZ-BOLA-WRITE` | A가 B의 객체 수정 | **B가 다시 읽었을 때 A가 보낸 값이 보임** (응답 코드만 믿지 않음) |
+| `AUTHZ-BOLA-DELETE` | A가 B의 객체 삭제 | **B가 다시 읽었을 때 사라짐** |
+| `AUTHZ-NOAUTH` | 토큰 없이 | 명세가 인증 필요로 표시한 작업이 2xx |
+| `AUTHZ-INCONCLUSIVE` | — | B 자신의 기준선 실패, 5xx, 검사할 객체 없음: 통과로 처리하지 않고 기록 |
+
+안전장치는 다음과 같습니다.
+- 대상은 루프백만 허용합니다. 다른 호스트는 `allowedHosts`에 정확한 이름을 적어야 합니다. 명세의 `servers`는 믿지 않고, 리다이렉트도 따라가지 않습니다.
+- 기본은 조회만 합니다. 수정·삭제는 `allowMutation: true`일 때만, 검사가 직접 만든 객체에만 시도하고 끝나면 정리합니다.
+- 비밀번호는 환경 변수로만 받고, 토큰과 개인정보는 근거에서 가립니다.
+
+실습장 대상 결과: **뚫린 버전에서 조회·수정·삭제 BOLA 발견, 고친 버전에서 0건.** CI가 실습장 컨테이너를 네트워크로 검사하고, 결과가 gate-server를 거쳐 PostgreSQL에 저장되는지까지 확인합니다.
+
 ### ⑤ gate-lab: 취약점 실습장 (2단계, 로컬 전용)
 같은 주문 API를 두 프로필로 띄웁니다. `vulnerable`(127.0.0.1:8081)과 `fixed`(127.0.0.1:8082)입니다. 테스트가 같은 공격을 두 버전에 실제 HTTP로 보내서, **뚫린 버전에서는 성공하고 고친 버전에서는 막히는지** 확인합니다.
 
@@ -237,7 +275,7 @@ Docker 없이 빌드·테스트:
 - `gate-lab`(취약한 앱)은 **절대 외부에 공개 배포하지 않습니다.**
 
 ### 진행 상황
-**0·1·2단계 완료.** `gate-pkg`가 AI가 지어낸 패키지, 철자 흉내 패키지, 악성 패키지를 Claude Code 훅과 PR(GitHub Action) 양쪽에서 막습니다. `gate-lab`은 API 취약점 4종을 고친 버전과 나란히 재현합니다. 푸시할 때마다 CI가 단위·통합 테스트, 실제 `docker compose up` 헬스체크, 철자 흉내 PR 차단 데모, 실습장 컨테이너(위조 토큰이 뚫린 버전에서만 통하는지)까지 확인합니다. 다음은 3단계(`gate-authz`)입니다. 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
+**0~3단계 완료: 핵심 제품 완성.** `gate-pkg`가 AI가 지어낸 패키지, 철자 흉내 패키지, 악성 패키지를 Claude Code 훅과 PR(GitHub Action) 양쪽에서 막습니다. `gate-lab`은 API 취약점 4종을 고친 버전과 나란히 재현하고, `gate-authz`는 OpenAPI 명세만으로 IDOR를 자동으로 찾습니다. 푸시할 때마다 CI가 단위·통합 테스트, 실제 `docker compose up` 헬스체크, 철자 흉내 PR 차단 데모, 실습장 컨테이너, 그리고 네트워크로 실행한 gate-authz 결과가 PostgreSQL에 저장되는지까지 확인합니다. 다음은 4단계(`gate-review`, 선택)입니다. 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
 
 ### 라이선스
 [MIT](LICENSE)

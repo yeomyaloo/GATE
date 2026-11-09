@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 520" width="1100" height="520" font-family="Consolas, 'SFMono-Regular', 'D2Coding', 'Malgun Gothic', monospace">
+  <rect width="1100" height="520" fill="#ffffff"/>
+  <text x="40" y="40" font-size="20" font-weight="700" fill="#0f172a" font-family="-apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">gate-authz against gate-lab · 실습장을 대상으로 한 권한 검사</text>
+  <text x="40" y="64" font-size="13" fill="#475569" font-family="-apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">Real output recorded on 2026-11-09 (vulnerable variant, allowMutation: true). The fixed variant reports 0 findings.</text>
+
+  <rect x="40" y="84" width="1020" height="416" rx="10" fill="#0f172a"/>
+  <circle cx="62" cy="104" r="6" fill="#ef4444"/><circle cx="82" cy="104" r="6" fill="#f59e0b"/><circle cx="102" cy="104" r="6" fill="#22c55e"/>
+
+  <g font-size="14">
+    <text x="62" y="140" fill="#94a3b8">$ gate-authz scan --config gate-authz/gate-authz.lab.yml</text>
+    <text x="62" y="166" fill="#e2e8f0">GATE gate-authz: http://127.0.0.1:8081  (users: alice -&gt; bob, mutation: on)</text>
+
+    <text x="62" y="200" fill="#f87171" font-weight="700">FINDING</text>
+    <text x="170" y="200" fill="#e2e8f0">GET /api/orders/{id}      as user A   HTTP 200, same object (id, owner)</text>
+    <text x="62" y="224" fill="#4ade80" font-weight="700">PASS</text>
+    <text x="170" y="224" fill="#e2e8f0">GET /api/orders/{id}      no token    HTTP 401</text>
+    <text x="62" y="248" fill="#f87171" font-weight="700">FINDING</text>
+    <text x="170" y="248" fill="#e2e8f0">PUT /api/orders/{id}      as user A   changed quantity, note, shippingAddress (verified)</text>
+    <text x="62" y="272" fill="#f87171" font-weight="700">FINDING</text>
+    <text x="170" y="272" fill="#e2e8f0">DELETE /api/orders/{id}   as user A   object gone for its owner (verified)</text>
+
+    <text x="62" y="310" fill="#e2e8f0">Findings:</text>
+    <text x="80" y="334" fill="#fca5a5">AUTHZ-BOLA-READ     HIGH      User A can read user B's object via 'GET /api/orders/{id}'</text>
+    <text x="80" y="358" fill="#fca5a5">AUTHZ-BOLA-WRITE    CRITICAL  User A can modify user B's object via 'PUT /api/orders/{id}'</text>
+    <text x="80" y="382" fill="#fca5a5">AUTHZ-BOLA-DELETE   CRITICAL  User A can delete user B's object via 'DELETE /api/orders/{id}'</text>
+    <text x="62" y="416" fill="#f87171" font-weight="700">Result: BLOCK (3 findings)   exit code 2</text>
+
+    <text x="62" y="456" fill="#93c5fd">● writes/deletes only on objects created for the test, verified by the owner re-reading them</text>
+    <text x="62" y="480" fill="#93c5fd">● findings are stored in gate-server (PostgreSQL), checked in CI on every push</text>
+  </g>
+</svg>

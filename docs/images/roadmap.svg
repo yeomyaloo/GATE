@@ -4,7 +4,7 @@
   <text x="1060" y="42" font-size="13" fill="#64748b" text-anchor="end">one stage at a time · 한 번에 한 단계</text>
 
   <line x1="100" y1="120" x2="1000" y2="120" stroke="#cbd5e1" stroke-width="4"/>
-  <line x1="100" y1="120" x2="400" y2="120" stroke="#16a34a" stroke-width="4"/>
+  <line x1="100" y1="120" x2="550" y2="120" stroke="#16a34a" stroke-width="4"/>
 
   <g text-anchor="middle">
     <circle cx="100" cy="120" r="18" fill="#16a34a"/>
@@ -25,11 +25,11 @@
     <text x="400" y="186" font-size="13" fill="#475569">취약점 실습장</text>
     <text x="400" y="206" font-size="12" fill="#16a34a" font-weight="700">DONE ✔</text>
 
-    <circle cx="550" cy="120" r="18" fill="#ffffff" stroke="#b91c1c" stroke-width="3"/>
-    <text x="550" y="126" font-size="15" font-weight="700" fill="#b91c1c">3</text>
+    <circle cx="550" cy="120" r="18" fill="#16a34a"/>
+    <text x="550" y="126" font-size="15" font-weight="700" fill="#ffffff">3</text>
     <text x="550" y="166" font-size="14" font-weight="700" fill="#0f172a">gate-authz</text>
     <text x="550" y="186" font-size="13" fill="#475569">권한 검사 자동 테스트</text>
-    <text x="550" y="206" font-size="12" fill="#64748b">3 wks</text>
+    <text x="550" y="206" font-size="12" fill="#16a34a" font-weight="700">DONE ✔</text>
 
     <circle cx="700" cy="120" r="18" fill="#ffffff" stroke="#c2410c" stroke-width="3" stroke-dasharray="4 3"/>
     <text x="700" y="126" font-size="15" font-weight="700" fill="#c2410c">4</text>
