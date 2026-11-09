@@ -9,8 +9,8 @@
 |---|---|---|
 | 0 | 뼈대 (Skeleton) | ✅ 완료 (CI로 검증, 2026-11-08) |
 | 1 | ① gate-pkg 패키지 설치 검문소 | ✅ 완료 (2026-11-09) · [측정](measurements/pkg-typo-fp.md) ([설계안](design/stage1-gate-pkg.md)) |
-| 2 | ⑤ gate-lab 취약점 실습장 | 🔵 구현 중: 1주차 완료 (V1·V3), 2주차 대기 ([설계안](design/stage2-gate-lab.md)) |
-| 3 | ③ gate-authz 권한 검사 자동 테스트 | ⚪ 시작 전 |
+| 2 | ⑤ gate-lab 취약점 실습장 | ✅ 완료 (2026-11-09) · [취약점 설명서](lab/vulnerabilities.md) |
+| 3 | ③ gate-authz 권한 검사 자동 테스트 | ⚪ 시작 전 (다음 단계) |
 | 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ⚪ 시작 전 |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ⚪ 시작 전 |
 | ★ | 대시보드·데모·정리 | ⚪ 시작 전 |
@@ -64,8 +64,32 @@
 - H2 메모리 DB 이름이 고정이면 같은 JVM의 여러 테스트 앱이 DB를 함께 써서 충돌한다 → DB 이름에 `${random.uuid}`
 - `SpringApplicationBuilder.properties()`는 `application.yml`보다 우선순위가 낮다 → 테스트에서는 명령줄 인자로 넘김
 
-### 다음 할 일 (2주차)
-V2(SQL 인젝션)·V4(에러 노출) 두 버전, `openapi.yaml`과 컨트롤러 일치 테스트, compose `lab` 프로필과 Dockerfile, 취약점 설명서(`docs/lab/vulnerabilities.md`)·정답지(`docs/lab/ground-truth.json`), CI
+### 2주차 구현 (2026-11-09) — 완료 → **2단계 완료**
+| 항목 | 내용 |
+|---|---|
+| V2 SQL 인젝션 | vulnerable: 검색어를 SQL에 이어 붙임 → `UNION`으로 사용자 이름·비밀번호 해시 노출, 숨김 상품 조건 무력화. fixed: 바인딩 변수 + LIKE 특수 문자 이스케이프 + 길이 제한 |
+| V4 에러 노출 | vulnerable: 예외 클래스·메시지(SQL 포함)·원인·스택 트레이스 응답. fixed: RFC 9457 ProblemDetail(일반 메시지 + `traceId`), 자세한 내용은 같은 `traceId`로 서버 로그에만 |
+| OpenAPI | `/openapi.yaml`(인증 없이 제공). 두 버전 모두 실제 컨트롤러의 `/api/**` 경로·메서드와 명세가 정확히 같아야 통과하는 테스트 |
+| 컨테이너 | `gate-lab/Dockerfile`(digest 고정, 비root), compose `lab` 프로필(`lab-vulnerable`·`lab-fixed`, 호스트 127.0.0.1에만). 컨테이너 안에서만 `GATE_LAB_IN_CONTAINER=true` + `/.dockerenv`로 0.0.0.0 허용 |
+| CI | compose-smoke 잡이 실습장 두 버전을 컨테이너로 잠깐 띄워 위조 토큰이 vulnerable에서만 통하는지, 포트가 127.0.0.1에만 열렸는지 확인 후 내림 |
+| 문서 | [취약점 설명서](lab/vulnerabilities.md), 4단계용 [정답지](lab/ground-truth.json) + 정답지가 코드와 어긋나면 실패하는 테스트 |
+
+**테스트:** gate-lab 48개 통과 (공격 시나리오 16개 × 두 버전, 안전장치 12개, 정답지 2개, 명세 일치 포함). Docker 없이 로컬에서 실행
+
+### 2단계 완료 기준 확인
+| 기준 | 결과 |
+|---|---|
+| 각 취약점을 재현하는 방법 | ✅ [취약점 설명서](lab/vulnerabilities.md)에 curl 재현 방법, 테스트로 자동 재현 |
+| 고친 버전에서 막히는 것을 테스트로 증명 | ✅ 같은 공격을 두 버전에 보내 vulnerable 성공 / fixed 차단 (V1~V4 모두) |
+| 외부 공개 금지 | ✅ README 맨 위 경고, 시작 거부 장치, 127.0.0.1 전용 포트를 CI에서도 확인 |
+
+**알게 된 것**
+- **거짓 통과를 잡은 구조**: 테스트가 URL을 이중 인코딩해 SQL 인젝션 문자열이 서버에 닿지 않았는데도, 고친 버전 쪽 테스트는 "막혔다"며 통과했다. 같은 공격이 뚫린 버전에서 "성공해야 한다"고 함께 확인했기 때문에 드러났다. 보안 테스트는 공격이 실제로 닿는지(양성 대조군)를 반드시 함께 확인한다
+- 정답 노출 검사에서 클래스 이름 `VulnerableSecurityConfig`가 걸려 두 버전 모두 `SecurityConfig`로 바꿨다. 패키지 이름(`vulnerable`/`fixed`)과 `@Profile("vulnerable")`은 사람이 읽기 쉽게 남겼다 → **4단계에서 리뷰어에게 코드를 줄 때 경로·프로필 이름을 중립적으로 바꿔야 한다**(정답지에 명시)
+- CI YAML에 Python으로 `\n`을 넣다가 실제 줄바꿈이 되어 또 깨졌다. 푸시 전 YAML 문법 확인으로 잡았다
+
+### 다음 할 일
+3단계(③ gate-authz) 설계안 작성: OpenAPI 명세를 읽고 사용자 A의 토큰으로 B의 데이터 접근을 자동 시도 → 실습장 vulnerable에서 IDOR 발견, fixed에서는 발견 없음
 
 ---
 

@@ -1,0 +1,56 @@
+{
+  "description": "Ground truth for measuring security reviewers (stage 4) on gate-lab. Paths are relative to the repository root. Vulnerable code carries no marker comments on purpose; this file is the only label. GroundTruthTest fails if an anchor no longer appears inside its line range. NOTE for stage 4: the package path (io/gate/lab/vulnerable vs fixed) and @Profile(\"vulnerable\") still reveal intent; neutralize paths and profile names before giving code to a reviewer.",
+  "vulnerabilities": [
+    {
+      "id": "V1",
+      "title": "IDOR / BOLA: order detail endpoints do not check ownership",
+      "cwe": "CWE-639",
+      "owasp": "API1:2023 Broken Object Level Authorization",
+      "file": "gate-lab/src/main/java/io/gate/lab/vulnerable/OrderDetailController.java",
+      "lines": [29, 54],
+      "anchor": "return repository.findOrder(id).orElseThrow(",
+      "endpoints": ["GET /api/orders/{id}", "PUT /api/orders/{id}", "DELETE /api/orders/{id}"],
+      "fixedIn": "gate-lab/src/main/java/io/gate/lab/fixed/OrderDetailController.java"
+    },
+    {
+      "id": "V2",
+      "title": "SQL injection: search term concatenated into SQL",
+      "cwe": "CWE-89",
+      "owasp": "API8:2023 Security Misconfiguration / Injection",
+      "file": "gate-lab/src/main/java/io/gate/lab/vulnerable/ProductSearchController.java",
+      "lines": [24, 26],
+      "anchor": "name ILIKE '%\" + q + \"%' ",
+      "endpoints": ["GET /api/products/search"],
+      "fixedIn": "gate-lab/src/main/java/io/gate/lab/fixed/ProductSearchController.java"
+    },
+    {
+      "id": "V3",
+      "title": "JWT accepted without signature, algorithm or expiry verification",
+      "cwe": "CWE-347",
+      "owasp": "API2:2023 Broken Authentication",
+      "file": "gate-lab/src/main/java/io/gate/lab/vulnerable/BearerTokenFilter.java",
+      "lines": [29, 37],
+      "anchor": "Base64.getUrlDecoder().decode(parts[1])",
+      "endpoints": ["all authenticated endpoints"],
+      "fixedIn": "gate-lab/src/main/java/io/gate/lab/fixed/SecurityConfig.java"
+    },
+    {
+      "id": "V4",
+      "title": "Error responses expose exception class, message (incl. SQL) and stack trace",
+      "cwe": "CWE-209",
+      "owasp": "API8:2023 Security Misconfiguration",
+      "file": "gate-lab/src/main/java/io/gate/lab/vulnerable/ApiErrorHandler.java",
+      "lines": [35, 44],
+      "anchor": "m.put(\"trace\", trace.toString());",
+      "endpoints": ["any endpoint that fails"],
+      "fixedIn": "gate-lab/src/main/java/io/gate/lab/fixed/ApiErrorHandler.java"
+    }
+  ],
+  "expectedClean": [
+    "gate-lab/src/main/java/io/gate/lab/fixed/OrderDetailController.java",
+    "gate-lab/src/main/java/io/gate/lab/fixed/ProductSearchController.java",
+    "gate-lab/src/main/java/io/gate/lab/fixed/SecurityConfig.java",
+    "gate-lab/src/main/java/io/gate/lab/fixed/ApiErrorHandler.java",
+    "gate-lab/src/main/java/io/gate/lab/common/LabRepository.java"
+  ]
+}

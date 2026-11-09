@@ -17,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration
 @Profile("fixed")
-public class FixedSecurityConfig {
+public class SecurityConfig {
 
     @Bean
     JwtDecoder jwtDecoder(SecretKey jwtSigningKey) {

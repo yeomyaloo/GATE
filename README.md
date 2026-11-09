@@ -81,6 +81,18 @@ Optional result store: set `GATE_SERVER_URL` and results are sent to gate-server
 
 False positives: add `ecosystem:name@version  # reason` to `.gate/pkg-allow.txt` (exact version only; nonexistent or malicious packages cannot be allowed). Design: [docs/design/stage1-gate-pkg.md](docs/design/stage1-gate-pkg.md).
 
+### ⑤ gate-lab — intentionally vulnerable practice app (stage 2, local only)
+The same order API served by two profiles: `vulnerable` (127.0.0.1:8081) and `fixed` (127.0.0.1:8082). Each attack is sent to both over real HTTP in tests: it must **succeed on vulnerable and fail on fixed**.
+
+| # | Vulnerability | vulnerable | fixed |
+|---|---|---|---|
+| V1 | IDOR / BOLA (CWE-639) | anyone logged in reads, edits, deletes others' orders | 404 unless you own it |
+| V2 | SQL injection (CWE-89) | `UNION` dumps user password hashes | bound parameter, LIKE wildcards escaped |
+| V3 | JWT not verified (CWE-347) | `alg:none`, foreign-key and expired tokens accepted | HS256 only, signature and expiry checked |
+| V4 | Error details exposed (CWE-209) | exception class, SQL and stack trace in responses | RFC 9457 ProblemDetail + trace id |
+
+Safety guards: refuses to start without `GATE_LAB_ACK=local-only`, on non-loopback addresses, or without exactly one variant profile; random demo passwords and signing key; compose `lab` profile publishes on 127.0.0.1 only. Catalogue: [docs/lab/vulnerabilities.md](docs/lab/vulnerabilities.md). Ground truth for stage 4: [docs/lab/ground-truth.json](docs/lab/ground-truth.json) (no marker comments in vulnerable code).
+
 ### Tech stack
 | Area | Choice |
 |---|---|
@@ -127,7 +139,7 @@ Integration tests (`HealthCheckIT`) start real PostgreSQL and Redis containers a
 - `gate-lab` is **never deployed publicly**.
 
 ### Status
-**Stages 0 and 1 are complete.** `gate-pkg` blocks hallucinated, typosquatted and malicious packages in Claude Code (hook) and in pull requests (GitHub Action). CI verifies on every push: unit and Testcontainers tests, a real `docker compose up` health check, and an Action demo that must block a typosquat PR. Next: stage 2 (`gate-lab`). See [docs/progress.md](docs/progress.md).
+**Stages 0, 1 and 2 are complete.** `gate-pkg` blocks hallucinated, typosquatted and malicious packages in Claude Code (hook) and in pull requests (GitHub Action). `gate-lab` reproduces four API vulnerabilities next to their fixes. CI verifies on every push: unit and Testcontainers tests, a real `docker compose up` health check, an Action demo that must block a typosquat PR, and the lab containers (a forged token must work only on the vulnerable variant). Next: stage 3 (`gate-authz`). See [docs/progress.md](docs/progress.md).
 
 ### License
 [MIT](LICENSE)
@@ -179,6 +191,18 @@ PR 검사(GitHub Action): `package.json`·`requirements*.txt`·`pyproject.toml`�
 
 오탐 예외: `.gate/pkg-allow.txt`에 `생태계:이름@버전  # 이유`를 적습니다. 정확한 버전만 허용되고, 존재하지 않는 패키지와 악성 패키지는 예외로 풀 수 없습니다.
 
+### ⑤ gate-lab: 취약점 실습장 (2단계, 로컬 전용)
+같은 주문 API를 두 프로필로 띄웁니다. `vulnerable`(127.0.0.1:8081)과 `fixed`(127.0.0.1:8082)입니다. 테스트가 같은 공격을 두 버전에 실제 HTTP로 보내서, **뚫린 버전에서는 성공하고 고친 버전에서는 막히는지** 확인합니다.
+
+| # | 취약점 | 뚫린 버전 | 고친 버전 |
+|---|---|---|---|
+| V1 | IDOR/BOLA (CWE-639) | 로그인만 하면 남의 주문을 읽고·고치고·지움 | 주인이 아니면 404 |
+| V2 | SQL 인젝션 (CWE-89) | `UNION`으로 사용자 비밀번호 해시 노출 | 바인딩 변수, LIKE 특수 문자 이스케이프 |
+| V3 | JWT 검증 누락 (CWE-347) | 서명 없는 토큰·다른 키·만료 토큰 통과 | HS256 고정, 서명·만료 검증 |
+| V4 | 에러 노출 (CWE-209) | 예외 클래스·SQL·스택 트레이스 응답 | 일반 메시지 + 추적 ID |
+
+안전장치: `GATE_LAB_ACK=local-only`가 없거나, 루프백 주소가 아니거나, 버전 프로필이 정확히 하나가 아니면 시작을 거부합니다. 데모 비밀번호와 서명 키는 시작할 때마다 무작위로 만들고, compose `lab` 프로필은 127.0.0.1에만 포트를 엽니다. 자세한 내용은 [취약점 설명서](docs/lab/vulnerabilities.md)에 있고, 4단계 측정용 정답은 [ground-truth.json](docs/lab/ground-truth.json)에만 둡니다(취약 코드에는 표시 주석 없음).
+
 ### 기술 스택
 | 영역 | 선택 |
 |---|---|
@@ -212,7 +236,7 @@ Docker 없이 빌드·테스트:
 - `gate-lab`(취약한 앱)은 **절대 외부에 공개 배포하지 않습니다.**
 
 ### 진행 상황
-**0·1단계 완료.** `gate-pkg`가 AI가 지어낸 패키지, 철자 흉내 패키지, 악성 패키지를 Claude Code 훅과 PR(GitHub Action) 양쪽에서 막습니다. 푸시할 때마다 CI가 단위·통합 테스트, 실제 `docker compose up` 헬스체크, 그리고 철자 흉내 PR을 실제로 막는지 Action 데모까지 확인합니다. 다음은 2단계(`gate-lab`)입니다. 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
+**0·1·2단계 완료.** `gate-pkg`가 AI가 지어낸 패키지, 철자 흉내 패키지, 악성 패키지를 Claude Code 훅과 PR(GitHub Action) 양쪽에서 막습니다. `gate-lab`은 API 취약점 4종을 고친 버전과 나란히 재현합니다. 푸시할 때마다 CI가 단위·통합 테스트, 실제 `docker compose up` 헬스체크, 철자 흉내 PR 차단 데모, 실습장 컨테이너(위조 토큰이 뚫린 버전에서만 통하는지)까지 확인합니다. 다음은 3단계(`gate-authz`)입니다. 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
 
 ### 라이선스
 [MIT](LICENSE)

@@ -10,7 +10,7 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 
 @Configuration
 @Profile("vulnerable")
-public class VulnerableSecurityConfig {
+public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
