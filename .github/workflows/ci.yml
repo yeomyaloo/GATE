@@ -35,6 +35,15 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
 
+      # gate-review: 고정 버전 Semgrep을 가상 환경에 설치하고 규칙 테스트부터 돌린다
+      - name: Semgrep (pinned) and rule tests
+        run: |
+          python3 -m venv "$RUNNER_TEMP/semgrep"
+          "$RUNNER_TEMP/semgrep/bin/pip" install -q -r gate-review/semgrep/requirements.txt
+          "$RUNNER_TEMP/semgrep/bin/semgrep" --version
+          "$RUNNER_TEMP/semgrep/bin/semgrep" --test --metrics=off --disable-version-check gate-review/semgrep/rules
+          echo "GATE_SEMGREP=$RUNNER_TEMP/semgrep/bin/semgrep" >> "$GITHUB_ENV"
+
       - name: Build and test
         run: ./gradlew build --no-daemon
 
@@ -79,6 +88,9 @@ jobs:
             grep -q 'skipped="0"' "$f" || { echo "$f was skipped"; exit 1; }
           done
           test "$found" = 1 || { echo "no integration test results"; exit 1; }
+          f=gate-review/build/test-results/test/TEST-io.gate.review.staticscan.SemgrepRealIT.xml
+          grep -o '<testsuite [^>]*>' "$f"
+          grep -q 'skipped="0"' "$f" || { echo "SemgrepRealIT was skipped"; exit 1; }
 
       - name: Upload test reports
         if: always()

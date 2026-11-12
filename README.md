@@ -131,6 +131,7 @@ GATE/
 ├─ gate-pkg/      ① package install checkpoint (stage 1): checks, CLI, Claude Code hook, PR diff
 ├─ gate-lab/      ⑤ intentionally vulnerable practice app (stage 2, local only)
 ├─ gate-authz/    ③ automated authorization tests from OpenAPI (stage 3)
+├─ gate-review/   ② static analysis (Semgrep) + AI security review of PRs (stage 4, in progress)
 ├─ docs/          progress log, ADRs, diagrams
 └─ docker-compose.yml
 ```

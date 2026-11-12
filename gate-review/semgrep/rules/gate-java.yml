@@ -1,0 +1,98 @@
+# gate-review 기본 Semgrep 규칙 (Java·Spring 일반 패턴).
+# 실습장 코드에 맞춘 규칙이 아니다. 같은 저자가 실습장 정답을 알고 썼다는 한계가 있으므로,
+# 측정에서는 기성 규칙 묶음(registry p/java) 결과도 따로 기록한다. 권한 확인 누락(IDOR)은 정적 규칙으로 다루지 않는다.
+rules:
+  - id: gate-java-sql-string-concat
+    mode: taint
+    languages: [java]
+    severity: ERROR
+    message: >-
+      Request input reaches a SQL statement through string concatenation. Pass it as a bind
+      parameter ("?") instead of building the SQL text from it.
+    metadata:
+      cwe: ["CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')"]
+      category: security
+      confidence: MEDIUM
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  $RET $M(..., @RequestParam(...) $T $P, ...) { ... }
+              - pattern-inside: |
+                  $RET $M(..., @RequestParam $T $P, ...) { ... }
+              - pattern-inside: |
+                  $RET $M(..., @PathVariable(...) $T $P, ...) { ... }
+              - pattern-inside: |
+                  $RET $M(..., @PathVariable $T $P, ...) { ... }
+              - pattern-inside: |
+                  $RET $M(..., @RequestHeader(...) $T $P, ...) { ... }
+              - pattern-inside: |
+                  $RET $M(..., @RequestBody $T $P, ...) { ... }
+          - pattern: $P
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $J.query($SQL, ...)
+              - pattern: $J.queryForList($SQL, ...)
+              - pattern: $J.queryForObject($SQL, ...)
+              - pattern: $J.queryForMap($SQL, ...)
+              - pattern: $J.queryForRowSet($SQL, ...)
+              - pattern: $J.update($SQL, ...)
+              - pattern: $J.batchUpdate($SQL, ...)
+              - pattern: $J.execute($SQL, ...)
+              - pattern: $J.executeQuery($SQL, ...)
+              - pattern: $J.executeUpdate($SQL, ...)
+              - pattern: $J.prepareStatement($SQL, ...)
+              - pattern: $J.createQuery($SQL, ...)
+              - pattern: $J.createNativeQuery($SQL, ...)
+          - focus-metavariable: $SQL
+
+  - id: gate-java-jwt-payload-trusted-without-verification
+    languages: [java]
+    severity: ERROR
+    message: >-
+      A token's payload segment is Base64-decoded and used without verifying the signature,
+      algorithm or expiry. Verify the token with a JWT library (fixed algorithm, signature and exp checks).
+    metadata:
+      cwe: ["CWE-347: Improper Verification of Cryptographic Signature"]
+      category: security
+      confidence: MEDIUM
+    patterns:
+      - pattern-inside: |
+          $RET $M(...) {
+            ...
+            $PARTS = $TOKEN.split($SEP);
+            ...
+          }
+      - pattern-either:
+          - pattern: $DECODER.decode($PARTS[1])
+      - pattern-not-inside: |
+          $RET $M(...) {
+            ...
+            $V.verify(...);
+            ...
+          }
+
+  - id: gate-java-exception-details-in-response
+    languages: [java]
+    severity: WARNING
+    message: >-
+      An exception handler copies exception details (message, class name or stack trace) into the
+      response. Return a generic message with a correlation id and log the details server-side.
+    metadata:
+      cwe: ["CWE-209: Generation of Error Message Containing Sensitive Information"]
+      category: security
+      confidence: MEDIUM
+    patterns:
+      - pattern-inside: |
+          @$ADVICE
+          class $C { ... }
+      - metavariable-regex:
+          metavariable: $ADVICE
+          regex: ^(RestControllerAdvice|ControllerAdvice)$
+      - pattern-either:
+          - pattern: $E.printStackTrace($WRITER)
+          - pattern: $MAP.put($K, $E.getMessage())
+          - pattern: $MAP.put($K, $E.getClass().getName())
+          - pattern: $MAP.put($K, $E.getStackTrace())
+          - pattern: $MAP.put($K, $E.getCause().toString())

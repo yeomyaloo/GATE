@@ -13,6 +13,7 @@ COPY gate-server ./gate-server
 COPY gate-pkg/build.gradle.kts ./gate-pkg/
 COPY gate-lab/build.gradle.kts ./gate-lab/
 COPY gate-authz/build.gradle.kts ./gate-authz/
+COPY gate-review/build.gradle.kts ./gate-review/
 RUN chmod +x gradlew && ./gradlew --no-daemon :gate-server:bootJar -x test
 
 FROM eclipse-temurin:17.0.21_9-jre-alpine-3.24@sha256:e2ba4e947bd5e236a9866fbdda03e4936036cb9e9d16ea0d84d103d6634a5c21

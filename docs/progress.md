@@ -11,7 +11,7 @@
 | 1 | ① gate-pkg 패키지 설치 검문소 | ✅ 완료 (2026-11-09) · [측정](measurements/pkg-typo-fp.md) ([설계안](design/stage1-gate-pkg.md)) |
 | 2 | ⑤ gate-lab 취약점 실습장 | ✅ 완료 (2026-11-09) · [취약점 설명서](lab/vulnerabilities.md) |
 | 3 | ③ gate-authz 권한 검사 자동 테스트 | ✅ 완료 (2026-11-09) · **0~3단계로 핵심 제품 완성** |
-| 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | 🟡 설계 결정 확정, 착수 대기 ([설계안](design/stage4-gate-review.md)) |
+| 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | 🔵 구현 중: 1주차 완료 (Semgrep·판정 합치기), 2주차 대기 ([설계안](design/stage4-gate-review.md)) |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ⚪ 시작 전 |
 | ★ | 대시보드·데모·정리 | ⚪ 시작 전 |
 
@@ -34,8 +34,26 @@
 - 측정: 2단계 정답지 + 경로·프로필 이름 중립화, 정적만·AI만·합침 비교, AI 3회 반복, 비용·토큰 기록
 - 추정 비용: 검토 1회 약 $0.2~0.4, 측정 전체 약 $3~5 (구현 시 실측)
 
-### 다음 할 일
-설계안대로 1주차(뼈대, Semgrep 연동과 규칙, 판정·합치기, 가짜 AI 테스트) 착수 확인. API 키는 2주차 실제 호출 전까지 준비
+### 1주차 구현 (2026-11-13) — 완료
+| 항목 | 내용 |
+|---|---|
+| Semgrep | **1.182.1로 고정**(`gate-review/semgrep/requirements.txt`, 최신 1.185.0은 나온 지 2일이라 제외). 추가 전에 **gate-pkg로 검사: PASS**. 로컬은 작업용 가상 환경(Python 3.10)에만 설치하고 시스템 Python은 건드리지 않음(설치 명령이 이 저장소의 gate-pkg 훅을 실제로 거쳐 통과) |
+| 규칙 3개 | 일반 Java·Spring 패턴: SQL 문자열 연결(taint, CWE-89), 검증 없이 JWT payload 사용(CWE-347), 예외 처리기가 예외 정보를 응답에 넣음(CWE-209). **IDOR는 정적 규칙으로 다루지 않음**(논리 결함). `semgrep --test` 규칙 테스트 3/3 |
+| 실행·읽기 | 셸 없이 인자 배열로 실행, `--metrics=off`, 고정 버전이 아니면 실행 거부. 오픈소스판은 코드 줄(`lines`)을 주지 않아 파일에서 직접 읽음, Windows 경로 정규화 |
+| AI 경계 | `AiReviewer` 인터페이스와 결과 상태(OK·SKIPPED·REFUSED·ERROR). 실제 Claude 호출은 2주차 |
+| 인용 확인 | AI가 인용한 코드가 지적한 줄 앞뒤 2줄 안에 실제로 있어야 받아들임(공백 무시). 아니면 버리고 이유를 기록 |
+| 판정 합치기 | 같은 파일·가까운 줄(±3)·같은 종류 CWE면 `RULE_AND_AI` → BLOCK. 규칙만: ERROR→BLOCK, WARNING→WARN. **AI만: 언제나 WARN** |
+
+**실습장에 규칙을 돌린 결과 (정적 분석만):** vulnerable에서 V2(SQL 인젝션)·V3(JWT 검증 누락)·V4(에러 노출) 6건, **fixed 0건, V1(IDOR)은 못 찾음** → AI가 V1을 보완하는지가 측정의 핵심
+
+**테스트 (16개 통과):** 녹화된 Semgrep 출력 읽기, 고정 버전과 requirements 일치, 실제 Semgrep 실행 결과가 녹화본과 같은지(`SemgrepRealIT`: 로컬에 없으면 건너뛰지만 **CI에서는 건너뛰면 실패**), 판정 합치기 9개(규칙+AI 일치=BLOCK, AI 단독 IDOR=WARN, CWE 종류 다르면 안 합침, 지어낸 인용 4종 거부, AI 거절·오류 시 정적 결과만), 인용 확인 3개
+
+**CI:** 빌드 잡에서 고정 버전 Semgrep을 가상 환경에 설치 → 규칙 테스트 → `SemgrepRealIT`가 실제로 실행됐는지 확인
+
+**공정성 메모:** 규칙은 실습장 정답을 아는 같은 저자가 썼다. 3주차 측정에서 기성 규칙 묶음(registry `p/java`)도 따로 돌려 기준선으로 함께 기록한다
+
+### 다음 할 일 (2주차)
+Claude 호출(공식 Java SDK, Claude Opus 5.5, 구조화 출력, 프롬프트 캐싱, 거절 처리), 경로·프로필 이름 중립화, CLI. **실제 API 호출 전에 사용자의 `ANTHROPIC_API_KEY` 준비와 예상 비용 확인 필요**
 
 ---
 
