@@ -1,0 +1,185 @@
+package io.gate.review.cli;
+
+import com.anthropic.models.messages.OutputConfig;
+import io.gate.common.finding.Decision;
+import io.gate.pkg.manifest.GitReader;
+import io.gate.review.SourceFile;
+import io.gate.review.ai.AiResult;
+import io.gate.review.ai.AiReviewer;
+import io.gate.review.ai.ClaudeReviewer;
+import io.gate.review.diff.ChangedSources;
+import io.gate.review.merge.ReviewMerger;
+import io.gate.review.merge.ReviewReport;
+import io.gate.review.staticscan.SemgrepResult;
+import io.gate.review.staticscan.SemgrepRunner;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Clock;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.function.Function;
+
+/**
+ * gate-review 명령줄 진입점.
+ * <pre>
+ * gate-review review --base &lt;ref&gt; [--head &lt;ref&gt;] [--repo DIR] [--rules PATH] [--format text|json]
+ *                    [--no-ai] [--effort low|medium|high|xhigh|max]
+ * </pre>
+ * 종료 코드: 0 문제 없음 · 1 경고 · 2 차단 · 3 실행 오류. AI만의 지적은 경고까지만 낸다.
+ * {@code ANTHROPIC_API_KEY}가 없으면 정적 분석만 하고 그 사실을 출력에 표시한다.
+ */
+public final class GateReviewCli {
+
+    public static final String VERSION = "0.1.0";
+    static final int PASS = 0;
+    static final int WARN = 1;
+    static final int BLOCK = 2;
+    static final int ERROR = 3;
+    static final String DEFAULT_RULES = "gate-review/semgrep/rules/gate-java.yml";
+
+    private final Function<String, String> env;
+    private final Function<Optional<OutputConfig.Effort>, Optional<AiReviewer>> aiFactory;
+
+    GateReviewCli(Function<String, String> env, Function<Optional<OutputConfig.Effort>, Optional<AiReviewer>> ai) {
+        this.env = env;
+        this.aiFactory = ai;
+    }
+
+    public static void main(String[] args) {
+        Function<String, String> env = System::getenv;
+        GateReviewCli cli = new GateReviewCli(env, effort -> ClaudeReviewer.fromEnv(env, ClaudeReviewer.DEFAULT_MODEL,
+                effort.orElse(OutputConfig.Effort.HIGH)).map(r -> (AiReviewer) r));
+        PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        PrintStream err = new PrintStream(System.err, true, StandardCharsets.UTF_8);
+        System.exit(cli.run(args, out, err));
+    }
+
+    int run(String[] args, PrintStream out, PrintStream err) {
+        if (args.length == 0 || !args[0].equals("review")) {
+            if (args.length > 0 && args[0].equals("version")) {
+                out.println("gate-review " + VERSION);
+                return PASS;
+            }
+            err.print(usage());
+            return ERROR;
+        }
+        String base = null;
+        String head = "HEAD";
+        String format = "text";
+        String rules = DEFAULT_RULES;
+        Path repo = Path.of("").toAbsolutePath();
+        boolean noAi = false;
+        Optional<OutputConfig.Effort> effort = Optional.empty();
+        for (int i = 1; i < args.length; i++) {
+            String a = args[i];
+            if (i + 1 < args.length && a.equals("--base")) {
+                base = args[++i];
+            } else if (i + 1 < args.length && a.equals("--head")) {
+                head = args[++i];
+            } else if (i + 1 < args.length && a.equals("--repo")) {
+                repo = Path.of(args[++i]);
+            } else if (i + 1 < args.length && a.equals("--rules")) {
+                rules = args[++i];
+            } else if (i + 1 < args.length && a.equals("--format")) {
+                format = args[++i];
+            } else if (i + 1 < args.length && a.equals("--effort")) {
+                effort = Optional.of(OutputConfig.Effort.of(args[++i].toLowerCase(Locale.ROOT)));
+            } else if (a.equals("--no-ai")) {
+                noAi = true;
+            } else {
+                err.println("unknown option: " + a);
+                return ERROR;
+            }
+        }
+        if (base == null || (!format.equals("text") && !format.equals("json"))) {
+            err.print(usage());
+            return ERROR;
+        }
+        try {
+            ReviewReport report = review(repo, base, head, rules, noAi, effort);
+            out.print(format.equals("json") ? ReviewOutput.json(report) + System.lineSeparator()
+                    : ReviewOutput.text(report));
+            Decision d = report.decision();
+            return d == Decision.BLOCK ? BLOCK : d == Decision.WARN ? WARN : PASS;
+        } catch (IOException | IllegalArgumentException e) {
+            err.println("gate-review: " + e.getMessage());
+            return ERROR;
+        }
+    }
+
+    ReviewReport review(Path repo, String base, String head, String rules, boolean noAi,
+            Optional<OutputConfig.Effort> effort) throws IOException {
+        List<SourceFile> files = ChangedSources.between(new GitReader(repo), base, head);
+
+        // head 시점 내용을 임시 폴더에 같은 경로로 써서 semgrep을 돌린다 (작업 트리와 head가 달라도 정확하게)
+        Path tmp = Files.createTempDirectory("gate-review-");
+        try {
+            // semgrep은 git 저장소가 아닌 폴더에서 멈출 수 있다(Windows에서 확인: 60초 넘게 무응답 → git init 후 5초)
+            initGitRepo(tmp);
+            for (SourceFile f : files) {
+                Path p = tmp.resolve(f.path()).normalize();
+                if (!p.startsWith(tmp)) {
+                    throw new IllegalArgumentException("path escapes the workspace: " + f.path());
+                }
+                Files.createDirectories(p.getParent());
+                Files.writeString(p, f.content(), StandardCharsets.UTF_8);
+            }
+            Path rulesPath = repo.resolve(rules).toAbsolutePath();
+            SemgrepRunner semgrep = new SemgrepRunner(env.apply("GATE_SEMGREP") == null ? "semgrep"
+                    : env.apply("GATE_SEMGREP"));
+            SemgrepResult st = semgrep.scan(tmp, rulesPath.toString(), files.stream().map(SourceFile::path).toList());
+
+            AiResult ai;
+            if (noAi) {
+                ai = AiResult.skipped("disabled with --no-ai");
+            } else if (files.isEmpty()) {
+                ai = AiResult.skipped("no changed Java sources");
+            } else {
+                ai = aiFactory.apply(effort).map(r -> r.review(files, st.hits()))
+                        .orElse(AiResult.skipped("ANTHROPIC_API_KEY is not set; static analysis only"));
+            }
+            return new ReviewMerger(Clock.systemUTC()).merge(files, st.hits(), st.errors(),
+                    "semgrep " + st.version(), ai);
+        } finally {
+            deleteTree(tmp);
+        }
+    }
+
+    private static void initGitRepo(Path dir) throws IOException {
+        Process p = new ProcessBuilder("git", "init", "-q").directory(dir.toFile()).redirectErrorStream(true).start();
+        try {
+            p.getInputStream().readAllBytes();
+            if (!p.waitFor(30, java.util.concurrent.TimeUnit.SECONDS) || p.exitValue() != 0) {
+                throw new IOException("git init failed in the review workspace");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("interrupted", e);
+        }
+    }
+
+    private static void deleteTree(Path dir) {
+        try (var walk = Files.walk(dir)) {
+            walk.sorted(java.util.Comparator.reverseOrder()).forEach(p -> p.toFile().delete());
+        } catch (IOException e) {
+            // 임시 폴더 정리 실패는 결과에 영향이 없다
+        }
+    }
+
+    static String usage() {
+        return String.join(System.lineSeparator(),
+                "gate-review " + VERSION + " - static analysis (Semgrep) + AI security review of changes (GATE)",
+                "",
+                "Usage:",
+                "  gate-review review --base <ref> [--head <ref>] [--repo DIR] [--rules PATH] [--format text|json]",
+                "                     [--no-ai] [--effort low|medium|high|xhigh|max]",
+                "",
+                "Exit codes: 0 clean, 1 warnings, 2 blocking findings, 3 error.",
+                "AI-only findings never block. Without ANTHROPIC_API_KEY only static analysis runs.",
+                "") + System.lineSeparator();
+    }
+}

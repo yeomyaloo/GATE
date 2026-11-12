@@ -88,9 +88,11 @@ jobs:
             grep -q 'skipped="0"' "$f" || { echo "$f was skipped"; exit 1; }
           done
           test "$found" = 1 || { echo "no integration test results"; exit 1; }
-          f=gate-review/build/test-results/test/TEST-io.gate.review.staticscan.SemgrepRealIT.xml
-          grep -o '<testsuite [^>]*>' "$f"
-          grep -q 'skipped="0"' "$f" || { echo "SemgrepRealIT was skipped"; exit 1; }
+          for f in gate-review/build/test-results/test/TEST-io.gate.review.staticscan.SemgrepRealIT.xml \
+                   gate-review/build/test-results/test/TEST-io.gate.review.cli.ReviewCliIT.xml; do
+            grep -o '<testsuite [^>]*>' "$f"
+            grep -q 'skipped="0"' "$f" || { echo "$f was skipped"; exit 1; }
+          done
 
       - name: Upload test reports
         if: always()

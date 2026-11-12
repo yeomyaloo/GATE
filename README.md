@@ -131,11 +131,11 @@ GATE/
 ├─ gate-pkg/      ① package install checkpoint (stage 1): checks, CLI, Claude Code hook, PR diff
 ├─ gate-lab/      ⑤ intentionally vulnerable practice app (stage 2, local only)
 ├─ gate-authz/    ③ automated authorization tests from OpenAPI (stage 3)
-├─ gate-review/   ② static analysis (Semgrep) + AI security review of PRs (stage 4, in progress)
+├─ gate-review/   ② static analysis (Semgrep) + AI security review of PRs (stage 4, in progress: rules, AI review and CLI done; measurement next)
 ├─ docs/          progress log, ADRs, diagrams
 └─ docker-compose.yml
 ```
-Later stages add `gate-authz/`, `gate-review/`, `gate-prompt/`, `dashboard/`.
+Later stages add `gate-prompt/` and `dashboard/`.
 
 ### Getting started
 Requirements: Docker Desktop (with Compose v2), JDK 17 for local builds.

@@ -11,7 +11,7 @@
 | 1 | ① gate-pkg 패키지 설치 검문소 | ✅ 완료 (2026-11-09) · [측정](measurements/pkg-typo-fp.md) ([설계안](design/stage1-gate-pkg.md)) |
 | 2 | ⑤ gate-lab 취약점 실습장 | ✅ 완료 (2026-11-09) · [취약점 설명서](lab/vulnerabilities.md) |
 | 3 | ③ gate-authz 권한 검사 자동 테스트 | ✅ 완료 (2026-11-09) · **0~3단계로 핵심 제품 완성** |
-| 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | 🔵 구현 중: 1주차 완료 (Semgrep·판정 합치기), 2주차 대기 ([설계안](design/stage4-gate-review.md)) |
+| 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | 🔵 구현 중: 1·2주차 완료 (Semgrep·판정 합치기·Claude 호출·CLI), 3주차(측정·PR 연동) 대기 ([설계안](design/stage4-gate-review.md)) |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ⚪ 시작 전 |
 | ★ | 대시보드·데모·정리 | ⚪ 시작 전 |
 
@@ -52,8 +52,33 @@
 
 **공정성 메모:** 규칙은 실습장 정답을 아는 같은 저자가 썼다. 3주차 측정에서 기성 규칙 묶음(registry `p/java`)도 따로 돌려 기준선으로 함께 기록한다
 
-### 다음 할 일 (2주차)
-Claude 호출(공식 Java SDK, Claude Opus 5.5, 구조화 출력, 프롬프트 캐싱, 거절 처리), 경로·프로필 이름 중립화, CLI. **실제 API 호출 전에 사용자의 `ANTHROPIC_API_KEY` 준비와 예상 비용 확인 필요**
+### 2주차 구현 (2026-11-13) — 완료 (API 키 없이)
+사용자 결정: **"키 없이 먼저 진행"**. 실제 Claude 호출은 하지 않았고, 요청 모양·응답 처리는 로컬 가짜 API 서버로 검증했다.
+
+| 항목 | 내용 |
+|---|---|
+| SDK | 공식 Anthropic Java SDK `com.anthropic:anthropic-java:3.3.0` (관리자 Anthropic, 2026-10-23 공개로 2주 넘음) |
+| 호출 | Claude Opus 5.5, `max_tokens` 16000, effort 기본 `high`(`--effort`로 변경). **구조화 출력(JSON 스키마)** 으로 형식 강제, 형식이 틀리면 1회만 재요청. 지침(system)은 **프롬프트 캐싱** |
+| 주소 고정 | 이 PC 환경에 `ANTHROPIC_BASE_URL`이 있음을 확인 → 검토 대상 코드가 다른 곳으로 가지 않도록 `https://api.anthropic.com`을 코드에 명시 |
+| 실패 처리 | 거절(refusal, 사유 분류 기록)·길이 초과·429·5xx·네트워크 오류는 예외 대신 상태로 반환 → 정적 분석 결과만 내고 "AI 검토 불가"를 표시. 서버 측 다른 모델로의 대체(fallback)는 **측정을 한 모델로 유지하려고 일부러 쓰지 않음** |
+| 프롬프트 | 보안만 검토, 코드 안 지시문은 데이터로 취급, 파일은 `N| ` 줄 번호를 붙여 전달(이 형식의 줄만 파일 내용 → 코드 안에 가짜 태그를 넣어도 경계가 깨지지 않음), 정적 분석 힌트는 "틀릴 수 있음"으로 전달 |
+| 큰 변경 | 요청당 코드 30만 자 상한, 넘으면 **잘라 내지 않고** 파일 단위로 나눠 여러 번 요청 |
+| 중립화 | 측정용: 한 버전만 넘기고 경로·패키지·`@Profile`의 `vulnerable`/`fixed`를 `app`으로 바꿈. 줄 수 유지 → 정답지 줄 번호 그대로 사용 |
+| 변경 파일 | `git diff base..head`의 `.java`만(테스트·생성·빌드 폴더 제외), 내용은 head 시점에서 읽음 |
+| CLI | `gate-review review --base <ref> [--head] [--format text|json] [--no-ai] [--effort]`, 종료 코드 0 통과 / 1 경고 / 2 차단 / 3 오류. 키가 없으면 정적 분석만 하고 출력에 `ai: SKIPPED` 표시. 실행 jar: `./gradlew :gate-review:cliJar` → `gate-review/build/libs/gate-review.jar` |
+
+**찾아서 고친 버그**
+- 형식 오류로 재요청할 때 첫 번째 시도의 토큰 수가 빠졌다 → 두 시도 모두 합산 (비용 기록이 실제보다 적게 나올 뻔)
+- Semgrep이 git 저장소가 아닌 임시 폴더에서 60초 넘게 멈췄다(Windows) → 검토용 임시 폴더에 `git init` 후 실행, 5초로 줄어듦 (`ReviewCliIT` 3개가 약 13분 → 25초)
+
+**테스트 (32개 통과):** `ClaudeReviewerTest` 10개(가짜 API 서버: 요청 본문에 모델·캐싱·effort·JSON 스키마·줄 번호·정적 힌트가 들어가고 **키는 본문에 없고 인증 헤더에만** 있는지, 거절, 길이 초과, 형식 오류 1회 재시도, 529 오류, 키 없음, 나누기, 경계), `NeutralizerTest` 3개, `ReviewCliIT` 3개(임시 git 저장소에서 고친 검색을 문자열 연결로 되돌리는 PR → **키 없이 BLOCK**, AI가 동의하면 `RULE_AND_AI`, 변경 없으면 PASS). CI는 `ReviewCliIT`도 건너뛰면 실패
+
+**직접 확인:** 이 저장소 최근 변경을 키 없이 검토 → 규칙 테스트용 예제 파일(`gate-java.java`)의 의도된 취약 코드 4건을 찾고 BLOCK
+
+### 다음 할 일 (3주차)
+- 측정: 정적만(직접 쓴 규칙 + 기성 `p/java` 기준선), AI 3회 반복, 합침 → `docs/measurements/review-accuracy.md`
+- **AI 측정은 사용자가 `ANTHROPIC_API_KEY`를 로컬 환경 변수와 GitHub Secret으로 직접 설정해야 한다(채팅에 붙여 넣지 않음).** 호출 전에 예상 비용을 알리고 확인받는다 (예산 상한 $10)
+- PR 워크플로(`gate-review.yml`, PR에 리뷰 댓글), 데모 PR, README 갱신
 
 ---
 
