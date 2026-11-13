@@ -1,0 +1,122 @@
+{
+  "staticEngine" : "semgrep 1.182.1",
+  "staticConfig" : "p/java",
+  "model" : null,
+  "effort" : null,
+  "requestedRuns" : 1,
+  "budgetUsd" : 0.0,
+  "spentUsd" : 0.0,
+  "runs" : [ {
+    "index" : 1,
+    "variants" : [ {
+      "variant" : "vulnerable",
+      "scores" : {
+        "staticOnly" : {
+          "detected" : [ "V2" ],
+          "missed" : [ "V1", "V3", "V4" ],
+          "falsePositives" : [ ],
+          "fpOnCleanFiles" : 0,
+          "duplicates" : 1,
+          "total" : 2,
+          "matched" : [ {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ProductSearchController.java",
+            "startLine" : 24,
+            "endLine" : 25,
+            "cwe" : "CWE-89",
+            "label" : "tainted-sql-string"
+          }, {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ProductSearchController.java",
+            "startLine" : 26,
+            "endLine" : 26,
+            "cwe" : "CWE-89",
+            "label" : "spring-sqli"
+          } ]
+        },
+        "aiOnly" : null,
+        "combinedBlock" : {
+          "detected" : [ "V2" ],
+          "missed" : [ "V1", "V3", "V4" ],
+          "falsePositives" : [ ],
+          "fpOnCleanFiles" : 0,
+          "duplicates" : 0,
+          "total" : 1,
+          "matched" : [ {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ProductSearchController.java",
+            "startLine" : 24,
+            "endLine" : 25,
+            "cwe" : "CWE-89",
+            "label" : "REVIEW-tainted-sql-string"
+          } ]
+        },
+        "combinedAll" : {
+          "detected" : [ "V2" ],
+          "missed" : [ "V1", "V3", "V4" ],
+          "falsePositives" : [ ],
+          "fpOnCleanFiles" : 0,
+          "duplicates" : 1,
+          "total" : 2,
+          "matched" : [ {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ProductSearchController.java",
+            "startLine" : 24,
+            "endLine" : 25,
+            "cwe" : "CWE-89",
+            "label" : "REVIEW-tainted-sql-string"
+          }, {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ProductSearchController.java",
+            "startLine" : 26,
+            "endLine" : 26,
+            "cwe" : "CWE-89",
+            "label" : "REVIEW-spring-sqli"
+          } ]
+        }
+      },
+      "aiStatus" : "SKIPPED",
+      "aiDetail" : "no API key: static analysis only",
+      "aiRejected" : 0,
+      "inputTokens" : 0,
+      "outputTokens" : 0,
+      "costUsd" : 0.0,
+      "aiMillis" : 0
+    }, {
+      "variant" : "fixed",
+      "scores" : {
+        "staticOnly" : {
+          "detected" : [ ],
+          "missed" : [ ],
+          "falsePositives" : [ ],
+          "fpOnCleanFiles" : 0,
+          "duplicates" : 0,
+          "total" : 0,
+          "matched" : [ ]
+        },
+        "aiOnly" : null,
+        "combinedBlock" : {
+          "detected" : [ ],
+          "missed" : [ ],
+          "falsePositives" : [ ],
+          "fpOnCleanFiles" : 0,
+          "duplicates" : 0,
+          "total" : 0,
+          "matched" : [ ]
+        },
+        "combinedAll" : {
+          "detected" : [ ],
+          "missed" : [ ],
+          "falsePositives" : [ ],
+          "fpOnCleanFiles" : 0,
+          "duplicates" : 0,
+          "total" : 0,
+          "matched" : [ ]
+        }
+      },
+      "aiStatus" : "SKIPPED",
+      "aiDetail" : "no API key: static analysis only",
+      "aiRejected" : 0,
+      "inputTokens" : 0,
+      "outputTokens" : 0,
+      "costUsd" : 0.0,
+      "aiMillis" : 0
+    } ]
+  } ],
+  "staticErrors" : [ ]
+}

@@ -12,10 +12,10 @@ import io.gate.review.merge.ReviewMerger;
 import io.gate.review.merge.ReviewReport;
 import io.gate.review.staticscan.SemgrepResult;
 import io.gate.review.staticscan.SemgrepRunner;
+import io.gate.review.staticscan.ScanWorkspace;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.List;
@@ -59,6 +59,9 @@ public final class GateReviewCli {
     }
 
     int run(String[] args, PrintStream out, PrintStream err) {
+        if (args.length > 0 && args[0].equals("measure")) {
+            return new MeasureCommand(env, aiFactory, this::semgrep).run(args, out, err);
+        }
         if (args.length == 0 || !args[0].equals("review")) {
             if (args.length > 0 && args[0].equals("version")) {
                 out.println("gate-review " + VERSION);
@@ -116,58 +119,24 @@ public final class GateReviewCli {
         List<SourceFile> files = ChangedSources.between(new GitReader(repo), base, head);
 
         // head 시점 내용을 임시 폴더에 같은 경로로 써서 semgrep을 돌린다 (작업 트리와 head가 달라도 정확하게)
-        Path tmp = Files.createTempDirectory("gate-review-");
-        try {
-            // semgrep은 git 저장소가 아닌 폴더에서 멈출 수 있다(Windows에서 확인: 60초 넘게 무응답 → git init 후 5초)
-            initGitRepo(tmp);
-            for (SourceFile f : files) {
-                Path p = tmp.resolve(f.path()).normalize();
-                if (!p.startsWith(tmp)) {
-                    throw new IllegalArgumentException("path escapes the workspace: " + f.path());
-                }
-                Files.createDirectories(p.getParent());
-                Files.writeString(p, f.content(), StandardCharsets.UTF_8);
-            }
-            Path rulesPath = repo.resolve(rules).toAbsolutePath();
-            SemgrepRunner semgrep = new SemgrepRunner(env.apply("GATE_SEMGREP") == null ? "semgrep"
-                    : env.apply("GATE_SEMGREP"));
-            SemgrepResult st = semgrep.scan(tmp, rulesPath.toString(), files.stream().map(SourceFile::path).toList());
+        Path rulesPath = repo.resolve(rules).toAbsolutePath();
+        SemgrepResult st = ScanWorkspace.scan(semgrep(), rulesPath.toString(), files);
 
-            AiResult ai;
-            if (noAi) {
-                ai = AiResult.skipped("disabled with --no-ai");
-            } else if (files.isEmpty()) {
-                ai = AiResult.skipped("no changed Java sources");
-            } else {
-                ai = aiFactory.apply(effort).map(r -> r.review(files, st.hits()))
-                        .orElse(AiResult.skipped("ANTHROPIC_API_KEY is not set; static analysis only"));
-            }
-            return new ReviewMerger(Clock.systemUTC()).merge(files, st.hits(), st.errors(),
-                    "semgrep " + st.version(), ai);
-        } finally {
-            deleteTree(tmp);
+        AiResult ai;
+        if (noAi) {
+            ai = AiResult.skipped("disabled with --no-ai");
+        } else if (files.isEmpty()) {
+            ai = AiResult.skipped("no changed Java sources");
+        } else {
+            ai = aiFactory.apply(effort).map(r -> r.review(files, st.hits()))
+                    .orElse(AiResult.skipped("ANTHROPIC_API_KEY is not set; static analysis only"));
         }
+        return new ReviewMerger(Clock.systemUTC()).merge(files, st.hits(), st.errors(), "semgrep " + st.version(), ai);
     }
 
-    private static void initGitRepo(Path dir) throws IOException {
-        Process p = new ProcessBuilder("git", "init", "-q").directory(dir.toFile()).redirectErrorStream(true).start();
-        try {
-            p.getInputStream().readAllBytes();
-            if (!p.waitFor(30, java.util.concurrent.TimeUnit.SECONDS) || p.exitValue() != 0) {
-                throw new IOException("git init failed in the review workspace");
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("interrupted", e);
-        }
-    }
-
-    private static void deleteTree(Path dir) {
-        try (var walk = Files.walk(dir)) {
-            walk.sorted(java.util.Comparator.reverseOrder()).forEach(p -> p.toFile().delete());
-        } catch (IOException e) {
-            // 임시 폴더 정리 실패는 결과에 영향이 없다
-        }
+    SemgrepRunner semgrep() {
+        String exe = env.apply("GATE_SEMGREP");
+        return new SemgrepRunner(exe == null || exe.isBlank() ? "semgrep" : exe);
     }
 
     static String usage() {
@@ -177,6 +146,8 @@ public final class GateReviewCli {
                 "Usage:",
                 "  gate-review review --base <ref> [--head <ref>] [--repo DIR] [--rules PATH] [--format text|json]",
                 "                     [--no-ai] [--effort low|medium|high|xhigh|max]",
+                "  gate-review measure [--repo DIR] [--rules PATH|p/java] [--out FILE]",
+                "                      [--ai --budget-usd X [--runs N] [--effort LEVEL]] [--estimate]",
                 "",
                 "Exit codes: 0 clean, 1 warnings, 2 blocking findings, 3 error.",
                 "AI-only findings never block. Without ANTHROPIC_API_KEY only static analysis runs.",

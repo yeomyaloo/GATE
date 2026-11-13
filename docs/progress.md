@@ -11,7 +11,7 @@
 | 1 | ① gate-pkg 패키지 설치 검문소 | ✅ 완료 (2026-11-09) · [측정](measurements/pkg-typo-fp.md) ([설계안](design/stage1-gate-pkg.md)) |
 | 2 | ⑤ gate-lab 취약점 실습장 | ✅ 완료 (2026-11-09) · [취약점 설명서](lab/vulnerabilities.md) |
 | 3 | ③ gate-authz 권한 검사 자동 테스트 | ✅ 완료 (2026-11-09) · **0~3단계로 핵심 제품 완성** |
-| 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | 🔵 구현 중: 1·2주차 완료 (Semgrep·판정 합치기·Claude 호출·CLI), 3주차(측정·PR 연동) 대기 ([설계안](design/stage4-gate-review.md)) |
+| 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | 🔵 거의 완료: 정적 분석 측정·PR 워크플로·데모 브랜치 완료, **AI 측정만 API 키 대기** · [측정](measurements/review-accuracy.md) ([설계안](design/stage4-gate-review.md)) |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ⚪ 시작 전 |
 | ★ | 대시보드·데모·정리 | ⚪ 시작 전 |
 
@@ -75,10 +75,26 @@
 
 **직접 확인:** 이 저장소 최근 변경을 키 없이 검토 → 규칙 테스트용 예제 파일(`gate-java.java`)의 의도된 취약 코드 4건을 찾고 BLOCK
 
-### 다음 할 일 (3주차)
-- 측정: 정적만(직접 쓴 규칙 + 기성 `p/java` 기준선), AI 3회 반복, 합침 → `docs/measurements/review-accuracy.md`
-- **AI 측정은 사용자가 `ANTHROPIC_API_KEY`를 로컬 환경 변수와 GitHub Secret으로 직접 설정해야 한다(채팅에 붙여 넣지 않음).** 호출 전에 예상 비용을 알리고 확인받는다 (예산 상한 $10)
-- PR 워크플로(`gate-review.yml`, PR에 리뷰 댓글), 데모 PR, README 갱신
+### 3주차 (2026-11-13) — 진행 중 (API 키 없이 할 수 있는 부분 완료)
+| 항목 | 내용 |
+|---|---|
+| 측정 도구 | `gate-review measure`: 실습장을 버전마다 따로 중립화해 검토 → 정답지로 채점(검출·미탐·오탐·중복), 방법 4가지(정적만·AI만·합침 BLOCK·합침 전체), 원자료 JSON. AI는 `--ai`와 `--budget-usd`를 **둘 다** 줘야 실행되고, 누적 비용이 예산을 넘으면 남은 호출을 건너뜀. `--estimate`는 호출 없이 예상 비용만 |
+| 정적 분석 측정 | **GATE 규칙 3/4 (V2·V3·V4), 오탐 0** / 기성 `p/java` 1/4 (V2만), 오탐 0. **V1(IDOR)은 둘 다 놓침** → [측정 문서](measurements/review-accuracy.md) |
+| AI 비용 추정 | Opus 5.5 3회: 약 $1.5, 최대 약 $2.2 (예산 $10) |
+| PR 워크플로 | `.github/workflows/gate-review.yml`: PR에서 바뀐 Java 파일 검토 → 바뀐 줄에 **리뷰 댓글**, Job Summary, BLOCK이면 실패. 권한 `contents: read` + `pull-requests: write`만, `pull_request_target` 쓰지 않음, 비밀값은 검토 단계에만. 포크 PR·키 없음 → 정적 분석만 하고 표시 |
+| 댓글 스크립트 | `gate-review/bin/pr_review.py` (표준 라이브러리만). AI가 쓴 글은 신뢰하지 않는 입력: 멘션(`@`)·HTML 무력화, 길이 제한. 바뀐 줄이 아니면 본문 목록으로, 줄 계산이 어긋나 GitHub이 거부(422)하면 본문만. CI에서 무력화 계약을 확인 |
+| 데모 PR | 브랜치 `demo/gate-review-pr`: "주문 내보내기" 기능을 AI 도구가 만든 상황. 상태 값 SQL 문자열 연결(V2와 같은 종류) + 주문 상세의 주인 확인 누락(IDOR). 키 없이 로컬 검토 결과 SQL 연결 1건 BLOCK (IDOR은 AI 몫) |
+
+**테스트 (42개 통과):** 채점 4개(CWE 묶음, 위치·종류 다르면 오탐, 고친 버전은 모두 오탐), 측정 흐름 3개(정적만은 1회, AI는 중립 경로만 보고 결과는 원래 경로로 채점, 지어낸 인용 제외, AI만의 IDOR은 BLOCK 아님, 예산 초과 시 중단), `MeasureIT` 3개(실제 Semgrep으로 V2·V3·V4 검출·오탐 0 고정, 키·예산 없으면 AI 거부, 추정은 호출 없음). CI는 `MeasureIT`도 건너뛰면 실패
+
+**알려진 한계**
+- 규칙 테스트용 예제 파일(`gate-review/semgrep/rules/gate-java.java`)을 바꾸는 PR은 그 안의 의도된 취약 코드 때문에 BLOCK된다. 지금은 규칙 변경 PR에서 사람이 판단한다
+- PR 워크플로는 PR 쪽 규칙 파일과 코드로 돈다(같은 저장소 PR만 비밀값을 받는다). 규칙을 약하게 바꾸는 PR은 리뷰에서 확인해야 한다
+
+### 남은 일 (사용자 키가 필요)
+1. 사용자가 `ANTHROPIC_API_KEY`를 **로컬 환경 변수**와 **GitHub Secret**으로 직접 설정 (채팅에 붙여 넣지 않음)
+2. 예상 비용을 다시 알리고 확인받은 뒤 AI 측정 3회 → 측정 문서의 AI 칸 채움
+3. 데모 PR을 GitHub에서 열면(사용자) 정적 분석 결과로 BLOCK 댓글이 달린다. 키를 넣은 뒤 다시 실행하면 AI 결과까지 달린다
 
 ---
 

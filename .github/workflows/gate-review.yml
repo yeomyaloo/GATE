@@ -1,0 +1,93 @@
+# PR에서 Java 코드가 바뀌면 GATE gate-review로 검토한다: Semgrep(고정 버전) + Claude 보안 검토.
+#   - 지적은 PR의 해당 줄에 리뷰 댓글로, 전체 요약은 Job Summary에 남긴다
+#   - BLOCK이면 이 검사가 실패한다. AI만의 지적은 경고(WARN)까지만 낸다
+#   - ANTHROPIC_API_KEY(저장소 Secret)가 없으면, 그리고 포크에서 온 PR이면(Secret이 전달되지 않음) 정적 분석만 한다
+#   - pull_request_target은 쓰지 않는다 (PR 코드에 쓰기 권한·비밀값을 주지 않기 위해)
+name: gate-review
+
+on:
+  pull_request:
+    paths:
+      - "**/*.java"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: gate-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: Security review of changed Java code
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Install Semgrep (pinned) and build gate-review
+        run: |
+          python3 -m venv "$RUNNER_TEMP/semgrep"
+          "$RUNNER_TEMP/semgrep/bin/pip" install -q -r gate-review/semgrep/requirements.txt
+          ./gradlew :gate-review:cliJar --no-daemon -q
+
+      # 비밀값은 이 단계에만 넘긴다. 입력값은 스크립트에 직접 넣지 않고 환경 변수로 넘긴다 (스크립트 주입 방지)
+      - name: Review
+        id: review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GATE_SEMGREP: ${{ runner.temp }}/semgrep/bin/semgrep
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          base=$(git merge-base "$BASE_SHA" HEAD)
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+          set +e
+          java -jar gate-review/build/libs/gate-review.jar review --base "$base" --head HEAD --format json \
+            > "$RUNNER_TEMP/review.json"
+          code=$?
+          set -e
+          echo "exit-code=$code" >> "$GITHUB_OUTPUT"
+          if [ "$code" -eq 3 ] || [ "$code" -gt 3 ]; then
+            echo "::error title=GATE gate-review::review failed (exit $code)"
+            cat "$RUNNER_TEMP/review.json"
+            exit 1
+          fi
+
+      - name: Comment on the pull request
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BASE: ${{ steps.review.outputs.base }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        run: |
+          if [ "$SAME_REPO" = "true" ]; then
+            python3 gate-review/bin/pr_review.py "$RUNNER_TEMP/review.json" --base "$BASE" --head "$HEAD_SHA" \
+              --repo "$REPO" --pr "$PR"
+          else
+            # 포크 PR의 토큰은 읽기 전용이라 댓글을 달 수 없다: 요약만
+            python3 gate-review/bin/pr_review.py "$RUNNER_TEMP/review.json" --base "$BASE" --head "$HEAD_SHA"
+          fi
+
+      - name: Decision
+        env:
+          CODE: ${{ steps.review.outputs.exit-code }}
+        run: |
+          case "$CODE" in
+            0) echo "GATE gate-review: PASS" ;;
+            1) echo "::warning title=GATE gate-review::warnings found (see the review comments)" ;;
+            2) echo "::error title=GATE gate-review::blocking findings (see the review comments)"; exit 1 ;;
+          esac

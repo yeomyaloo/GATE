@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 560" width="1100" height="560" font-family="-apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="1100" height="560" fill="#ffffff"/>
+  <text x="40" y="40" font-size="20" font-weight="700" fill="#0f172a">gate-review · 정적 분석 + AI 보안 검토 (PR)</text>
+  <text x="40" y="64" font-size="13" fill="#475569">AI alone never blocks. Every finding carries file, line, rule or CWE, and verified code evidence.</text>
+
+  <!-- PR -->
+  <rect x="40" y="110" width="170" height="90" rx="10" fill="#f1f5f9" stroke="#94a3b8"/>
+  <text x="125" y="145" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle">Pull request</text>
+  <text x="125" y="168" font-size="12" fill="#475569" text-anchor="middle">changed .java files</text>
+  <text x="125" y="186" font-size="12" fill="#475569" text-anchor="middle">(tests excluded)</text>
+
+  <!-- Semgrep -->
+  <rect x="290" y="90" width="250" height="70" rx="10" fill="#eff6ff" stroke="#3b82f6"/>
+  <text x="415" y="118" font-size="15" font-weight="700" fill="#1e3a8a" text-anchor="middle">Semgrep 1.182.1 (pinned)</text>
+  <text x="415" y="140" font-size="12" fill="#1e40af" text-anchor="middle">GATE rules: SQL concat · JWT · error leak</text>
+
+  <!-- Claude -->
+  <rect x="290" y="190" width="250" height="90" rx="10" fill="#fdf4ff" stroke="#a855f7"/>
+  <text x="415" y="218" font-size="15" font-weight="700" fill="#581c87" text-anchor="middle">Claude Opus 5.5</text>
+  <text x="415" y="240" font-size="12" fill="#6b21a8" text-anchor="middle">code = data, structured JSON output</text>
+  <text x="415" y="258" font-size="12" fill="#6b21a8" text-anchor="middle">static hints passed as "may be wrong"</text>
+  <text x="415" y="274" font-size="11" fill="#7e22ce" text-anchor="middle">no key / fork PR → skipped (shown)</text>
+
+  <!-- Quote check -->
+  <rect x="600" y="190" width="200" height="90" rx="10" fill="#fefce8" stroke="#eab308"/>
+  <text x="700" y="222" font-size="15" font-weight="700" fill="#713f12" text-anchor="middle">Quote check</text>
+  <text x="700" y="244" font-size="12" fill="#854d0e" text-anchor="middle">quoted code must exist</text>
+  <text x="700" y="262" font-size="12" fill="#854d0e" text-anchor="middle">within ±2 lines, else discarded</text>
+
+  <!-- Merge -->
+  <rect x="860" y="110" width="200" height="110" rx="10" fill="#f8fafc" stroke="#0f172a"/>
+  <text x="960" y="140" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle">Merge</text>
+  <text x="960" y="162" font-size="12" fill="#334155" text-anchor="middle">same file, ±3 lines,</text>
+  <text x="960" y="180" font-size="12" fill="#334155" text-anchor="middle">same CWE family</text>
+  <text x="960" y="198" font-size="12" fill="#334155" text-anchor="middle">→ RULE_AND_AI</text>
+
+  <path d="M210,140 L286,125" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M210,170 L286,230" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M540,125 L856,150" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M540,235 L596,235" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M800,235 L856,195" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- Decision table -->
+  <text x="40" y="340" font-size="16" font-weight="700" fill="#0f172a">Decision · 판정</text>
+  <g font-size="13">
+    <rect x="40" y="356" width="1020" height="34" fill="#f1f5f9"/>
+    <text x="56" y="378" font-weight="700" fill="#0f172a">Source</text>
+    <text x="330" y="378" font-weight="700" fill="#0f172a">Decision</text>
+    <text x="480" y="378" font-weight="700" fill="#0f172a">Why</text>
+
+    <text x="56" y="414" fill="#0f172a">RULE_AND_AI (rule + AI agree)</text>
+    <rect x="330" y="398" width="70" height="24" rx="5" fill="#fee2e2"/><text x="365" y="415" fill="#b91c1c" font-weight="700" text-anchor="middle">BLOCK</text>
+    <text x="480" y="414" fill="#334155">two independent methods point at the same place and kind</text>
+
+    <text x="56" y="450" fill="#0f172a">RULE only</text>
+    <text x="330" y="450" fill="#334155">ERROR → BLOCK, WARNING → WARN</text>
+    <text x="600" y="450" fill="#334155">deterministic, reviewed rule with a test case</text>
+
+    <text x="56" y="486" fill="#0f172a">AI only (quote verified)</text>
+    <rect x="330" y="470" width="70" height="24" rx="5" fill="#fef3c7"/><text x="365" y="487" fill="#92400e" font-weight="700" text-anchor="middle">WARN</text>
+    <text x="480" y="486" fill="#334155">never blocks alone (e.g. IDOR: no static rule can see ownership logic)</text>
+
+    <text x="56" y="522" fill="#0f172a">AI refused / error / no key</text>
+    <text x="330" y="522" fill="#334155">static result only</text>
+    <text x="480" y="522" fill="#334155">reported as "AI review unavailable", never as a pass</text>
+  </g>
+</svg>

@@ -1,0 +1,176 @@
+{
+  "staticEngine" : "semgrep 1.182.1",
+  "staticConfig" : "gate-review/semgrep/rules/gate-java.yml",
+  "model" : null,
+  "effort" : null,
+  "requestedRuns" : 1,
+  "budgetUsd" : 0.0,
+  "spentUsd" : 0.0,
+  "runs" : [ {
+    "index" : 1,
+    "variants" : [ {
+      "variant" : "vulnerable",
+      "scores" : {
+        "staticOnly" : {
+          "detected" : [ "V4", "V3", "V2" ],
+          "missed" : [ "V1" ],
+          "falsePositives" : [ ],
+          "fpOnCleanFiles" : 0,
+          "duplicates" : 3,
+          "total" : 6,
+          "matched" : [ {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ApiErrorHandler.java",
+            "startLine" : 35,
+            "endLine" : 35,
+            "cwe" : "CWE-209",
+            "label" : "gate-java-exception-details-in-response"
+          }, {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ApiErrorHandler.java",
+            "startLine" : 39,
+            "endLine" : 39,
+            "cwe" : "CWE-209",
+            "label" : "gate-java-exception-details-in-response"
+          }, {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ApiErrorHandler.java",
+            "startLine" : 40,
+            "endLine" : 40,
+            "cwe" : "CWE-209",
+            "label" : "gate-java-exception-details-in-response"
+          }, {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ApiErrorHandler.java",
+            "startLine" : 42,
+            "endLine" : 42,
+            "cwe" : "CWE-209",
+            "label" : "gate-java-exception-details-in-response"
+          }, {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/BearerTokenFilter.java",
+            "startLine" : 30,
+            "endLine" : 30,
+            "cwe" : "CWE-347",
+            "label" : "gate-java-jwt-payload-trusted-without-verification"
+          }, {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ProductSearchController.java",
+            "startLine" : 26,
+            "endLine" : 26,
+            "cwe" : "CWE-89",
+            "label" : "gate-java-sql-string-concat"
+          } ]
+        },
+        "aiOnly" : null,
+        "combinedBlock" : {
+          "detected" : [ "V3", "V2" ],
+          "missed" : [ "V1", "V4" ],
+          "falsePositives" : [ ],
+          "fpOnCleanFiles" : 0,
+          "duplicates" : 0,
+          "total" : 2,
+          "matched" : [ {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/BearerTokenFilter.java",
+            "startLine" : 30,
+            "endLine" : 30,
+            "cwe" : "CWE-347",
+            "label" : "REVIEW-gate-java-jwt-payload-trusted-without-verification"
+          }, {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ProductSearchController.java",
+            "startLine" : 26,
+            "endLine" : 26,
+            "cwe" : "CWE-89",
+            "label" : "REVIEW-gate-java-sql-string-concat"
+          } ]
+        },
+        "combinedAll" : {
+          "detected" : [ "V4", "V3", "V2" ],
+          "missed" : [ "V1" ],
+          "falsePositives" : [ ],
+          "fpOnCleanFiles" : 0,
+          "duplicates" : 3,
+          "total" : 6,
+          "matched" : [ {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ApiErrorHandler.java",
+            "startLine" : 35,
+            "endLine" : 35,
+            "cwe" : "CWE-209",
+            "label" : "REVIEW-gate-java-exception-details-in-response"
+          }, {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ApiErrorHandler.java",
+            "startLine" : 39,
+            "endLine" : 39,
+            "cwe" : "CWE-209",
+            "label" : "REVIEW-gate-java-exception-details-in-response"
+          }, {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ApiErrorHandler.java",
+            "startLine" : 40,
+            "endLine" : 40,
+            "cwe" : "CWE-209",
+            "label" : "REVIEW-gate-java-exception-details-in-response"
+          }, {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ApiErrorHandler.java",
+            "startLine" : 42,
+            "endLine" : 42,
+            "cwe" : "CWE-209",
+            "label" : "REVIEW-gate-java-exception-details-in-response"
+          }, {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/BearerTokenFilter.java",
+            "startLine" : 30,
+            "endLine" : 30,
+            "cwe" : "CWE-347",
+            "label" : "REVIEW-gate-java-jwt-payload-trusted-without-verification"
+          }, {
+            "path" : "gate-lab/src/main/java/io/gate/lab/vulnerable/ProductSearchController.java",
+            "startLine" : 26,
+            "endLine" : 26,
+            "cwe" : "CWE-89",
+            "label" : "REVIEW-gate-java-sql-string-concat"
+          } ]
+        }
+      },
+      "aiStatus" : "SKIPPED",
+      "aiDetail" : "no API key: static analysis only",
+      "aiRejected" : 0,
+      "inputTokens" : 0,
+      "outputTokens" : 0,
+      "costUsd" : 0.0,
+      "aiMillis" : 0
+    }, {
+      "variant" : "fixed",
+      "scores" : {
+        "staticOnly" : {
+          "detected" : [ ],
+          "missed" : [ ],
+          "falsePositives" : [ ],
+          "fpOnCleanFiles" : 0,
+          "duplicates" : 0,
+          "total" : 0,
+          "matched" : [ ]
+        },
+        "aiOnly" : null,
+        "combinedBlock" : {
+          "detected" : [ ],
+          "missed" : [ ],
+          "falsePositives" : [ ],
+          "fpOnCleanFiles" : 0,
+          "duplicates" : 0,
+          "total" : 0,
+          "matched" : [ ]
+        },
+        "combinedAll" : {
+          "detected" : [ ],
+          "missed" : [ ],
+          "falsePositives" : [ ],
+          "fpOnCleanFiles" : 0,
+          "duplicates" : 0,
+          "total" : 0,
+          "matched" : [ ]
+        }
+      },
+      "aiStatus" : "SKIPPED",
+      "aiDetail" : "no API key: static analysis only",
+      "aiRejected" : 0,
+      "inputTokens" : 0,
+      "outputTokens" : 0,
+      "costUsd" : 0.0,
+      "aiMillis" : 0
+    } ]
+  } ],
+  "staticErrors" : [ ]
+}

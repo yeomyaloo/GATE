@@ -47,6 +47,27 @@ jobs:
       - name: Build and test
         run: ./gradlew build --no-daemon
 
+      # gate-review PR 댓글 스크립트: AI가 쓴 글의 멘션·HTML이 무력화되는지 (네트워크 없이)
+      - name: gate-review comment script contract
+        run: |
+          python3 - <<'PY'
+          import sys
+          sys.path.insert(0, "gate-review/bin")
+          import pr_review as p
+          f = {"decision": "WARN", "source": "AI", "severity": "HIGH", "title": "@admin <img src=x>", "file": "a",
+               "line": 1, "evidence": {"model": "m", "cwe": "CWE-639", "evidence": "ping @team",
+                                       "quotedCode": "List<String> x;", "confidence": "high"}}
+          body = p.finding_body(f)
+          assert "@​admin" in body and "@​team" in body, body
+          assert "<img" not in body, body
+          assert "`List<String> x;`" in body.replace("` ", "`").replace(" `", "`"), body
+          assert "never blocks on AI judgement alone" in body, body
+          s = p.summary({"decision": "WARN", "staticEngine": "semgrep", "ai": {"status": "SKIPPED", "detail": "no key"},
+                         "findings": [f], "rejectedAiFindings": [], "staticErrors": []}, [], [f])
+          assert "not used (SKIPPED" in s and "outside the changed lines" in s, s
+          print("ok")
+          PY
+
       # 실패한 테스트 메시지를 Actions 주석(annotation)으로 남겨 PR·실행 화면에서 바로 보이게 한다
       - name: Report test failures as annotations
         if: failure()
@@ -89,7 +110,8 @@ jobs:
           done
           test "$found" = 1 || { echo "no integration test results"; exit 1; }
           for f in gate-review/build/test-results/test/TEST-io.gate.review.staticscan.SemgrepRealIT.xml \
-                   gate-review/build/test-results/test/TEST-io.gate.review.cli.ReviewCliIT.xml; do
+                   gate-review/build/test-results/test/TEST-io.gate.review.cli.ReviewCliIT.xml \
+                   gate-review/build/test-results/test/TEST-io.gate.review.cli.MeasureIT.xml; do
             grep -o '<testsuite [^>]*>' "$f"
             grep -q 'skipped="0"' "$f" || { echo "$f was skipped"; exit 1; }
           done
