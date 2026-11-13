@@ -93,7 +93,7 @@ java -jar gate-review/build/libs/gate-review.jar measure                        
 ```
 Without `ANTHROPIC_API_KEY` only static analysis runs, and the output says so. In pull requests, [`.github/workflows/gate-review.yml`](.github/workflows/gate-review.yml) posts line comments and a job summary (permissions: `contents: read`, `pull-requests: write`; no `pull_request_target`).
 
-**Measured on gate-lab** (each variant reviewed separately under neutral names): GATE rules find **3/4 (SQL injection, JWT, error leak) with 0 false positives**; the off-the-shelf `p/java` ruleset finds 1/4. Both miss the IDOR, a logic flaw no pattern can see; the AI measurement (3 runs, about $1.5 estimated) is pending an API key. See [docs/measurements/review-accuracy.md](docs/measurements/review-accuracy.md) and the design in [docs/design/stage4-gate-review.md](docs/design/stage4-gate-review.md).
+**Measured on gate-lab** (each variant reviewed separately under neutral names): GATE rules find **3/4 (SQL injection, JWT, error leak) with 0 false positives**; the off-the-shelf `p/java` ruleset finds 1/4. Both miss the IDOR, a logic flaw no pattern can see; the AI measurement (3 runs, about $1.5 estimated) is deferred; the tooling is ready and needs only an API key. See [docs/measurements/review-accuracy.md](docs/measurements/review-accuracy.md) and the design in [docs/design/stage4-gate-review.md](docs/design/stage4-gate-review.md).
 
 ### ③ gate-authz — automated authorization tests from OpenAPI (stage 3)
 Reads an OpenAPI spec and tries to access user B's objects with user A's token (BOLA/IDOR), and without any token.
@@ -145,7 +145,7 @@ GATE/
 ├─ gate-pkg/      ① package install checkpoint (stage 1): checks, CLI, Claude Code hook, PR diff
 ├─ gate-lab/      ⑤ intentionally vulnerable practice app (stage 2, local only)
 ├─ gate-authz/    ③ automated authorization tests from OpenAPI (stage 3)
-├─ gate-review/   ② static analysis (Semgrep) + AI security review of PRs (stage 4: AI measurement pending a key)
+├─ gate-review/   ② static analysis (Semgrep) + AI security review of PRs (stage 4)
 ├─ docs/          progress log, ADRs, diagrams
 └─ docker-compose.yml
 ```
@@ -175,7 +175,7 @@ Integration tests (`HealthCheckIT`) start real PostgreSQL and Redis containers a
 - `gate-lab` is **never deployed publicly**.
 
 ### Status
-**Stages 0-3 are complete: the core product.** `gate-pkg` blocks hallucinated, typosquatted and malicious packages in Claude Code (hook) and in pull requests (GitHub Action). `gate-lab` reproduces four API vulnerabilities next to their fixes, and `gate-authz` finds the IDORs automatically from the OpenAPI spec. CI verifies on every push: unit and Testcontainers tests, a real `docker compose up` health check, an Action demo that must block a typosquat PR, the lab containers, and a gate-authz scan over the network whose findings must land in PostgreSQL. Stage 4 (`gate-review`, optional) is implemented: rules, Claude review, PR comments and the static measurement are done; the AI measurement waits for an API key. See [docs/progress.md](docs/progress.md).
+**Stages 0-3 are complete: the core product.** `gate-pkg` blocks hallucinated, typosquatted and malicious packages in Claude Code (hook) and in pull requests (GitHub Action). `gate-lab` reproduces four API vulnerabilities next to their fixes, and `gate-authz` finds the IDORs automatically from the OpenAPI spec. CI verifies on every push: unit and Testcontainers tests, a real `docker compose up` health check, an Action demo that must block a typosquat PR, the lab containers, and a gate-authz scan over the network whose findings must land in PostgreSQL. Stage 4 (`gate-review`, optional) is implemented: rules, Claude review, PR comments and the static measurement are done; the AI measurement is deferred. See [docs/progress.md](docs/progress.md).
 
 ### License
 [MIT](LICENSE)
@@ -234,7 +234,7 @@ PR에서 바뀐 Java 파일을 고정 버전 Semgrep 규칙과 Claude Opus 5.5�
 - API 키가 없거나 포크 PR이면 정적 분석만 하고 그 사실을 표시합니다
 - PR에서는 [`gate-review.yml`](.github/workflows/gate-review.yml)이 바뀐 줄에 리뷰 댓글을, 실행 화면에 요약을 남깁니다
 
-**실습장 측정** (버전마다 따로, 이름을 중립화해 검토): GATE 규칙 **3/4 검출(SQL 인젝션·JWT·오류 노출), 오탐 0**, 기성 규칙 `p/java` 1/4. IDOR는 둘 다 놓쳤습니다(규칙 패턴으로는 보이지 않는 논리 결함). AI 측정(3회, 예상 약 $1.5)은 API 키를 기다리는 중입니다. [측정 보고서](docs/measurements/review-accuracy.md)
+**실습장 측정** (버전마다 따로, 이름을 중립화해 검토): GATE 규칙 **3/4 검출(SQL 인젝션·JWT·오류 노출), 오탐 0**, 기성 규칙 `p/java` 1/4. IDOR는 둘 다 놓쳤습니다(규칙 패턴으로는 보이지 않는 논리 결함). AI 측정(3회, 예상 약 $1.5)은 보류했습니다. 도구는 준비되어 있어 키만 있으면 실행할 수 있습니다. [측정 보고서](docs/measurements/review-accuracy.md)
 
 ### ③ gate-authz: OpenAPI 기반 권한 자동 테스트 (3단계)
 OpenAPI 명세를 읽고, 사용자 A의 토큰으로 B의 객체에 접근해 봅니다(BOLA/IDOR). 토큰 없이도 시도합니다. (위 영어 섹션의 데모 그림 참고)
@@ -299,7 +299,7 @@ Docker 없이 빌드·테스트:
 - `gate-lab`(취약한 앱)은 **절대 외부에 공개 배포하지 않습니다.**
 
 ### 진행 상황
-**0~3단계 완료: 핵심 제품 완성.** `gate-pkg`가 AI가 지어낸 패키지, 철자 흉내 패키지, 악성 패키지를 Claude Code 훅과 PR(GitHub Action) 양쪽에서 막습니다. `gate-lab`은 API 취약점 4종을 고친 버전과 나란히 재현하고, `gate-authz`는 OpenAPI 명세만으로 IDOR를 자동으로 찾습니다. 푸시할 때마다 CI가 단위·통합 테스트, 실제 `docker compose up` 헬스체크, 철자 흉내 PR 차단 데모, 실습장 컨테이너, 그리고 네트워크로 실행한 gate-authz 결과가 PostgreSQL에 저장되는지까지 확인합니다. 4단계(`gate-review`, 선택)도 구현했습니다. 규칙, Claude 검토, PR 댓글, 정적 분석 측정까지 마쳤고 AI 측정만 API 키를 기다립니다. 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
+**0~3단계 완료: 핵심 제품 완성.** `gate-pkg`가 AI가 지어낸 패키지, 철자 흉내 패키지, 악성 패키지를 Claude Code 훅과 PR(GitHub Action) 양쪽에서 막습니다. `gate-lab`은 API 취약점 4종을 고친 버전과 나란히 재현하고, `gate-authz`는 OpenAPI 명세만으로 IDOR를 자동으로 찾습니다. 푸시할 때마다 CI가 단위·통합 테스트, 실제 `docker compose up` 헬스체크, 철자 흉내 PR 차단 데모, 실습장 컨테이너, 그리고 네트워크로 실행한 gate-authz 결과가 PostgreSQL에 저장되는지까지 확인합니다. 4단계(`gate-review`, 선택)도 구현했습니다. 규칙, Claude 검토, PR 댓글, 정적 분석 측정까지 마쳤고 AI 측정은 보류했습니다. 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
 
 ### 라이선스
 [MIT](LICENSE)

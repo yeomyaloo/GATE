@@ -1,7 +1,7 @@
 # gate-review 검출·오탐·미탐 측정 (2026-11-13)
 
 > Measuring detection, false positives and misses of the security reviewer on the gate-lab ground truth.
-> **Status:** static analysis measured. **AI measurement pending** (needs the user's `ANTHROPIC_API_KEY`).
+> **Status:** static analysis measured. **AI measurement deferred** (user decision, 2026-11-13; the tooling is ready and needs only an API key).
 
 ## 방법
 - **정답지:** [docs/lab/ground-truth.json](../lab/ground-truth.json) (2단계에서 작성).
@@ -59,9 +59,9 @@
 - 실습장은 작다(취약점 4개, Java 파일 약 12개). 비율이 아니라 **어느 것을 잡고 놓쳤는지**가 의미 있는 결과다.
 - `p/java`는 레지스트리의 그날 버전이다. 날짜(2026-11-13)와 함께 읽는다.
 
-## 결과: AI (대기)
+## 결과: AI (보류)
 
-사용자의 API 키가 준비되면 같은 명령으로 측정하고 여기에 채운다.
+2026-11-13 사용자 결정으로 보류했다(이 작업 환경에서 API 키를 읽을 수 없었다). 키가 준비되면 위 `measure --ai` 명령으로 측정하고 여기에 채운다. **AI가 IDOR를 보완하는지는 아직 확인되지 않았다.**
 
 | 항목 | 값 |
 |---|---|
