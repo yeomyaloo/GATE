@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 600" width="1100" height="600" font-family="-apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="1100" height="600" fill="#ffffff"/>
+  <text x="40" y="40" font-size="20" font-weight="700" fill="#0f172a">gate-prompt · AI 출력이 실행되기 전의 관문</text>
+  <text x="40" y="64" font-size="13" fill="#475569">The model may be fooled. The gate assumes it already was, and rebuilds or filters every output against an allow-list.</text>
+
+  <!-- flow -->
+  <rect x="40" y="96" width="170" height="70" rx="10" fill="#f1f5f9" stroke="#94a3b8"/>
+  <text x="125" y="125" font-size="14" font-weight="700" fill="#0f172a" text-anchor="middle">User request</text>
+  <text x="125" y="145" font-size="12" fill="#475569" text-anchor="middle">+ reviews (other users)</text>
+
+  <rect x="250" y="96" width="170" height="70" rx="10" fill="#fefce8" stroke="#eab308"/>
+  <text x="335" y="125" font-size="14" font-weight="700" fill="#713f12" text-anchor="middle">Input inspection</text>
+  <text x="335" y="145" font-size="12" fill="#854d0e" text-anchor="middle">signals only (logged)</text>
+
+  <rect x="460" y="96" width="170" height="70" rx="10" fill="#fdf4ff" stroke="#a855f7"/>
+  <text x="545" y="125" font-size="14" font-weight="700" fill="#581c87" text-anchor="middle">AI model</text>
+  <text x="545" y="145" font-size="12" fill="#6b21a8" text-anchor="middle">may obey injections</text>
+
+  <rect x="670" y="86" width="210" height="90" rx="10" fill="#eff6ff" stroke="#3b82f6"/>
+  <text x="775" y="112" font-size="14" font-weight="700" fill="#1e3a8a" text-anchor="middle">Output gate</text>
+  <text x="775" y="132" font-size="12" fill="#1e40af" text-anchor="middle">SQL: rebuilt, own rows, bound</text>
+  <text x="775" y="149" font-size="12" fill="#1e40af" text-anchor="middle">HTML: 9 tags, no attributes</text>
+  <text x="775" y="166" font-size="12" fill="#1e40af" text-anchor="middle">Action: registered, own order</text>
+
+  <rect x="920" y="96" width="140" height="70" rx="10" fill="#f0fdf4" stroke="#22c55e"/>
+  <text x="990" y="125" font-size="14" font-weight="700" fill="#14532d" text-anchor="middle">Execute</text>
+  <text x="990" y="145" font-size="12" fill="#166534" text-anchor="middle">DB · page · method</text>
+
+  <path d="M210,131 L246,131" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M420,131 L456,131" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M630,131 L666,131" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M880,131 L916,131" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- results -->
+  <text x="40" y="230" font-size="16" font-weight="700" fill="#0f172a">Measured on 46 attacks and 30 benign cases (scripted model that obeys every injection)</text>
+  <text x="40" y="252" font-size="13" fill="#475569">46개 공격 · 30개 정상 사례, 지시를 무엇이든 따르는 가짜 모델</text>
+
+  <g font-size="13">
+    <text x="40" y="292" font-weight="700" fill="#0f172a">Defense</text>
+    <text x="330" y="292" font-weight="700" fill="#0f172a">Attacks stopped</text>
+    <text x="760" y="292" font-weight="700" fill="#0f172a">Benign working</text>
+
+    <!-- NONE -->
+    <text x="40" y="330" fill="#0f172a">None (vulnerable lab)</text>
+    <rect x="330" y="314" width="400" height="22" rx="4" fill="#f1f5f9"/>
+    <rect x="330" y="314" width="34.8" height="22" rx="4" fill="#ef4444"/>
+    <text x="372" y="330" fill="#0f172a">4 / 46</text>
+    <rect x="760" y="314" width="260" height="22" rx="4" fill="#22c55e"/>
+    <text x="1030" y="330" fill="#0f172a">30/30</text>
+
+    <!-- INPUT_ONLY -->
+    <text x="40" y="378" fill="#0f172a">Input filter only</text>
+    <rect x="330" y="362" width="400" height="22" rx="4" fill="#f1f5f9"/>
+    <rect x="330" y="362" width="260.9" height="22" rx="4" fill="#f59e0b"/>
+    <text x="598" y="378" fill="#0f172a">30 / 46</text>
+    <rect x="760" y="362" width="260" height="22" rx="4" fill="#f1f5f9"/>
+    <rect x="760" y="362" width="225.3" height="22" rx="4" fill="#f59e0b"/>
+    <text x="1030" y="378" fill="#0f172a">26/30</text>
+
+    <!-- OUTPUT_ONLY -->
+    <text x="40" y="426" font-weight="700" fill="#1e3a8a">Output gate (fixed lab)</text>
+    <rect x="330" y="410" width="400" height="22" rx="4" fill="#3b82f6"/>
+    <text x="740" y="426" font-weight="700" fill="#1e3a8a">46</text>
+    <rect x="760" y="410" width="260" height="22" rx="4" fill="#22c55e"/>
+    <text x="1030" y="426" font-weight="700" fill="#14532d">30/30</text>
+
+    <!-- BOTH -->
+    <text x="40" y="474" fill="#0f172a">Input blocking + output gate</text>
+    <rect x="330" y="458" width="400" height="22" rx="4" fill="#3b82f6" opacity="0.6"/>
+    <text x="740" y="474" fill="#0f172a">46</text>
+    <rect x="760" y="458" width="260" height="22" rx="4" fill="#f1f5f9"/>
+    <rect x="760" y="458" width="225.3" height="22" rx="4" fill="#f59e0b"/>
+    <text x="1030" y="474" fill="#0f172a">26/30</text>
+  </g>
+
+  <text x="40" y="526" font-size="13" fill="#334155">Input filtering missed requests that look harmless ("show the orders of user 2", "cancel order 20") and blocked benign ones</text>
+  <text x="40" y="546" font-size="13" fill="#334155">that quote an attack. So the fixed lab only logs input signals; the output gate does the blocking.</text>
+  <text x="40" y="570" font-size="13" fill="#334155">입력 필터는 평범해 보이는 공격을 놓치고 정상 요청을 막았다. 그래서 입력 검사는 기록만 하고, 막는 일은 출력 관문이 한다.</text>
+</svg>

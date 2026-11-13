@@ -115,6 +115,28 @@ GATE_AUTHZ_PASSWORD_A=... GATE_AUTHZ_PASSWORD_B=... gate-authz/bin/gate-authz sc
 ```
 Against gate-lab: **vulnerable → read, write and delete BOLA found; fixed → 0 findings.** CI runs this over the network against the lab containers and checks that the findings are stored in PostgreSQL via gate-server. Design: [docs/design/stage3-gate-authz.md](docs/design/stage3-gate-authz.md).
 
+### ④ gate-prompt — prompt injection gate (stage 5, optional)
+Guards the point where AI output gets executed. The model may be fooled; the gate assumes it already was.
+
+![gate-prompt results](docs/images/gate-prompt-results.svg)
+
+| Output | Gate (allow-list) | Rule ids |
+|---|---|---|
+| SQL written by the model | Parsed, then **rebuilt by the gate** from allowed parts only: one SELECT, policy table and columns, column-vs-constant conditions, every value bound, `user_id = current user AND (...)` always added | `PROMPT-SQL-*` |
+| HTML shown in the page | 9 formatting tags, **no attributes** (OWASP Java HTML Sanitizer); removals reported | `PROMPT-HTML-REMOVED` |
+| Action chosen by the model | One strict `{"action", "args"}` JSON, registered actions and argument types only, target must belong to the user; no command strings | `PROMPT-ACTION-*` |
+
+Input inspection (override phrases in English and Korean, role spoofing, hidden characters, code fragments) only **logs** signals. The measurement shows why. Against a scripted model that obeys every injection:
+- **Output gate:** stopped **46/46 attacks** with **30/30 benign requests** still working.
+- **Input filtering alone:** stopped 30/46 and broke 4 benign requests.
+- **Input blocking on top of the gate:** stopped nothing more, and broke the same 4.
+
+The lab has an AI "order assistant" in both variants to show the difference end to end. See [docs/measurements/prompt-injection.md](docs/measurements/prompt-injection.md).
+```bash
+./gradlew :gate-prompt:cliJar
+java -jar gate-prompt/build/libs/gate-prompt.jar measure --out prompt.json   # GATE_SERVER_URL=... stores results
+```
+
 ### ⑤ gate-lab — intentionally vulnerable practice app (stage 2, local only)
 The same order API served by two profiles: `vulnerable` (127.0.0.1:8081) and `fixed` (127.0.0.1:8082). Each attack is sent to both over real HTTP in tests: it must **succeed on vulnerable and fail on fixed**.
 
@@ -146,7 +168,7 @@ GATE/
 ├─ gate-lab/      ⑤ intentionally vulnerable practice app (stage 2, local only)
 ├─ gate-authz/    ③ automated authorization tests from OpenAPI (stage 3)
 ├─ gate-review/   ② static analysis (Semgrep) + AI security review of PRs (stage 4)
-├─ gate-prompt/   ④ prompt injection gate: guards AI output before SQL / HTML / actions (stage 5, in progress)
+├─ gate-prompt/   ④ prompt injection gate: guards AI output before SQL / HTML / actions (stage 5)
 ├─ docs/          progress log, ADRs, diagrams
 └─ docker-compose.yml
 ```
@@ -176,7 +198,7 @@ Integration tests (`HealthCheckIT`) start real PostgreSQL and Redis containers a
 - `gate-lab` is **never deployed publicly**.
 
 ### Status
-**Stages 0-3 are complete: the core product.** `gate-pkg` blocks hallucinated, typosquatted and malicious packages in Claude Code (hook) and in pull requests (GitHub Action). `gate-lab` reproduces four API vulnerabilities next to their fixes, and `gate-authz` finds the IDORs automatically from the OpenAPI spec. CI verifies on every push: unit and Testcontainers tests, a real `docker compose up` health check, an Action demo that must block a typosquat PR, the lab containers, and a gate-authz scan over the network whose findings must land in PostgreSQL. Stage 4 (`gate-review`, optional) is implemented: rules, Claude review, PR comments and the static measurement are done; the AI measurement is deferred. See [docs/progress.md](docs/progress.md).
+**Stages 0-3 are complete: the core product.** `gate-pkg` blocks hallucinated, typosquatted and malicious packages in Claude Code (hook) and in pull requests (GitHub Action). `gate-lab` reproduces four API vulnerabilities next to their fixes, and `gate-authz` finds the IDORs automatically from the OpenAPI spec. CI verifies on every push: unit and Testcontainers tests, a real `docker compose up` health check, an Action demo that must block a typosquat PR, the lab containers, and a gate-authz scan over the network whose findings must land in PostgreSQL. The optional stages are done too: stage 4 (`gate-review`: rules, Claude review, PR comments, static measurement; the AI measurement is deferred) and stage 5 (`gate-prompt`: output gates for AI-generated SQL, HTML and actions, 46/46 attacks stopped with no benign request broken, results stored in gate-server by CI). See [docs/progress.md](docs/progress.md).
 
 ### License
 [MIT](LICENSE)
@@ -255,6 +277,23 @@ OpenAPI 명세를 읽고, 사용자 A의 토큰으로 B의 객체에 접근해 �
 
 실습장 대상 결과: **뚫린 버전에서 조회·수정·삭제 BOLA 발견, 고친 버전에서 0건.** CI가 실습장 컨테이너를 네트워크로 검사하고, 결과가 gate-server를 거쳐 PostgreSQL에 저장되는지까지 확인합니다.
 
+### ④ gate-prompt: 프롬프트 인젝션 관문 (5단계, 선택)
+AI 출력이 실행되는 지점을 지킵니다. 모델은 속을 수 있으므로, 관문은 "이미 속았다"고 보고 검사합니다. (위 영어 섹션의 그림 참고)
+- **SQL:** 모델이 쓴 SQL을 실행하지 않습니다. 허용된 부분만 골라 관문이 새로 조립합니다.
+  - 조회 하나만, 정해진 테이블·열만 허용합니다.
+  - 값은 모두 바인딩합니다.
+  - "본인 주문만" 조건을 항상 붙입니다.
+- **HTML:** 서식 태그 9개만 남기고 속성은 모두 지웁니다(OWASP Java HTML Sanitizer). 지운 것은 기록합니다.
+- **동작:** 명령 문자열은 받지 않습니다. 등록된 동작·인자 형식과 본인 주문만 통과합니다.
+- **입력 검사:** 지시 덮어쓰기(영·한), 역할 사칭, 숨김 문자, 코드 조각을 찾지만 **기록만** 합니다.
+
+**측정** (인젝션을 무엇이든 따르는 가짜 모델, 공격 46개·정상 30개):
+- 출력 관문은 **공격 46/46을 막고 정상 30/30을 유지**했습니다.
+- 입력 필터만 쓰면 30/46을 막았고, 정상 요청 4개를 막았습니다.
+- 출력 관문에 입력 차단을 더해도 더 막은 공격은 없었고, 오탐만 4개 늘었습니다.
+
+실습장에는 두 버전의 "주문 도우미"를 붙여 차이를 직접 보여 줍니다. [측정 보고서](docs/measurements/prompt-injection.md)
+
 ### ⑤ gate-lab: 취약점 실습장 (2단계, 로컬 전용)
 같은 주문 API를 두 프로필로 띄웁니다. `vulnerable`(127.0.0.1:8081)과 `fixed`(127.0.0.1:8082)입니다. 테스트가 같은 공격을 두 버전에 실제 HTTP로 보내서, **뚫린 버전에서는 성공하고 고친 버전에서는 막히는지** 확인합니다.
 
@@ -300,7 +339,7 @@ Docker 없이 빌드·테스트:
 - `gate-lab`(취약한 앱)은 **절대 외부에 공개 배포하지 않습니다.**
 
 ### 진행 상황
-**0~3단계 완료: 핵심 제품 완성.** `gate-pkg`가 AI가 지어낸 패키지, 철자 흉내 패키지, 악성 패키지를 Claude Code 훅과 PR(GitHub Action) 양쪽에서 막습니다. `gate-lab`은 API 취약점 4종을 고친 버전과 나란히 재현하고, `gate-authz`는 OpenAPI 명세만으로 IDOR를 자동으로 찾습니다. 푸시할 때마다 CI가 단위·통합 테스트, 실제 `docker compose up` 헬스체크, 철자 흉내 PR 차단 데모, 실습장 컨테이너, 그리고 네트워크로 실행한 gate-authz 결과가 PostgreSQL에 저장되는지까지 확인합니다. 4단계(`gate-review`, 선택)도 구현했습니다. 규칙, Claude 검토, PR 댓글, 정적 분석 측정까지 마쳤고 AI 측정은 보류했습니다. 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
+**0~3단계 완료: 핵심 제품 완성.** `gate-pkg`가 AI가 지어낸 패키지, 철자 흉내 패키지, 악성 패키지를 Claude Code 훅과 PR(GitHub Action) 양쪽에서 막습니다. `gate-lab`은 API 취약점 4종을 고친 버전과 나란히 재현하고, `gate-authz`는 OpenAPI 명세만으로 IDOR를 자동으로 찾습니다. 푸시할 때마다 CI가 단위·통합 테스트, 실제 `docker compose up` 헬스체크, 철자 흉내 PR 차단 데모, 실습장 컨테이너, 그리고 네트워크로 실행한 gate-authz 결과가 PostgreSQL에 저장되는지까지 확인합니다. 선택 단계도 마쳤습니다. 4단계(`gate-review`)는 규칙, Claude 검토, PR 댓글, 정적 분석 측정까지 했고 AI 측정은 보류했습니다. 5단계(`gate-prompt`)는 AI가 만든 SQL·HTML·동작의 출력 관문으로 공격 46개를 모두 막고 정상 요청은 하나도 막지 않았으며, CI가 결과를 gate-server에 저장하는지까지 확인합니다. 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
 
 ### 라이선스
 [MIT](LICENSE)

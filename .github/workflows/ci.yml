@@ -275,6 +275,20 @@ jobs:
             | docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tA' | tee /tmp/stored.txt
           test "$(grep -c '^AUTHZ|AUTHZ-BOLA-' /tmp/stored.txt)" = 3
 
+      # 5단계 완료 기준: 공격 사례 묶음을 막고 결과를 수치로 남긴다. 출력 관문을 통과한 공격이 있으면 실패(종료 코드 1)
+      - name: gate-prompt measurement stops every attack and stores results in gate-server
+        run: |
+          ./gradlew :gate-prompt:cliJar --no-daemon -q
+          GATE_SERVER_URL=http://127.0.0.1:8080 java -jar gate-prompt/build/libs/gate-prompt.jar measure \
+            --out /tmp/prompt.json | tee /tmp/prompt.txt
+          grep -q 'reported to http://127.0.0.1:8080' /tmp/prompt.txt
+          jq '.summary' /tmp/prompt.json
+          test "$(jq '.summary.OUTPUT_ONLY.attacksStopped' /tmp/prompt.json)" = "$(jq '.summary.OUTPUT_ONLY.attacks' /tmp/prompt.json)"
+          echo "SELECT f.decision, count(*) FROM finding f JOIN scan_run r ON r.id = f.run_id WHERE r.module = 'PROMPT' GROUP BY f.decision ORDER BY 1;" \
+            | docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tA' | tee /tmp/prompt-stored.txt
+          grep -q '^BLOCK|' /tmp/prompt-stored.txt
+          grep -q '^WARN|' /tmp/prompt-stored.txt
+
       - name: Logs on failure
         if: failure()
         run: docker compose --profile lab logs --no-color
