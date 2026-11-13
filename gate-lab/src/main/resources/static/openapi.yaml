@@ -137,6 +137,48 @@ paths:
                 items: { $ref: '#/components/schemas/Product' }
         "400": { description: Invalid query }
 
+  /api/assistant/order-search:
+    post:
+      operationId: assistantOrderSearch
+      summary: Order assistant - search my orders in natural language (AI writes SQL)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AssistantQuestion' }
+      responses:
+        "200": { description: Matching orders }
+        "401": { description: Not authenticated }
+        "422": { description: AI output blocked by the gate (fixed variant) }
+
+  /api/assistant/review-summary:
+    post:
+      operationId: assistantReviewSummary
+      summary: Order assistant - summarize product reviews as HTML (AI output shown in the page)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AssistantReviewRequest' }
+      responses:
+        "200": { description: HTML summary }
+        "401": { description: Not authenticated }
+        "404": { description: Product not found }
+
+  /api/assistant/order-action:
+    post:
+      operationId: assistantOrderAction
+      summary: Order assistant - act on my orders (AI chooses the action)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AssistantRequest' }
+      responses:
+        "200": { description: Action result }
+        "401": { description: Not authenticated }
+        "422": { description: AI output blocked by the gate (fixed variant) }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -196,3 +238,18 @@ components:
         id: { type: integer, format: int64 }
         name: { type: string }
         price: { type: integer }
+    AssistantQuestion:
+      type: object
+      required: [question]
+      properties:
+        question: { type: string, maxLength: 500, example: "Show my orders with quantity over 1" }
+    AssistantReviewRequest:
+      type: object
+      required: [productId]
+      properties:
+        productId: { type: integer, format: int64, example: 1 }
+    AssistantRequest:
+      type: object
+      required: [request]
+      properties:
+        request: { type: string, maxLength: 500, example: "cancel order 1" }

@@ -1,6 +1,7 @@
 package io.gate.prompt.action;
 
 import io.gate.prompt.GuardResult;
+import io.gate.prompt.input.HiddenText;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -131,8 +132,6 @@ public final class ActionGuard {
 
     /** 제어 문자, 제로폭·양방향 제어 문자 (화면에 안 보이게 지시를 숨기는 데 쓰인다). */
     static boolean hasControl(String s) {
-        return s.codePoints().anyMatch(c -> Character.isISOControl(c) || c >= 0x200B && c <= 0x200F
-                || c >= 0x202A && c <= 0x202E || c >= 0x2060 && c <= 0x2064 || c >= 0x2066 && c <= 0x2069
-                || c == 0xFEFF || c >= 0xE0000 && c <= 0xE007F);
+        return HiddenText.hasControlOrHidden(s);
     }
 }

@@ -13,6 +13,13 @@ import org.junit.jupiter.api.Test;
 class SemgrepTest {
 
     @Test
+    void versionIsFoundEvenWithAnUpgradeNotice() {
+        assertEquals("1.182.1", SemgrepRunner.parseVersion(
+                "\nA new version of Semgrep is available. See https://semgrep.dev/docs/upgrading\n1.182.1\n"));
+        assertEquals("1.182.1", SemgrepRunner.parseVersion("1.182.1\n"));
+    }
+
+    @Test
     void parsesRecordedLabOutput() {
         SemgrepResult r = SemgrepResult.parse(LabFiles.fixture("semgrep-lab.json"));
         assertEquals("1.182.1", r.version());

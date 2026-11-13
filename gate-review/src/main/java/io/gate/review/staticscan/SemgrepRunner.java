@@ -28,7 +28,16 @@ public final class SemgrepRunner {
     }
 
     public String version() throws IOException {
-        return run(List.of(executable, "--version"), null).strip();
+        return parseVersion(run(List.of(executable, "--version"), null));
+    }
+
+    /**
+     * 새 버전 안내("A new version of Semgrep is available")가 같은 출력에 섞여도 버전 줄만 고른다
+     * (2026-11-13 확인: 안내 문구 때문에 버전 비교가 틀려 실제 Semgrep 테스트가 건너뛰어졌다).
+     */
+    static String parseVersion(String output) {
+        return output.lines().map(String::strip).filter(l -> l.matches("\\d+\\.\\d+\\.\\d+")).reduce((a, b) -> b)
+                .orElse(output.strip());
     }
 
     /**
@@ -61,6 +70,7 @@ public final class SemgrepRunner {
             pb.directory(dir.toFile());
         }
         pb.environment().put("PYTHONUTF8", "1"); // Windows에서 출력 인코딩 문제 방지
+        pb.environment().put("SEMGREP_ENABLE_VERSION_CHECK", "0"); // 새 버전 확인(네트워크 요청·안내 문구) 끔
         Process p = pb.start();
         p.getOutputStream().close();
         CompletableFuture<byte[]> out = CompletableFuture.supplyAsync(() -> read(p.getInputStream()));

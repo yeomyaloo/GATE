@@ -5,6 +5,8 @@ plugins {
 }
 
 dependencies {
+    // 5단계: 주문 도우미(고친 버전)가 AI 출력 관문을 쓴다. 가짜 모델도 여기에 있다
+    implementation(project(":gate-prompt"))
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")

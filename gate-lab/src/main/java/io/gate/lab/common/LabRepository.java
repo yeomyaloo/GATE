@@ -45,6 +45,12 @@ public class LabRepository {
         return jdbc.query(ORDER_SELECT + "WHERE o.user_id = ? ORDER BY o.id", LabRepository::order, userId);
     }
 
+    /** 상품 리뷰 본문 (작성 순서). 숨김 상품의 리뷰는 돌려주지 않는다. */
+    public List<String> reviewsOf(long productId) {
+        return jdbc.queryForList("SELECT r.body FROM product_reviews r JOIN products p ON p.id = r.product_id "
+                + "WHERE r.product_id = ? AND p.hidden = FALSE ORDER BY r.id", String.class, productId);
+    }
+
     public boolean productExists(long productId) {
         Integer n = jdbc.queryForObject("SELECT COUNT(*) FROM products WHERE id = ? AND hidden = FALSE",
                 Integer.class, productId);

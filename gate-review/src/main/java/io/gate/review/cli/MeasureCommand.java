@@ -138,12 +138,21 @@ final class MeasureCommand {
         Path root = repo.resolve(LAB_SOURCES);
         List<SourceFile> files = new ArrayList<>();
         try (Stream<Path> s = Files.walk(root)) {
-            for (Path p : s.filter(x -> x.toString().endsWith(".java")).sorted().toList()) {
+            for (Path p : s.filter(x -> x.toString().endsWith(".java")).filter(MeasureCommand::inScope).sorted()
+                    .toList()) {
                 files.add(new SourceFile(repo.relativize(p).toString().replace('\\', '/'),
                         Files.readString(p, StandardCharsets.UTF_8)));
             }
         }
         return files;
+    }
+
+    /**
+     * 4단계 정답지(V1~V4, API 취약점)의 범위. 5단계 주문 도우미({@code io/gate/lab/assistant/})는 프롬프트 인젝션 실습용이라
+     * 정답지에 없고 5단계에서 따로 잰다. 넣으면 정답지에 없는 취약 코드가 오탐으로 잡혀 수치가 틀어진다.
+     */
+    static boolean inScope(Path p) {
+        return !p.toString().replace('\\', '/').contains("/io/gate/lab/assistant/");
     }
 
     static String estimate(List<SourceFile> lab, int runs) {

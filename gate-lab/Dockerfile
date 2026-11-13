@@ -8,12 +8,12 @@ COPY gradlew settings.gradle.kts build.gradle.kts ./
 COPY gradle ./gradle
 COPY gate-lab ./gate-lab
 # settings.gradle.kts에 포함된 다른 모듈은 폴더가 있어야 Gradle 설정 단계를 통과한다 (빌드 파일만 복사)
-COPY gate-common/build.gradle.kts ./gate-common/
+COPY gate-common ./gate-common
+COPY gate-prompt ./gate-prompt
 COPY gate-server/build.gradle.kts ./gate-server/
 COPY gate-pkg/build.gradle.kts ./gate-pkg/
 COPY gate-authz/build.gradle.kts ./gate-authz/
 COPY gate-review/build.gradle.kts ./gate-review/
-COPY gate-prompt/build.gradle.kts ./gate-prompt/
 RUN chmod +x gradlew && ./gradlew --no-daemon :gate-lab:bootJar -x test
 
 FROM eclipse-temurin:17.0.21_9-jre-alpine-3.24@sha256:e2ba4e947bd5e236a9866fbdda03e4936036cb9e9d16ea0d84d103d6634a5c21

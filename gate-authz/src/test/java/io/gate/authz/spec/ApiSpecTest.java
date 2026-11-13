@@ -21,7 +21,9 @@ class ApiSpecTest {
     @Test
     void readsLabOperationsAndAuthRequirements() throws Exception {
         ApiSpec spec = ApiSpec.parse(labSpec());
-        assertEquals(8, spec.operations().size());
+        // 8개 + 5단계 주문 도우미 3개 (경로 변수가 없어 자원으로 묶이지 않고, 인증 누락 검사만 받는다)
+        assertEquals(11, spec.operations().size());
+        assertTrue(spec.find("POST", "/api/assistant/order-action").orElseThrow().requiresAuth());
         assertFalse(spec.find("POST", "/api/auth/login").orElseThrow().requiresAuth(), "security: [] overrides global");
         assertFalse(spec.find("GET", "/api/products/search").orElseThrow().requiresAuth());
         assertTrue(spec.find("GET", "/api/orders/{id}").orElseThrow().requiresAuth(), "global bearerAuth applies");

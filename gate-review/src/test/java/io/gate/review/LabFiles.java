@@ -18,7 +18,10 @@ public final class LabFiles {
 
     public static List<SourceFile> all() {
         try (Stream<Path> s = Files.walk(ROOT.resolve("gate-lab/src/main/java"))) {
-            return s.filter(p -> p.toString().endsWith(".java")).sorted().map(LabFiles::read).toList();
+            // 4단계 측정 범위만 (5단계 주문 도우미 제외, MeasureCommand.inScope와 같은 기준)
+            return s.filter(p -> p.toString().endsWith(".java"))
+                    .filter(p -> !p.toString().replace('\\', '/').contains("/io/gate/lab/assistant/"))
+                    .sorted().map(LabFiles::read).toList();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
