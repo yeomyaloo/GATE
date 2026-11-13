@@ -4,10 +4,15 @@
 [versions]
 spring-boot = "4.1.2"
 spring-dependency-management = "1.1.7"
+# gate-prompt (5단계). 추가 전 확인: 공식 저장소(JSQLParser·OWASP 조직), deps.dev 알려진 취약점 없음, 공개 2주 이상
+jsqlparser = "5.4"
+owasp-html-sanitizer = "20261011.1"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
 
 [libraries]
+jsqlparser = { module = "com.github.jsqlparser:jsqlparser", version.ref = "jsqlparser" }
+owasp-html-sanitizer = { module = "com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer", version.ref = "owasp-html-sanitizer" }
 spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }

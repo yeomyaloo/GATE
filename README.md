@@ -146,10 +146,11 @@ GATE/
 ├─ gate-lab/      ⑤ intentionally vulnerable practice app (stage 2, local only)
 ├─ gate-authz/    ③ automated authorization tests from OpenAPI (stage 3)
 ├─ gate-review/   ② static analysis (Semgrep) + AI security review of PRs (stage 4)
+├─ gate-prompt/   ④ prompt injection gate: guards AI output before SQL / HTML / actions (stage 5, in progress)
 ├─ docs/          progress log, ADRs, diagrams
 └─ docker-compose.yml
 ```
-Later stages add `gate-prompt/` and `dashboard/`.
+Later stages add `dashboard/`.
 
 ### Getting started
 Requirements: Docker Desktop (with Compose v2), JDK 17 for local builds.
