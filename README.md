@@ -137,6 +137,31 @@ The lab has an AI "order assistant" in both variants to show the difference end 
 java -jar gate-prompt/build/libs/gate-prompt.jar measure --out prompt.json   # GATE_SERVER_URL=... stores results
 ```
 
+### ★ Dashboard — all module results in one screen (final stage)
+A read-only React dashboard served by gate-server at `http://127.0.0.1:8080/` (same origin, no CORS, local only).
+
+| Screen | What it shows |
+|---|---|
+| **Overview** | **KPIs** (5 cards): scan runs, findings, BLOCK, WARN, CRITICAL+HIGH · **module cards** (4): runs, last run, BLOCK/WARN/PASS per module · **charts**: decisions per module (stacked bars), severity distribution (donut) · latest 10 blocks |
+| **Findings** | Filter by module, decision and severity (kept in the URL); paging by time ("load more") |
+| **Finding detail** | Rule, location (package, file:line or endpoint), source (RULE, AI or RULE_AND_AI), evidence as key/value, and the history of the same finding (fingerprint) |
+
+- **Attack text stays text.** Evidence holds real attack strings (prompt-injection payloads, malicious install scripts, vulnerable code).
+  - The UI renders it only through React escaping, never as HTML.
+  - gate-server sends a CSP with `script-src 'self'`: no inline scripts, no eval.
+  - Checked in the browser: a stored `<img onerror>` payload shows as text, and no image element is created.
+- **Dependencies were checked with GATE itself.** React 19, Mantine 9 (UI kit, charts on Recharts 3) and Vite 8.
+  - Every installed package (83, including transitive) was run through `gate-pkg` and checked to be at least 2 weeks old.
+  - 18 newer transitive versions were pinned back with npm `overrides`.
+  - `.npmrc` forces HTTPS and disables install scripts.
+- Screenshots: captured automatically in CI (Playwright), added in the next step.
+
+```bash
+docker compose up -d --build        # gate-server builds the dashboard into its image
+# open http://127.0.0.1:8080/
+cd dashboard && npm ci && npm run build && node scripts/mock-api.mjs 8099   # sample data at http://127.0.0.1:8099/
+```
+
 ### ⑤ gate-lab — intentionally vulnerable practice app (stage 2, local only)
 The same order API served by two profiles: `vulnerable` (127.0.0.1:8081) and `fixed` (127.0.0.1:8082). Each attack is sent to both over real HTTP in tests: it must **succeed on vulnerable and fail on fixed**.
 
@@ -169,10 +194,10 @@ GATE/
 ├─ gate-authz/    ③ automated authorization tests from OpenAPI (stage 3)
 ├─ gate-review/   ② static analysis (Semgrep) + AI security review of PRs (stage 4)
 ├─ gate-prompt/   ④ prompt injection gate: guards AI output before SQL / HTML / actions (stage 5)
+├─ dashboard/     ★ React dashboard (Mantine, Recharts), served by gate-server
 ├─ docs/          progress log, ADRs, diagrams
 └─ docker-compose.yml
 ```
-Later stages add `dashboard/`.
 
 ### Getting started
 Requirements: Docker Desktop (with Compose v2), JDK 17 for local builds.
@@ -293,6 +318,25 @@ AI 출력이 실행되는 지점을 지킵니다. 모델은 속을 수 있으므
 - 출력 관문에 입력 차단을 더해도 더 막은 공격은 없었고, 오탐만 4개 늘었습니다.
 
 실습장에는 두 버전의 "주문 도우미"를 붙여 차이를 직접 보여 줍니다. [측정 보고서](docs/measurements/prompt-injection.md)
+
+### ★ 대시보드: 모든 모듈의 결과를 한 화면에 (마지막 단계)
+gate-server가 `http://127.0.0.1:8080/`에서 함께 제공하는 읽기 전용 React 화면입니다. 같은 주소라서 CORS가 필요 없고, 로컬에서만 엽니다.
+
+| 화면 | 내용 |
+|---|---|
+| **개요** | **KPI 카드 5개**: 검사 실행 수, 발견 수, 차단(BLOCK), 경고(WARN), 치명+높음 · **모듈 카드 4개**: 실행 수, 마지막 실행, 판정별 수 · **차트**: 모듈별 판정(누적 막대), 심각도 분포(도넛) · 최근 차단 10건 |
+| **결과 목록** | 모듈·판정·심각도 필터(주소에 남음), 시각 기준 "더 보기" |
+| **결과 상세** | 규칙, 위치(패키지 · 파일:줄 · 엔드포인트), 출처(규칙·AI·규칙+AI), 근거(키-값), 같은 결과(지문)의 기록 |
+
+- **공격 문자열은 글자로만 보입니다.** 근거에는 프롬프트 인젝션 문장, 악성 설치 스크립트, 취약 코드가 그대로 들어 있습니다.
+  - 화면은 React 이스케이프로만 표시하고, HTML로 넣지 않습니다.
+  - 서버는 인라인 스크립트와 eval을 금지하는 CSP를 붙입니다.
+  - 브라우저에서 확인했습니다: 저장된 `<img onerror>`가 글자로 보였고, 이미지 요소는 0개였습니다.
+- **의존성은 GATE로 직접 검사했습니다.** 쓰는 것은 React 19, Mantine 9(UI 키트, 차트는 Recharts 3 기반), Vite 8입니다.
+  - 설치된 패키지 83개 전부(간접 포함)를 `gate-pkg`로 검사하고, 공개된 지 2주가 넘었는지 확인했습니다.
+  - 2주가 안 된 간접 의존성 18개는 npm `overrides`로 이전 버전에 고정했습니다.
+  - `.npmrc`로 HTTPS만 쓰고, 설치 스크립트는 실행하지 않습니다.
+- 화면 캡처는 다음 단계에서 CI가 자동으로 찍어(Playwright) 넣습니다.
 
 ### ⑤ gate-lab: 취약점 실습장 (2단계, 로컬 전용)
 같은 주문 API를 두 프로필로 띄웁니다. `vulnerable`(127.0.0.1:8081)과 `fixed`(127.0.0.1:8082)입니다. 테스트가 같은 공격을 두 버전에 실제 HTTP로 보내서, **뚫린 버전에서는 성공하고 고친 버전에서는 막히는지** 확인합니다.

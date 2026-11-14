@@ -212,6 +212,19 @@ jobs:
           echo "$body" | grep -q '"db":{"status":"UP"'
           echo "$body" | grep -q '"redis":{"status":"UP"'
 
+      # 대시보드: gate-server가 같은 주소에서 화면을 제공하고, 보안 헤더(인라인 스크립트 금지 CSP)를 붙인다
+      - name: Dashboard is served by gate-server with a strict CSP
+        run: |
+          curl -fsS -D /tmp/h.txt http://127.0.0.1:8080/ -o /tmp/index.html
+          grep -q '<div id="root">' /tmp/index.html
+          grep -qi "^content-security-policy:.*script-src 'self';" /tmp/h.txt
+          grep -qi '^x-content-type-options: nosniff' /tmp/h.txt
+          ! grep -q '<script>' /tmp/index.html
+          js=$(grep -o '/assets/[^"]*\.js' /tmp/index.html | head -1)
+          curl -fsS -o /dev/null "http://127.0.0.1:8080$js"
+          curl -fsS http://127.0.0.1:8080/api/summary | tee /tmp/summary.json
+          test "$(jq '.modules | length' /tmp/summary.json)" = 4
+
       - name: Schema created by Flyway
         run: |
           docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "SELECT table_name FROM information_schema.tables WHERE table_schema = '"'"'public'"'"' ORDER BY 1"' | tee tables.txt

@@ -111,6 +111,10 @@ public class QueryRepository {
         return Optional.of(run);
     }
 
+    public Optional<Map<String, Object>> finding(UUID id) {
+        return jdbc.query(FINDING_SELECT + "WHERE f.id = ?", (rs, i) -> finding(rs), id).stream().findFirst();
+    }
+
     /** 조건은 모두 선택이다. before가 있으면 그 시각보다 앞선 결과만 (시각 기준 페이지 나누기). */
     public List<Map<String, Object>> findings(FindingFilter filter, int limit) {
         StringBuilder where = new StringBuilder();

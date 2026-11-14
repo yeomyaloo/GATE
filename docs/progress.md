@@ -13,7 +13,7 @@
 | 3 | ③ gate-authz 권한 검사 자동 테스트 | ✅ 완료 (2026-11-09) · **0~3단계로 핵심 제품 완성** |
 | 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ✅ 완료 (2026-11-13) · AI 측정은 **보류**(사용자 결정) · [측정](measurements/review-accuracy.md) ([설계안](design/stage4-gate-review.md)) |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ✅ 완료 (2026-11-13) · [측정](measurements/prompt-injection.md): 출력 관문 공격 46/46 차단, 정상 30/30 ([설계안](design/stage5-gate-prompt.md)) |
-| ★ | 대시보드·데모·정리 | 🔵 구현 중: 1주차 완료 (조회 API·보안 헤더·gate-review 저장), 2주차(화면) 대기 ([설계안](design/stage6-dashboard.md)) |
+| ★ | 대시보드·데모·정리 | 🔵 구현 중: 1·2주차 완료 (조회 API, 대시보드 화면), 3주차(데모·자동 캡처·정리) 대기 ([설계안](design/stage6-dashboard.md)) |
 
 ---
 
@@ -49,8 +49,37 @@
 - `QueryControllerTest` 3개 (Docker 없이 실행): 조건 검증, 보안 헤더에 `unsafe-inline`·`unsafe-eval`이 없는지
 - gate-review `ReviewCliIT` +2개 (실제 Semgrep, 가짜 서버): 저장 본문 확인, 서버가 꺼져 있어도 BLOCK 유지
 
-### 다음 할 일 (2주차)
-React 대시보드 3화면(개요·결과 목록·결과 상세). 차트·UI 키트 후보를 gate-pkg로 검사해 확인받은 뒤 추가. gate-server에 포함, Docker 빌드, 화면 테스트
+### 2주차 구현 (2026-11-15) — 완료
+| 항목 | 내용 |
+|---|---|
+| 라이브러리 선택 | 후보를 gate-pkg로 검사해 보여 드리고 확인받음: **Mantine 9.7.4**(UI 키트, CSS 파일 제공) + **Recharts 3.10.1**(Mantine charts). React 19.3.1, Vite 8.3.5, TypeScript 7.0.2. 후보 검사에서 `chart.js@4.6.1`이 "이전 관리자가 아닌 GitHub Actions가 배포"로 경고됨 → 고르지 않음 |
+| 공급망 점검 | **설치된 83개 전부**(간접 포함)를 gate-pkg로 검사: PASS 81, WARN 2(`reselect@5.2.0`·`tslib@2.9.1` 배포자 변경), BLOCK 0. 공개 2주 미만인 간접 의존성 **18개**(postcss는 17시간 전 배포)를 npm `overrides`로 2주 넘은 버전에 고정 → lock 항목 127개 모두 2주 이상 |
+| HTTP 레지스트리 발견 | 이 PC의 사용자 npm 설정(`~/.npmrc`)이 레지스트리를 **`http://`** 로 지정하고 있었다(평문, 중간에서 패키지 바꿔치기 가능). 프로젝트 `.npmrc`에서 HTTPS로 강제하고 처음부터 다시 설치. HTTP로 받은 lock과 무결성 값(sha512) 133개가 모두 같아 변조는 없었다. 사용자 설정 파일은 건드리지 않았다 |
+| npm 설정 | `.npmrc`: HTTPS 레지스트리, **설치 스크립트 실행 안 함**(`ignore-scripts`), 정확한 버전(`save-exact`), Node 버전 강제(`engine-strict`) |
+| Node | Vite 8에는 Node 20.19 이상이 필요한데 이 PC는 20.12. 시스템은 건드리지 않고, 공식 Node 24 LTS(24.22.2) 압축본을 작업 폴더에 받아 SHA256 확인 후 사용. Docker 빌드는 `node:24.22.2-alpine3.24`(digest 고정) |
+| 화면 3개 | **개요**: KPI 5개(실행·발견·BLOCK·WARN·치명+높음), 모듈 카드 4개, 모듈별 판정 누적 막대, 심각도 도넛, 최근 차단 10건 / **결과 목록**: 모듈·판정·심각도 필터(주소에 남음), "더 보기" / **결과 상세**: 규칙·위치·출처·근거(키-값)·같은 지문의 기록. 라우터 라이브러리 없이 해시 주소 |
+| 서버 포함 | gate-server Dockerfile에 화면 빌드 단계 추가(`npm ci` → `vite build` → 정적 파일로 jar에 포함). `.dockerignore` 추가(node_modules·빌드 결과·.env 제외). 결과 1건 조회 API `GET /api/findings/{id}` 추가(상세 화면 새로 고침용) |
+| CSP 조정 | Mantine이 실행 중에 style 태그(CSS 변수)를 넣는다 → 설계안에서 미리 정한 대로 **`style-src`에만** `'unsafe-inline'` 허용. `script-src 'self'`는 그대로(테스트가 확인) |
+| 표본 API 서버 | `dashboard/scripts/mock-api.mjs`(의존성 없음): 실제 서버와 같은 경로·모양·보안 헤더로 표본 데이터(`fixtures/sample.json`, 이 프로젝트 실제 결과를 본뜸)를 돌려준다. 로컬 확인과 3주차 자동 캡처용 |
+
+**확인한 것 (이 PC 브라우저, 실제 서버와 같은 CSP)**
+- 콘솔 오류가 없었다
+- 근거에 저장된 `<img src=x onerror=...>`가 글자로 보였고, 이미지 요소는 0개였다
+- 화면에서 고친 것: 좁은 화면에서 메뉴가 본문을 가림(머리글 링크로 대체), 표에서 배지가 잘림, 시각 형식, 목록으로 돌아가기 링크
+
+**CI 추가:** compose-smoke에서 `/`가 화면을 주고, CSP의 `script-src 'self'`, `nosniff`, 인라인 스크립트 없음, JS 파일 제공, `/api/summary`의 모듈 4개를 확인
+
+**설계와 달라진 점**
+- 화면 테스트는 3주차 Playwright(자동 캡처와 같은 도구)로 한다. jsdom 기반 단위 테스트 도구는 의존성을 20개 넘게 늘려서 넣지 않았다
+- README 화면 이미지도 3주차 자동 캡처로 넣는다(이 PC의 미리보기 창이 좁아 캡처가 잘림)
+
+**사용자 결정이 필요한 것:** `reselect@5.2.0`·`tslib@2.9.1` 경고를 `.gate/pkg-allow.txt`에 예외로 올릴지
+- reselect: GitHub Actions의 신뢰할 수 있는 배포(SLSA 출처 증명, github.com/reduxjs/reselect)
+- tslib: Microsoft 배포 계정(microsoft1es)
+- 검문소 예외는 사람이 정할 일이라 제가 직접 넣지 않았다(자동 승인 판단에서도 막힘)
+
+### 다음 할 일 (3주차)
+데모 스크립트(가짜 패키지 차단 → PR 리뷰 → IDOR → 프롬프트 인젝션 → 대시보드), CI 연결, Playwright 자동 캡처(+ 화면 테스트: 공격 문자열이 글자로 보이는지), README 화면 이미지, 최종 정리
 
 ---
 

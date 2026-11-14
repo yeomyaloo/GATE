@@ -39,8 +39,10 @@ class QueryControllerTest {
         MockHttpServletResponse res = new MockHttpServletResponse();
         new SecurityHeadersFilter().doFilter(req, res, new MockFilterChain());
         String csp = res.getHeader("Content-Security-Policy");
-        assertThat(csp).contains("script-src 'self'").doesNotContain("unsafe-inline").doesNotContain("unsafe-eval")
-                .contains("object-src 'none'").contains("frame-ancestors 'none'");
+        String scriptSrc = java.util.Arrays.stream(csp.split(";")).map(String::strip)
+                .filter(d -> d.startsWith("script-src")).findFirst().orElseThrow();
+        assertThat(scriptSrc).isEqualTo("script-src 'self'").as("no inline scripts, no eval");
+        assertThat(csp).doesNotContain("unsafe-eval").contains("object-src 'none'").contains("frame-ancestors 'none'");
         assertThat(res.getHeader("X-Content-Type-Options")).isEqualTo("nosniff");
         assertThat(res.getHeader("Cache-Control")).isEqualTo("no-store");
 

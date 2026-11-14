@@ -20,3 +20,6 @@ dist/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# 로컬 미리보기 설정 (이 PC 경로가 들어 있음)
+.claude/launch.json

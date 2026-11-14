@@ -71,6 +71,11 @@ public class QueryController {
                 fingerprint, beforeAt), limit(limit));
     }
 
+    @GetMapping("/api/findings/{id}")
+    public ResponseEntity<Map<String, Object>> finding(@PathVariable String id) {
+        return repository.finding(uuid(id)).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+
     /** 잘못된 조회 조건은 400과 이유 한 줄. 내부 정보는 내보내지 않는다. */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> badRequest(IllegalArgumentException e) {

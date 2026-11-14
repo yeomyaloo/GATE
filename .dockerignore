@@ -1,0 +1,8 @@
+# 빌드 컨텍스트에서 뺀다: 로컬 의존성·빌드 결과·비밀값 (이미지 안에서 다시 설치·빌드한다)
+**/node_modules
+**/dist
+**/build
+.gradle
+.git
+.env
+*.log

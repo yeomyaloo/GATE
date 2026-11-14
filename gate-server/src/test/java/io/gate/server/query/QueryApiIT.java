@@ -139,6 +139,12 @@ class QueryApiIT {
         Res page = get("/api/findings?module=PKG&before=2026-11-15T00:00:02Z");
         assertThat(page.body()).allSatisfy(f -> assertThat(f.path("ruleId").asString()).isEqualTo("PKG-TYPO"));
 
+        String id = warn.body().get(0).path("id").asString();
+        Res one = get("/api/findings/" + id);
+        assertThat(one.status()).isEqualTo(200);
+        assertThat(one.body().path("id").asString()).isEqualTo(id);
+        assertThat(get("/api/findings/00000000-0000-0000-0000-000000000000").status()).isEqualTo(404);
+
         String fp = warn.body().get(0).path("fingerprint").asString();
         Res same = get("/api/findings?fingerprint=" + fp);
         assertThat(same.body()).allSatisfy(f -> assertThat(f.path("fingerprint").asString()).isEqualTo(fp));

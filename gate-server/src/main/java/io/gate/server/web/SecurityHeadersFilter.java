@@ -16,8 +16,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class SecurityHeadersFilter extends OncePerRequestFilter {
 
-    /** 화면(2주차)이 쓰는 UI 키트가 인라인 스타일을 요구하면 style-src만 조정한다. 스크립트 규칙은 바꾸지 않는다. */
-    public static final String CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
+    /**
+     * 화면의 UI 키트(Mantine)는 실행 중에 style 태그(CSS 변수)를 넣는다. 그래서 style-src에만 'unsafe-inline'을 허용한다
+     * (설계안에서 미리 정한 조정). 스타일 주입은 스크립트를 실행하지 못한다. 스크립트 규칙(script-src 'self')은 그대로다.
+     */
+    public static final String CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+            + "img-src 'self' data:; "
             + "font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; "
             + "form-action 'self'";
 
