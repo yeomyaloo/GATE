@@ -4,6 +4,7 @@ import io.gate.common.finding.Finding;
 import io.gate.common.finding.Location;
 import io.gate.review.ai.AiResult;
 import io.gate.review.merge.ReviewReport;
+import java.time.Instant;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -79,5 +80,36 @@ public final class ReviewOutput {
         ArrayNode errors = root.putArray("staticErrors");
         r.staticErrors().forEach(errors::add);
         return JSON.writerWithDefaultPrettyPrinter().writeValueAsString(root);
+    }
+
+    /**
+     * gate-server {@code POST /api/scan-runs} 본문 (gate-server ScanRunRequest와 같은 모양).
+     * AI만의 지적은 source AI·판정 WARN 그대로 보낸다 (서버도 AI 단독 BLOCK을 거부한다).
+     */
+    public static String serverBody(ReviewReport r, String trigger, String target, Instant startedAt,
+            Instant finishedAt) {
+        ObjectNode root = JSON.createObjectNode();
+        root.put("module", "REVIEW");
+        root.put("trigger", trigger);
+        root.put("target", target.length() > 512 ? target.substring(0, 512) : target);
+        root.put("startedAt", startedAt.toString());
+        root.put("finishedAt", finishedAt.toString());
+        ArrayNode findings = root.putArray("findings");
+        for (Finding f : r.findings()) {
+            Location.File loc = (Location.File) f.location();
+            ObjectNode n = findings.addObject();
+            n.put("ruleId", f.ruleId().length() > 64 ? f.ruleId().substring(0, 64) : f.ruleId());
+            n.put("title", f.title().length() > 512 ? f.title().substring(0, 512) : f.title());
+            n.put("severity", f.severity().name());
+            n.put("decision", f.decision().name());
+            ObjectNode l = n.putObject("location");
+            l.put("kind", "file");
+            l.put("path", loc.path());
+            l.put("line", loc.line());
+            n.set("evidence", JSON.valueToTree(f.evidence()));
+            n.put("source", f.source().name());
+            n.put("detectedAt", f.detectedAt().toString());
+        }
+        return JSON.writeValueAsString(root);
     }
 }

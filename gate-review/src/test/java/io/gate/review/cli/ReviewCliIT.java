@@ -62,12 +62,16 @@ class ReviewCliIT {
     }
 
     Run review(AiReviewer ai, String... extra) {
+        return review(Map.of("GATE_SEMGREP", semgrep), ai, extra);
+    }
+
+    Run review(Map<String, String> env, AiReviewer ai, String... extra) {
         List<String> args = new ArrayList<>(List.of("review", "--base", "base", "--repo", repo.toString(),
                 "--rules", LabFiles.ROOT.resolve(GateReviewCli.DEFAULT_RULES).toString()));
         args.addAll(List.of(extra));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
-        int code = new GateReviewCli(Map.of("GATE_SEMGREP", semgrep)::get, effort -> Optional.ofNullable(ai))
+        int code = new GateReviewCli(env::get, effort -> Optional.ofNullable(ai))
                 .run(args.toArray(String[]::new), new PrintStream(out, true, StandardCharsets.UTF_8),
                         new PrintStream(err, true, StandardCharsets.UTF_8));
         return new Run(code, out.toString(StandardCharsets.UTF_8) + err.toString(StandardCharsets.UTF_8));
@@ -122,5 +126,45 @@ class ReviewCliIT {
         git("tag", "base");
         Run r = review(null);
         assertEquals(GateReviewCli.PASS, r.code(), r.out());
+    }
+
+    @Test
+    void resultsAreStoredInGateServerWhenConfigured() throws Exception {
+        prepareRepo();
+        java.util.List<String> bodies = new java.util.ArrayList<>();
+        com.sun.net.httpserver.HttpServer server = com.sun.net.httpserver.HttpServer.create(
+                new java.net.InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/api/scan-runs", ex -> {
+            bodies.add(new String(ex.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
+            ex.sendResponseHeaders(201, -1);
+            ex.close();
+        });
+        server.start();
+        try {
+            String url = "http://127.0.0.1:" + server.getAddress().getPort();
+            Run r = review(Map.of("GATE_SEMGREP", semgrep, "GATE_SERVER_URL", url), null, "--format", "json");
+            assertEquals(GateReviewCli.BLOCK, r.code(), r.out());
+            assertTrue(r.out().contains("reported to " + url), r.out());
+            assertEquals(1, bodies.size());
+            JsonNode body = JsonMapper.builder().build().readTree(bodies.get(0));
+            assertEquals("REVIEW", body.path("module").asString());
+            assertEquals("CLI", body.path("trigger").asString());
+            assertEquals("review base..HEAD", body.path("target").asString());
+            JsonNode f = body.path("findings").get(0);
+            assertEquals("file", f.path("location").path("kind").asString());
+            assertEquals("src/main/java/demo/ProductSearchController.java", f.path("location").path("path").asString());
+            assertEquals("BLOCK", f.path("decision").asString());
+            assertEquals("RULE", f.path("source").asString());
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    void unreachableServerDoesNotChangeTheDecision() throws Exception {
+        prepareRepo();
+        Run r = review(Map.of("GATE_SEMGREP", semgrep, "GATE_SERVER_URL", "http://127.0.0.1:9"), null);
+        assertEquals(GateReviewCli.BLOCK, r.code(), r.out());
+        assertTrue(r.out().contains("could not report to gate-server"), r.out());
     }
 }

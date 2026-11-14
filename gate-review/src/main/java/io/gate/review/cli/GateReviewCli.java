@@ -103,14 +103,43 @@ public final class GateReviewCli {
             return ERROR;
         }
         try {
+            java.time.Instant started = java.time.Instant.now();
             ReviewReport report = review(repo, base, head, rules, noAi, effort);
             out.print(format.equals("json") ? ReviewOutput.json(report) + System.lineSeparator()
                     : ReviewOutput.text(report));
+            report(report, base, head, started, err);
             Decision d = report.decision();
             return d == Decision.BLOCK ? BLOCK : d == Decision.WARN ? WARN : PASS;
         } catch (IOException | IllegalArgumentException e) {
             err.println("gate-review: " + e.getMessage());
             return ERROR;
+        }
+    }
+
+    /**
+     * {@code GATE_SERVER_URL}이 있으면 결과를 gate-server에 저장한다 (제한 시간 2초).
+     * 전송 실패는 판정·종료 코드에 영향을 주지 않는다. 안내는 표준 오류로 (JSON 출력을 깨지 않게).
+     */
+    private void report(ReviewReport report, String base, String head, java.time.Instant started, PrintStream err) {
+        String server = env.apply("GATE_SERVER_URL");
+        if (server == null || server.isBlank() || !server.toLowerCase(Locale.ROOT).matches("^https?://.*")) {
+            return;
+        }
+        String trigger = "true".equals(env.apply("GITHUB_ACTIONS")) ? "GITHUB_ACTION" : "CLI";
+        try {
+            var req = java.net.http.HttpRequest.newBuilder(java.net.URI.create(server.replaceAll("/+$", "")
+                    + "/api/scan-runs")).timeout(java.time.Duration.ofSeconds(2))
+                    .header("Content-Type", "application/json")
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(ReviewOutput.serverBody(report, trigger,
+                            "review " + base + ".." + head, started, java.time.Instant.now())))
+                    .build();
+            int status = java.net.http.HttpClient.newBuilder().connectTimeout(java.time.Duration.ofSeconds(2)).build()
+                    .send(req, java.net.http.HttpResponse.BodyHandlers.discarding()).statusCode();
+            err.println(status / 100 == 2 ? "reported to " + server : "report rejected: HTTP " + status);
+        } catch (IOException | IllegalArgumentException e) {
+            err.println("could not report to gate-server: " + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -150,6 +179,7 @@ public final class GateReviewCli {
                 "                      [--ai --budget-usd X [--runs N] [--effort LEVEL]] [--estimate]",
                 "",
                 "Exit codes: 0 clean, 1 warnings, 2 blocking findings, 3 error.",
+                "With GATE_SERVER_URL set, review results are also stored in gate-server.",
                 "AI-only findings never block. Without ANTHROPIC_API_KEY only static analysis runs.",
                 "") + System.lineSeparator();
     }

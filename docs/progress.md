@@ -13,7 +13,7 @@
 | 3 | ③ gate-authz 권한 검사 자동 테스트 | ✅ 완료 (2026-11-09) · **0~3단계로 핵심 제품 완성** |
 | 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ✅ 완료 (2026-11-13) · AI 측정은 **보류**(사용자 결정) · [측정](measurements/review-accuracy.md) ([설계안](design/stage4-gate-review.md)) |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ✅ 완료 (2026-11-13) · [측정](measurements/prompt-injection.md): 출력 관문 공격 46/46 차단, 정상 30/30 ([설계안](design/stage5-gate-prompt.md)) |
-| ★ | 대시보드·데모·정리 | 🔵 설계 승인, 1주차 대기 ([설계안](design/stage6-dashboard.md)) |
+| ★ | 대시보드·데모·정리 | 🔵 구현 중: 1주차 완료 (조회 API·보안 헤더·gate-review 저장), 2주차(화면) 대기 ([설계안](design/stage6-dashboard.md)) |
 
 ---
 
@@ -32,8 +32,25 @@
 - 근거에 든 공격 문자열은 데이터로 표시한다: React 이스케이프만 쓰고 `dangerouslySetInnerHTML`은 금지, CSP를 붙인다
 - 데모 스크립트로 모듈 4개를 차례로 실행해 결과를 저장한다(가짜 패키지 차단 → PR 리뷰 → IDOR → 프롬프트 인젝션). CI가 실행하고 확인한다
 
-### 다음 할 일 (1주차)
-gate-server 조회 API 4개, gate-review 서버 저장, 보안 헤더, 통합 테스트
+### 1주차 구현 (2026-11-15) — 완료
+| 항목 | 내용 |
+|---|---|
+| 조회 API | `GET /api/summary`(모듈 4개 각각의 실행 수·마지막 실행·판정별 수, 전체 판정·심각도별 수), `GET /api/scan-runs?module=&limit=`(최근 실행과 판정별 수), `GET /api/scan-runs/{id}`(실행과 결과 전체), `GET /api/findings?module=&decision=&severity=&fingerprint=&before=&limit=`(시각 기준 페이지 나누기, 같은 지문의 이전 기록). 읽기 전용, 바인딩 변수만, 필터는 열거형·UUID·64자리 지문·ISO 시각으로 검증해 잘못되면 400, 목록 상한 200 |
+| 보안 헤더 | 모든 응답: CSP(`script-src 'self'`, 인라인 스크립트·eval 금지, `object-src 'none'`, `frame-ancestors 'none'`), `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`. API는 `Cache-Control: no-store`. 화면에서 UI 키트가 인라인 스타일을 요구하면 `style-src`만 조정하고 스크립트 규칙은 바꾸지 않는다 |
+| gate-review 저장 | `GATE_SERVER_URL`이 있으면 결과를 `REVIEW` 실행으로 저장(위치는 file·path·line, AI 단독은 WARN 그대로). GitHub Actions 안이면 trigger `GITHUB_ACTION`. 제한 시간 2초, 실패해도 판정·종료 코드는 그대로, 안내는 표준 오류로(JSON 출력을 깨지 않게) |
+
+**테스트**
+- gate-server `QueryApiIT` 6개 (실제 PostgreSQL. PostgreSQL 전용 문법을 쓰므로 로컬에서는 Docker가 없어 건너뛰고, **CI에서는 건너뛰면 실패**):
+  - 요약: 모듈 4개가 항상 있음, 실행 없는 모듈은 비어 있음
+  - 실행 목록·상세: 근거가 문자열이 아니라 JSON으로 나옴
+  - 필터·페이지 나누기·지문
+  - 공격 문자열(`<img onerror>`)이 데이터로 돌아오고 보안 헤더가 붙음
+  - 잘못된 필터 6종(SQL을 넣은 module 포함)은 400
+- `QueryControllerTest` 3개 (Docker 없이 실행): 조건 검증, 보안 헤더에 `unsafe-inline`·`unsafe-eval`이 없는지
+- gate-review `ReviewCliIT` +2개 (실제 Semgrep, 가짜 서버): 저장 본문 확인, 서버가 꺼져 있어도 BLOCK 유지
+
+### 다음 할 일 (2주차)
+React 대시보드 3화면(개요·결과 목록·결과 상세). 차트·UI 키트 후보를 gate-pkg로 검사해 확인받은 뒤 추가. gate-server에 포함, Docker 빌드, 화면 테스트
 
 ---
 
