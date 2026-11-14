@@ -7,3 +7,7 @@
 #
 # Example:
 #   npm:preact-compat@3.19.0  # 2026-11-10 reviewed by <name>: react compatibility layer
+
+# dashboard (2026-11-15, approved by the repository owner)
+npm:reselect@5.2.0  # 2026-11-15 owner-approved: PKG-MAINT publisher change; npm trusted publishing with SLSA provenance from github.com/reduxjs/reselect publish.yml
+npm:tslib@2.9.1  # 2026-11-15 owner-approved: PKG-MAINT publisher change; microsoft1es is Microsoft's release account (also publishes typescript), no provenance

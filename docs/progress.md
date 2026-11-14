@@ -73,7 +73,7 @@
 - 화면 테스트는 3주차 Playwright(자동 캡처와 같은 도구)로 한다. jsdom 기반 단위 테스트 도구는 의존성을 20개 넘게 늘려서 넣지 않았다
 - README 화면 이미지도 3주차 자동 캡처로 넣는다(이 PC의 미리보기 창이 좁아 캡처가 잘림)
 
-**사용자 결정이 필요한 것:** `reselect@5.2.0`·`tslib@2.9.1` 경고를 `.gate/pkg-allow.txt`에 예외로 올릴지
+**사용자 결정 (2026-11-15): 예외 등록.** `reselect@5.2.0`·`tslib@2.9.1`을 `.gate/pkg-allow.txt`에 근거와 함께 올렸다(정확한 버전만, 다음 버전은 다시 검사). 재검사 결과 PASS이고, 경고 내용은 예외 근거와 함께 결과에 남는다
 - reselect: GitHub Actions의 신뢰할 수 있는 배포(SLSA 출처 증명, github.com/reduxjs/reselect)
 - tslib: Microsoft 배포 계정(microsoft1es)
 - 검문소 예외는 사람이 정할 일이라 제가 직접 넣지 않았다(자동 승인 판단에서도 막힘)
