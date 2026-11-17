@@ -13,6 +13,7 @@
 | 3 | ③ gate-authz 권한 검사 자동 테스트 | ✅ 완료 (2026-11-09) · **0~3단계로 핵심 제품 완성** |
 | 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ✅ 완료 (2026-11-13) · AI 측정은 **보류**(사용자 결정) · [측정](measurements/review-accuracy.md) ([설계안](design/stage4-gate-review.md)) |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ✅ 완료 (2026-11-13) · [측정](measurements/prompt-injection.md): 출력 관문 공격 46/46 차단, 정상 30/30 ([설계안](design/stage5-gate-prompt.md)) |
+| + | 상업적 사용 유료화(라이선스·키·opt-in 사용 정보) | 🔵 설계 승인 (2026-11-17), 구현 대기 ([설계안](design/licensing.md)) |
 | ★ | 대시보드·데모·정리 | 🔵 구현 중: 1·2주차 완료 (조회 API, 대시보드 화면), 3주차(데모·자동 캡처·정리) 대기 ([설계안](design/stage6-dashboard.md)) |
 
 ---
