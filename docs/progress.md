@@ -14,7 +14,7 @@
 | 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ✅ 완료 (2026-11-13) · AI 측정은 **보류**(사용자 결정) · [측정](measurements/review-accuracy.md) ([설계안](design/stage4-gate-review.md)) |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ✅ 완료 (2026-11-13) · [측정](measurements/prompt-injection.md): 출력 관문 공격 46/46 차단, 정상 30/30 ([설계안](design/stage5-gate-prompt.md)) |
 | + | 상업적 사용 유료화(라이선스·키·opt-in 사용 정보) | ✅ 완료 (2026-11-17) · PolyForm Noncommercial 1.0.0 ([설계안](design/licensing.md)) |
-| ★ | 대시보드·데모·정리 | 🔵 구현 중: 1·2주차 완료 (조회 API, 대시보드 화면), 3주차(데모·자동 캡처·정리) 대기 ([설계안](design/stage6-dashboard.md)) |
+| ★ | 대시보드·데모·정리 | ✅ 완료 (2026-11-17) · 데모 스크립트, CI 화면 검사 ([설계안](design/stage6-dashboard.md)) |
 
 ---
 
@@ -109,8 +109,33 @@
 - tslib: Microsoft 배포 계정(microsoft1es)
 - 검문소 예외는 사람이 정할 일이라 제가 직접 넣지 않았다(자동 승인 판단에서도 막힘)
 
-### 다음 할 일 (3주차)
-데모 스크립트(가짜 패키지 차단 → PR 리뷰 → IDOR → 프롬프트 인젝션 → 대시보드), CI 연결, Playwright 자동 캡처(+ 화면 테스트: 공격 문자열이 글자로 보이는지), README 화면 이미지, 최종 정리
+### 3주차 (2026-11-17) — 완료 → **마지막 단계 완료, 계획서 전체 완료**
+| 항목 | 내용 |
+|---|---|
+| 데모 스크립트 | `scripts/demo.sh`: ① 지어낸 패키지(`gate-demo-fastjson-validator-ai`, npm에 없음을 확인)를 Claude Code 훅 입력으로 설치 시도 → **거부(PKG-EXIST)** ② 고친 검색을 문자열 연결로 되돌리는 PR → gate-review **BLOCK** ③ gate-authz → 실습장 뚫린 버전 **IDOR 3건** ④ gate-prompt 측정 → 출력 관문 **46/46** ⑤ `/api/summary`에 모듈 4개 모두 결과가 있는지 확인. 단계마다 기대 결과가 아니면 멈춘다. 사용 정보 보내기는 끈다(`GATE_USAGE=off`) |
+| Playwright | `playwright@1.64.1`(Microsoft, 2026-10-14 공개). 1.65.x는 공개 2주 미만이라 제외. **gate-pkg 검사 PASS**(playwright, playwright-core). 설치 스크립트 없음, `.npmrc`(HTTPS·설치 스크립트 안 함) 그대로 |
+| 화면 검사 | `dashboard/scripts/capture.mjs`: 개요·결과 목록·결과 상세를 열어 콘솔 오류, 서버 연결 오류 화면, 모듈 카드 4개, 빈 목록을 확인. `--probe`는 `<img onerror>`·`<script>`가 든 결과를 실제 서버에 저장한 뒤 **글자로만 보이는지, 요소가 생기거나 실행되지 않는지** 확인. 로컬 주소만 허용 |
+| CI | compose-smoke: 데모 → 실제 데이터로 화면 검사 → 캡처를 아티팩트(`dashboard-screens`)로 올림. Node는 `actions/setup-node v7.1.0`(SHA 고정, 2026-10-08 공개), 브라우저는 CI에서만 내려받는다. 잡 제한 시간 20분 → 30분 |
+| README 이미지 | 같은 스크립트를 이 PC에서 표본 데이터(`dashboard/fixtures`)로 실행해 찍었다. 브라우저는 따로 내려받지 않고 설치된 Edge를 썼다(`PW_CHANNEL=msedge`) |
+
+**CI 결과 (a128455):** 데모 5장면, 실제 데이터 화면 검사, 캡처 업로드 모두 성공
+
+**캡처하며 고친 것**
+- 브라우저가 자동으로 요청하는 `/favicon.ico`가 404라 콘솔 오류가 났다 → 아이콘(`favicon.svg`) 추가
+- 개요의 "최근 차단"과 결과 목록 표에서 긴 위치(파일 경로)·제목이 표 오른쪽 밖으로 잘렸다 → 두 칸은 줄을 바꾸도록 고침
+
+**설계와 달라진 점:** 데모의 PR 장면은 데모 브랜치 대신 임시 git 저장소에서 "고친 코드 → 취약 코드" 커밋을 만들어 검토한다(CI가 브랜치를 따로 받지 않아도 되고, 결과가 매번 같다). 실제 PR 데모는 4단계의 `demo/gate-review-pr` 브랜치가 그대로 있다
+
+### 마지막 단계 완료 기준 확인
+| 기준 (계획서) | 결과 |
+|---|---|
+| 모든 모듈의 검사 결과를 한 화면에서 (React) | 개요·결과 목록·결과 상세. 모듈 4개 카드와 차트 |
+| 데모 시나리오: 가짜 패키지 추천 → 검문소 차단 → 취약 코드 PR 리뷰 → 권한 테스트로 IDOR 발견 | `scripts/demo.sh` + 프롬프트 인젝션 장면. CI가 푸시할 때마다 실행 |
+| README에 문제 정의, 측정 결과, 데모 화면 | 영·한 README: 모듈별 문제·측정 수치, 대시보드 화면 3장, 데모 절 |
+
+### 다음 할 일 (선택)
+- 4단계 AI 측정(실제 Claude): 사용자 API 키가 준비되면 `gate-review measure --ai`
+- 1단계 알려진 한계: npm 버전 범위 해석, 대량 조회 시 다운로드 API 제한
 
 ---
 
