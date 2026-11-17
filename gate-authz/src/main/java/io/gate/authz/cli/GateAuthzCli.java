@@ -47,6 +47,7 @@ public final class GateAuthzCli {
     public static void main(String[] args) {
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         PrintStream err = new PrintStream(System.err, true, StandardCharsets.UTF_8);
+        io.gate.common.license.Usage.noticeAndReport("authz", VERSION, err); // stderr 한 줄, 출력·종료 코드는 그대로
         System.exit(new GateAuthzCli(System::getenv).run(args, out, err));
     }
 

@@ -59,8 +59,19 @@ async function get<T>(path: string): Promise<T> {
   return (await res.json()) as T;
 }
 
+/** 라이선스 상태 (키 문자열은 오지 않는다). */
+export interface LicenseInfo {
+  status: 'VALID' | 'EXPIRED' | 'INVALID' | 'NONE';
+  license: string;
+  licensee?: string;
+  expiresAt?: string;
+  notice: string;
+  commercialUrl: string;
+}
+
 export const api = {
   summary: () => get<Summary>('/api/summary'),
+  license: () => get<LicenseInfo>('/api/license'),
   findings: (f: FindingFilter = {}) => {
     const q = new URLSearchParams();
     Object.entries(f).forEach(([k, v]) => {

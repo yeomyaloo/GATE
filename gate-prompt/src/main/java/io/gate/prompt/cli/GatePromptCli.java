@@ -30,6 +30,7 @@ import java.util.function.Function;
  */
 public final class GatePromptCli {
 
+    public static final String VERSION = "0.1.0";
     static final int OK = 0;
     static final int ATTACK_GOT_THROUGH = 1;
     static final int ERROR = 3;
@@ -43,6 +44,7 @@ public final class GatePromptCli {
     public static void main(String[] args) {
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         PrintStream err = new PrintStream(System.err, true, StandardCharsets.UTF_8);
+        io.gate.common.license.Usage.noticeAndReport("prompt", VERSION, err); // stderr 한 줄, 출력·종료 코드는 그대로
         System.exit(new GatePromptCli(System::getenv).run(args, out, err));
     }
 

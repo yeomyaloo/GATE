@@ -78,6 +78,10 @@ public final class GatePkgCli {
     public static void main(String[] args) {
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         PrintStream err = new PrintStream(System.err, true, StandardCharsets.UTF_8);
+        if (args.length > 0 && !args[0].equals("hook")) {
+            // 라이선스 안내(stderr 한 줄) + 사용자가 켠 경우에만 사용 정보. 훅은 설치 명령마다 실행되므로 하지 않는다
+            io.gate.common.license.Usage.noticeAndReport("pkg", VERSION, err);
+        }
         int code = new GatePkgCli(GatePkgCli::defaultScanner, AllowList::load, ResultReporter::fromEnv)
                 .run(args, System.in, out, err);
         System.exit(code);

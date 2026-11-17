@@ -13,8 +13,38 @@
 | 3 | ③ gate-authz 권한 검사 자동 테스트 | ✅ 완료 (2026-11-09) · **0~3단계로 핵심 제품 완성** |
 | 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ✅ 완료 (2026-11-13) · AI 측정은 **보류**(사용자 결정) · [측정](measurements/review-accuracy.md) ([설계안](design/stage4-gate-review.md)) |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ✅ 완료 (2026-11-13) · [측정](measurements/prompt-injection.md): 출력 관문 공격 46/46 차단, 정상 30/30 ([설계안](design/stage5-gate-prompt.md)) |
-| + | 상업적 사용 유료화(라이선스·키·opt-in 사용 정보) | 🔵 설계 승인 (2026-11-17), 구현 대기 ([설계안](design/licensing.md)) |
+| + | 상업적 사용 유료화(라이선스·키·opt-in 사용 정보) | ✅ 완료 (2026-11-17) · PolyForm Noncommercial 1.0.0 ([설계안](design/licensing.md)) |
 | ★ | 대시보드·데모·정리 | 🔵 구현 중: 1·2주차 완료 (조회 API, 대시보드 화면), 3주차(데모·자동 캡처·정리) 대기 ([설계안](design/stage6-dashboard.md)) |
+
+---
+
+## 상업적 사용 유료화 — 설계·구현 (2026-11-17) — 완료
+
+### 확정된 결정과 이유
+| 항목 | 결정 | 이유 |
+|---|---|---|
+| 라이선스 | MIT → **PolyForm Noncommercial 1.0.0** | 요청("개인·비상업 무료, 기업 상업 사용 유료")과 정확히 맞는 짧은 표준 문서. AGPL은 소스를 공개하면 회사도 무료라 요청과 다름 |
+| 키 없는 상업 사용 | **안내만** (기능 제한 없음) | 비상업 사용자에게 불편을 주지 않는다. 판단 기준은 라이선스 조건 |
+| 사용 정보 | **opt-in** (기본 꺼짐) | GATE는 몰래 보내는 패키지를 막는 도구라 스스로 그렇게 하지 않는다. 이 방식으로는 몰래 쓰는 회사를 찾을 수 없다는 한계를 문서에 적었다 |
+| 문의처 | GitHub 이슈 | 개인 연락처를 공개하지 않음 |
+| 키 발급 도구 | 이 저장소의 `gate-license` 모듈, 개인 키는 저장소 밖 | 기본값으로 정함 |
+
+### 한 일
+| 항목 | 내용 |
+|---|---|
+| LICENSE | PolyForm Noncommercial 1.0.0 공식 원문(polyformproject 저장소, 1.0.0 브랜치) + `Required Notice` 한 줄 |
+| 라이선스 키 | `gate-common`의 `License`. `base64url(내용) . base64url(Ed25519 서명)`. JDK의 Ed25519만 쓰고 외부 라이브러리 없음. **오프라인 검증**, 결과 VALID·EXPIRED·INVALID·NONE. 키는 `GATE_LICENSE_KEY` 또는 `~/.gate/license.key` |
+| 서명 키 | Ed25519 키 쌍 생성. **공개 키만 코드에**, 개인 키는 저장소 밖 사용자 홈의 `.gate-license` 폴더(본인만 읽기 권한). 실제 개인 키로 발급 → 검증 왕복 확인 |
+| 안내 표시 | CLI 4종(pkg·authz·review·prompt)은 stderr 한 줄. **JSON 출력·종료 코드는 그대로**, gate-pkg 훅에서는 표시하지 않음(설치 명령마다 실행되므로). 유효한 상업 키가 있으면 표시하지 않음. gate-server는 시작 로그와 `GET /api/license`(키 문자열은 응답에 넣지 않음), 대시보드 아래쪽에 한 줄 |
+| 사용 정보 | `gate-common`의 `Usage`. `~/.gate/usage.properties`에서 켰을 때만, 실행마다 JSON 하나: 설치 ID(켤 때 만든 UUID)·버전·모듈·날짜·라이선스 상태·키 ID. 제한 시간 1초, 실패 무시, 리다이렉트 따라가지 않음, `GATE_USAGE=off`로 강제로 끔 |
+| gate-license | `status`, `verify`, `issue`(개인 키가 GATE 공개 키와 맞지 않으면 발급 거부), `usage status/preview/on --url/off` |
+| 문서 | `COMMERCIAL.md`(무료·유료 경우, 문의·키 설치 방법), `PRIVACY.md`(사용 정보 + GATE가 기능 수행에 보내는 모든 요청 목록), README 영·한 맨 위 안내와 라이선스 절 |
+
+**설계와 달라진 점:** 사용 정보는 "하루 실행 횟수"를 모아 보내지 않고, 실행할 때마다 작은 JSON 하나를 보낸다(받는 쪽에서 센다). 로컬에 기록 파일이 남지 않아 더 단순하다. `dashboard/package.json`에는 원래 license 표기가 없어(비공개 패키지) 바꾸지 않았다
+
+**테스트:** 라이선스 7개(정상, 만료일 당일·다음 날, 내용 위조, 다른 키 서명, 형식 오류 5종, 환경 변수·파일 읽기), 사용 정보 7개(기본 꺼짐이면 요청 0건, 켜면 허용 항목만 · 사용자명·홈 경로·호스트명·작업 폴더가 본문에 없음, 끄면 0건·설치 ID 삭제, `GATE_USAGE=off`, 실패 무시, http(s)만, 본문 주입 방지), gate-license CLI 5개, 서버 응답 2개
+
+**사용자에게 남은 일:** 개인 키 파일을 안전한 곳(비밀번호 관리자, 오프라인 저장소)에 백업한다. 잃어버리면 기존 키는 계속 동작하지만 새 키를 발급할 수 없고, 공개 키를 바꾸면 기존 키가 모두 무효가 된다. 실제 기업과 계약하기 전에는 라이선스 조건을 전문가에게 확인받는다
 
 ---
 

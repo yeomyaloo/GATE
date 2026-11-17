@@ -49,6 +49,14 @@ createServer((req, res) => {
     res.end(JSON.stringify(body));
   };
   if (url.pathname === '/api/summary') return json(200, summary());
+  if (url.pathname === '/api/license') {
+    return json(200, {
+      status: 'NONE',
+      license: 'PolyForm-Noncommercial-1.0.0',
+      notice: 'GATE: free for noncommercial use (PolyForm Noncommercial 1.0.0). Commercial use needs a license: https://github.com/yeomyaloo/GATE/blob/main/COMMERCIAL.md',
+      commercialUrl: 'https://github.com/yeomyaloo/GATE/blob/main/COMMERCIAL.md',
+    });
+  }
   if (url.pathname === '/api/findings') return json(200, findings(url.searchParams));
   const one = /^\/api\/findings\/([0-9a-f-]{36})$/.exec(url.pathname);
   if (one) {

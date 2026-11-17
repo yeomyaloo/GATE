@@ -10,6 +10,9 @@ AI 보조 개발 도구와 서비스 접점을 지키는 관문
 
 [English](#english) · [한국어](#한국어) · [Progress / 진행 상황](docs/progress.md)
 
+> **License:** free for personal and noncommercial use ([PolyForm Noncommercial 1.0.0](LICENSE)). Commercial use by companies needs a commercial license: [COMMERCIAL.md](COMMERCIAL.md).
+> **라이선스:** 개인·비상업적 사용은 무료입니다. 기업의 상업적 사용은 상업 라이선스가 필요합니다: [COMMERCIAL.md](COMMERCIAL.md)
+
 ![GATE architecture](docs/images/architecture.svg)
 
 ---
@@ -194,6 +197,7 @@ GATE/
 ├─ gate-authz/    ③ automated authorization tests from OpenAPI (stage 3)
 ├─ gate-review/   ② static analysis (Semgrep) + AI security review of PRs (stage 4)
 ├─ gate-prompt/   ④ prompt injection gate: guards AI output before SQL / HTML / actions (stage 5)
+├─ gate-license/  commercial license keys (offline check) and opt-in usage reporting settings
 ├─ dashboard/     ★ React dashboard (Mantine, Recharts), served by gate-server
 ├─ docs/          progress log, ADRs, diagrams
 └─ docker-compose.yml
@@ -226,7 +230,10 @@ Integration tests (`HealthCheckIT`) start real PostgreSQL and Redis containers a
 **Stages 0-3 are complete: the core product.** `gate-pkg` blocks hallucinated, typosquatted and malicious packages in Claude Code (hook) and in pull requests (GitHub Action). `gate-lab` reproduces four API vulnerabilities next to their fixes, and `gate-authz` finds the IDORs automatically from the OpenAPI spec. CI verifies on every push: unit and Testcontainers tests, a real `docker compose up` health check, an Action demo that must block a typosquat PR, the lab containers, and a gate-authz scan over the network whose findings must land in PostgreSQL. The optional stages are done too: stage 4 (`gate-review`: rules, Claude review, PR comments, static measurement; the AI measurement is deferred) and stage 5 (`gate-prompt`: output gates for AI-generated SQL, HTML and actions, 46/46 attacks stopped with no benign request broken, results stored in gate-server by CI). See [docs/progress.md](docs/progress.md).
 
 ### License
-[MIT](LICENSE)
+[PolyForm Noncommercial License 1.0.0](LICENSE): free for personal study, research, hobby projects and noncommercial organizations. Commercial use needs a commercial license; see [COMMERCIAL.md](COMMERCIAL.md).
+- A license key is checked offline. Without one, the command-line tools print one notice line to stderr; every feature, JSON output and exit code stays the same.
+- GATE sends no usage data unless you turn it on (`gate-license usage on --url ...`). What is and is not sent: [PRIVACY.md](PRIVACY.md).
+- Versions published before 2026-11-17 were released under MIT.
 
 ---
 
@@ -386,4 +393,7 @@ Docker 없이 빌드·테스트:
 **0~3단계 완료: 핵심 제품 완성.** `gate-pkg`가 AI가 지어낸 패키지, 철자 흉내 패키지, 악성 패키지를 Claude Code 훅과 PR(GitHub Action) 양쪽에서 막습니다. `gate-lab`은 API 취약점 4종을 고친 버전과 나란히 재현하고, `gate-authz`는 OpenAPI 명세만으로 IDOR를 자동으로 찾습니다. 푸시할 때마다 CI가 단위·통합 테스트, 실제 `docker compose up` 헬스체크, 철자 흉내 PR 차단 데모, 실습장 컨테이너, 그리고 네트워크로 실행한 gate-authz 결과가 PostgreSQL에 저장되는지까지 확인합니다. 선택 단계도 마쳤습니다. 4단계(`gate-review`)는 규칙, Claude 검토, PR 댓글, 정적 분석 측정까지 했고 AI 측정은 보류했습니다. 5단계(`gate-prompt`)는 AI가 만든 SQL·HTML·동작의 출력 관문으로 공격 46개를 모두 막고 정상 요청은 하나도 막지 않았으며, CI가 결과를 gate-server에 저장하는지까지 확인합니다. 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
 
 ### 라이선스
-[MIT](LICENSE)
+[PolyForm Noncommercial License 1.0.0](LICENSE)입니다. 개인 공부·연구·취미 프로젝트와 비영리 기관은 무료로 쓸 수 있고, 기업의 상업적 사용은 상업 라이선스가 필요합니다([COMMERCIAL.md](COMMERCIAL.md)).
+- 라이선스 키는 오프라인으로 확인합니다. 키가 없으면 명령줄 도구가 오류 출력(stderr)에 안내 한 줄을 표시할 뿐, 기능·JSON 출력·종료 코드는 그대로입니다.
+- 사용 정보는 직접 켜지 않는 한 보내지 않습니다(`gate-license usage on --url ...`). 보내는 것과 보내지 않는 것: [PRIVACY.md](PRIVACY.md)
+- 2026-11-17 이전에 공개된 버전은 MIT로 배포되었습니다.

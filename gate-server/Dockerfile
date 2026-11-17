@@ -25,6 +25,7 @@ COPY gate-pkg/build.gradle.kts ./gate-pkg/
 COPY gate-lab/build.gradle.kts ./gate-lab/
 COPY gate-authz/build.gradle.kts ./gate-authz/
 COPY gate-review/build.gradle.kts ./gate-review/
+COPY gate-license/build.gradle.kts ./gate-license/
 COPY gate-prompt/build.gradle.kts ./gate-prompt/
 RUN chmod +x gradlew && ./gradlew --no-daemon :gate-server:bootJar -x test
 

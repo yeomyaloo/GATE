@@ -55,6 +55,7 @@ public final class GateReviewCli {
                 effort.orElse(OutputConfig.Effort.HIGH)).map(r -> (AiReviewer) r));
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         PrintStream err = new PrintStream(System.err, true, StandardCharsets.UTF_8);
+        io.gate.common.license.Usage.noticeAndReport("review", VERSION, err); // stderr 한 줄, 출력·종료 코드는 그대로
         System.exit(cli.run(args, out, err));
     }
 

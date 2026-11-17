@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { Anchor, AppShell, Group, NavLink, Text, Title } from '@mantine/core';
+import { api, type LicenseInfo } from './api';
 import { FindingDetail } from './pages/FindingDetail';
 import { Findings } from './pages/Findings';
 import { Overview } from './pages/Overview';
@@ -6,6 +8,11 @@ import { go, useRoute } from './route';
 
 export function App() {
   const route = useRoute();
+  const [license, setLicense] = useState<LicenseInfo | null>(null);
+  useEffect(() => {
+    // 라이선스 안내는 부가 정보: 불러오지 못해도 화면은 그대로 동작한다
+    api.license().then(setLicense).catch(() => setLicense(null));
+  }, []);
   return (
     <AppShell header={{ height: 56 }} navbar={{ width: 200, breakpoint: 'md', collapsed: { mobile: true } }} padding="md">
       <AppShell.Header>
@@ -31,6 +38,13 @@ export function App() {
         {route.page === 'overview' && <Overview />}
         {route.page === 'findings' && <Findings params={route.params} />}
         {route.page === 'finding' && <FindingDetail id={route.id} />}
+        {license && (
+          <Text size="xs" c="dimmed" mt="xl">
+            {license.status === 'VALID'
+              ? `Commercial license: ${license.licensee} (until ${license.expiresAt})`
+              : license.notice}
+          </Text>
+        )}
       </AppShell.Main>
     </AppShell>
   );
