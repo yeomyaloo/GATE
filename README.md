@@ -157,12 +157,40 @@ A read-only React dashboard served by gate-server at `http://127.0.0.1:8080/` (s
   - Every installed package (83, including transitive) was run through `gate-pkg` and checked to be at least 2 weeks old.
   - 18 newer transitive versions were pinned back with npm `overrides`.
   - `.npmrc` forces HTTPS and disables install scripts.
-- Screenshots: captured automatically in CI (Playwright), added in the next step.
+- **Screen test on every push.** CI runs the demo, then Playwright opens the dashboard on the real data.
+  - It fails on console errors, missing module cards or an empty list.
+  - It stores an `<img onerror>` + `<script>` probe as a finding and fails if it becomes an element or runs.
+  - The screenshots below come from the same script run on sample data (`dashboard/fixtures`).
+
+![Dashboard overview](docs/images/dashboard-overview.png)
+
+| Findings · 결과 목록 | Finding detail · 결과 상세 |
+|---|---|
+| ![Findings](docs/images/dashboard-findings.png) | ![Finding detail](docs/images/dashboard-detail.png) |
 
 ```bash
 docker compose up -d --build        # gate-server builds the dashboard into its image
 # open http://127.0.0.1:8080/
 cd dashboard && npm ci && npm run build && node scripts/mock-api.mjs 8099   # sample data at http://127.0.0.1:8099/
+```
+
+### Demo — the whole story in one script
+`scripts/demo.sh` runs the planned scenario end to end and stores every result in gate-server. CI runs it on every push.
+
+| # | Scene | GATE module | Result |
+|---|---|---|---|
+| 1 | An AI assistant suggests a package that does not exist and tries to install it | `gate-pkg` Claude Code hook | install **denied**: `PKG-EXIST` |
+| 2 | An AI-written pull request builds SQL by string concatenation | `gate-review` | **BLOCK** with file, line and rule (static analysis; AI review when a key is set) |
+| 3 | Authorization test before release | `gate-authz` on the vulnerable lab | **IDOR** found: read, write and delete |
+| 4 | Prompt injection against the AI order assistant | `gate-prompt` | output gate stops **46/46** attacks |
+| 5 | One screen for everything | dashboard | all four modules shown |
+
+```bash
+cp .env.example .env                       # fill GATE_DB_PASSWORD and GATE_LAB_DEMO_PASSWORD
+docker compose up -d --build --wait
+docker compose --profile lab up -d --build --wait lab-vulnerable lab-fixed
+scripts/demo.sh                            # needs Java 17, jq and the pinned Semgrep (GATE_SEMGREP)
+# open http://127.0.0.1:8080/
 ```
 
 ### ⑤ gate-lab — intentionally vulnerable practice app (stage 2, local only)
@@ -227,7 +255,7 @@ Integration tests (`HealthCheckIT`) start real PostgreSQL and Redis containers a
 - `gate-lab` is **never deployed publicly**.
 
 ### Status
-**Stages 0-3 are complete: the core product.** `gate-pkg` blocks hallucinated, typosquatted and malicious packages in Claude Code (hook) and in pull requests (GitHub Action). `gate-lab` reproduces four API vulnerabilities next to their fixes, and `gate-authz` finds the IDORs automatically from the OpenAPI spec. CI verifies on every push: unit and Testcontainers tests, a real `docker compose up` health check, an Action demo that must block a typosquat PR, the lab containers, and a gate-authz scan over the network whose findings must land in PostgreSQL. The optional stages are done too: stage 4 (`gate-review`: rules, Claude review, PR comments, static measurement; the AI measurement is deferred) and stage 5 (`gate-prompt`: output gates for AI-generated SQL, HTML and actions, 46/46 attacks stopped with no benign request broken, results stored in gate-server by CI). See [docs/progress.md](docs/progress.md).
+**Stages 0-3 are complete: the core product.** `gate-pkg` blocks hallucinated, typosquatted and malicious packages in Claude Code (hook) and in pull requests (GitHub Action). `gate-lab` reproduces four API vulnerabilities next to their fixes, and `gate-authz` finds the IDORs automatically from the OpenAPI spec. CI verifies on every push: unit and Testcontainers tests, a real `docker compose up` health check, an Action demo that must block a typosquat PR, the lab containers, and a gate-authz scan over the network whose findings must land in PostgreSQL. The optional stages are done too: stage 4 (`gate-review`: rules, Claude review, PR comments, static measurement; the AI measurement is deferred) and stage 5 (`gate-prompt`: output gates for AI-generated SQL, HTML and actions, 46/46 attacks stopped with no benign request broken, results stored in gate-server by CI). **The final stage is done as well**: a read-only dashboard shows all four modules in one screen, `scripts/demo.sh` runs the whole scenario, and CI runs the demo and a Playwright screen test on every push. GATE is licensed for free noncommercial use (PolyForm Noncommercial 1.0.0). See [docs/progress.md](docs/progress.md).
 
 ### License
 [PolyForm Noncommercial License 1.0.0](LICENSE): free for personal study, research, hobby projects and noncommercial organizations. Commercial use needs a commercial license; see [COMMERCIAL.md](COMMERCIAL.md).
@@ -343,7 +371,29 @@ gate-server가 `http://127.0.0.1:8080/`에서 함께 제공하는 읽기 전용 
   - 설치된 패키지 83개 전부(간접 포함)를 `gate-pkg`로 검사하고, 공개된 지 2주가 넘었는지 확인했습니다.
   - 2주가 안 된 간접 의존성 18개는 npm `overrides`로 이전 버전에 고정했습니다.
   - `.npmrc`로 HTTPS만 쓰고, 설치 스크립트는 실행하지 않습니다.
-- 화면 캡처는 다음 단계에서 CI가 자동으로 찍어(Playwright) 넣습니다.
+- **푸시할 때마다 화면을 검사합니다.** CI가 데모를 실행한 뒤, Playwright로 실제 데이터의 대시보드를 엽니다.
+  - 콘솔 오류, 모듈 카드 누락, 빈 목록이 있으면 실패합니다.
+  - `<img onerror>`와 `<script>`가 든 결과를 일부러 저장하고, 그것이 실제 요소가 되거나 실행되면 실패합니다.
+  - 아래 화면은 같은 스크립트를 표본 데이터(`dashboard/fixtures`)로 실행해 찍었습니다.
+
+![Dashboard overview](docs/images/dashboard-overview.png)
+
+| Findings · 결과 목록 | Finding detail · 결과 상세 |
+|---|---|
+| ![Findings](docs/images/dashboard-findings.png) | ![Finding detail](docs/images/dashboard-detail.png) |
+
+### 데모: 스크립트 하나로 전체 흐름
+`scripts/demo.sh`가 계획서의 시나리오를 처음부터 끝까지 실행하고, 모든 결과를 gate-server에 저장합니다. CI가 푸시할 때마다 실행합니다.
+
+| 순서 | 장면 | GATE 모듈 | 결과 |
+|---|---|---|---|
+| 1 | AI가 존재하지 않는 패키지를 추천해 설치하려 함 | `gate-pkg` Claude Code 훅 | 설치 **거부**: `PKG-EXIST` |
+| 2 | AI가 만든 PR이 SQL을 문자열 연결로 만듦 | `gate-review` | 파일·줄·규칙과 함께 **BLOCK** (정적 분석, 키가 있으면 AI 리뷰도) |
+| 3 | 배포 전 권한 검사 | `gate-authz` → 실습장 뚫린 버전 | **IDOR** 발견: 조회·수정·삭제 |
+| 4 | AI 주문 도우미에 프롬프트 인젝션 | `gate-prompt` | 출력 관문이 공격 **46/46** 차단 |
+| 5 | 한 화면에서 확인 | 대시보드 | 모듈 4개의 결과가 모두 보임 |
+
+실행 방법은 위 영어 섹션의 명령과 같습니다. Java 17, jq, 고정 버전 Semgrep(`GATE_SEMGREP`)이 필요합니다.
 
 ### ⑤ gate-lab: 취약점 실습장 (2단계, 로컬 전용)
 같은 주문 API를 두 프로필로 띄웁니다. `vulnerable`(127.0.0.1:8081)과 `fixed`(127.0.0.1:8082)입니다. 테스트가 같은 공격을 두 버전에 실제 HTTP로 보내서, **뚫린 버전에서는 성공하고 고친 버전에서는 막히는지** 확인합니다.
@@ -390,7 +440,7 @@ Docker 없이 빌드·테스트:
 - `gate-lab`(취약한 앱)은 **절대 외부에 공개 배포하지 않습니다.**
 
 ### 진행 상황
-**0~3단계 완료: 핵심 제품 완성.** `gate-pkg`가 AI가 지어낸 패키지, 철자 흉내 패키지, 악성 패키지를 Claude Code 훅과 PR(GitHub Action) 양쪽에서 막습니다. `gate-lab`은 API 취약점 4종을 고친 버전과 나란히 재현하고, `gate-authz`는 OpenAPI 명세만으로 IDOR를 자동으로 찾습니다. 푸시할 때마다 CI가 단위·통합 테스트, 실제 `docker compose up` 헬스체크, 철자 흉내 PR 차단 데모, 실습장 컨테이너, 그리고 네트워크로 실행한 gate-authz 결과가 PostgreSQL에 저장되는지까지 확인합니다. 선택 단계도 마쳤습니다. 4단계(`gate-review`)는 규칙, Claude 검토, PR 댓글, 정적 분석 측정까지 했고 AI 측정은 보류했습니다. 5단계(`gate-prompt`)는 AI가 만든 SQL·HTML·동작의 출력 관문으로 공격 46개를 모두 막고 정상 요청은 하나도 막지 않았으며, CI가 결과를 gate-server에 저장하는지까지 확인합니다. 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
+**0~3단계 완료: 핵심 제품 완성.** `gate-pkg`가 AI가 지어낸 패키지, 철자 흉내 패키지, 악성 패키지를 Claude Code 훅과 PR(GitHub Action) 양쪽에서 막습니다. `gate-lab`은 API 취약점 4종을 고친 버전과 나란히 재현하고, `gate-authz`는 OpenAPI 명세만으로 IDOR를 자동으로 찾습니다. 푸시할 때마다 CI가 단위·통합 테스트, 실제 `docker compose up` 헬스체크, 철자 흉내 PR 차단 데모, 실습장 컨테이너, 그리고 네트워크로 실행한 gate-authz 결과가 PostgreSQL에 저장되는지까지 확인합니다. 선택 단계도 마쳤습니다. 4단계(`gate-review`)는 규칙, Claude 검토, PR 댓글, 정적 분석 측정까지 했고 AI 측정은 보류했습니다. 5단계(`gate-prompt`)는 AI가 만든 SQL·HTML·동작의 출력 관문으로 공격 46개를 모두 막고 정상 요청은 하나도 막지 않았으며, CI가 결과를 gate-server에 저장하는지까지 확인합니다. **마지막 단계도 마쳤습니다.** 읽기 전용 대시보드가 모듈 4개의 결과를 한 화면에 보여 주고, `scripts/demo.sh`가 전체 시나리오를 실행하며, CI가 푸시할 때마다 데모와 Playwright 화면 검사를 돌립니다. 개인·비상업 사용은 무료입니다(PolyForm Noncommercial 1.0.0). 자세한 결정·이유·막힌 것·다음 할 일은 [docs/progress.md](docs/progress.md)에 있습니다.
 
 ### 라이선스
 [PolyForm Noncommercial License 1.0.0](LICENSE)입니다. 개인 공부·연구·취미 프로젝트와 비영리 기관은 무료로 쓸 수 있고, 기업의 상업적 사용은 상업 라이선스가 필요합니다([COMMERCIAL.md](COMMERCIAL.md)).

@@ -140,12 +140,13 @@ export function Overview() {
                     {f.ruleId}
                   </Text>
                 </Table.Td>
-                <Table.Td>
+                <Table.Td style={{ whiteSpace: 'normal', wordBreak: 'break-all', minWidth: 200 }}>
                   <Text ff="monospace" size="sm">
                     {locationText(f.location)}
                   </Text>
                 </Table.Td>
-                <Table.Td>
+                {/* 제목은 길 수 있으니 줄을 바꿔 표 밖으로 잘리지 않게 한다 */}
+                <Table.Td style={{ whiteSpace: 'normal', minWidth: 260 }}>
                   <DecisionBadge value={f.decision} /> {f.title}
                 </Table.Td>
               </Table.Tr>

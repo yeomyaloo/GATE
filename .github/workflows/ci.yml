@@ -186,7 +186,7 @@ jobs:
   compose-smoke:
     name: Stage 0 check - docker compose health
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30  # 데모·화면 테스트 포함
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -301,6 +301,33 @@ jobs:
             | docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tA' | tee /tmp/prompt-stored.txt
           grep -q '^BLOCK|' /tmp/prompt-stored.txt
           grep -q '^WARN|' /tmp/prompt-stored.txt
+
+      # 마지막 단계: 데모 시나리오(가짜 패키지 차단 → PR 리뷰 → IDOR → 프롬프트 인젝션 → 대시보드)를 처음부터 끝까지 실행
+      - name: Demo scenario (scripts/demo.sh)
+        run: |
+          python3 -m venv "$RUNNER_TEMP/semgrep"
+          "$RUNNER_TEMP/semgrep/bin/pip" install -q -r gate-review/semgrep/requirements.txt
+          GATE_SEMGREP="$RUNNER_TEMP/semgrep/bin/semgrep" scripts/demo.sh
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24.22.2"
+
+      # 대시보드 화면 테스트 + 자동 캡처 (Playwright, 버전 고정·gate-pkg 검사 완료). 근거에 든 공격 문자열이 글자로만 보이는지 확인
+      - name: Dashboard screen test and screenshots
+        working-directory: dashboard
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          node scripts/capture.mjs --base http://127.0.0.1:8080 --out "$RUNNER_TEMP/screens" --probe
+
+      - name: Upload dashboard screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dashboard-screens
+          path: ${{ runner.temp }}/screens
+          if-no-files-found: ignore
 
       - name: Logs on failure
         if: failure()
