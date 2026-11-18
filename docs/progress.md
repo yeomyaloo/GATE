@@ -14,6 +14,7 @@
 | 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ✅ 완료 (2026-11-13) · AI 측정은 **보류**(사용자 결정) · [측정](measurements/review-accuracy.md) ([설계안](design/stage4-gate-review.md)) |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ✅ 완료 (2026-11-13) · [측정](measurements/prompt-injection.md): 출력 관문 공격 46/46 차단, 정상 30/30 ([설계안](design/stage5-gate-prompt.md)) |
 | + | 상업적 사용 유료화(라이선스·키·opt-in 사용 정보) | ✅ 완료 (2026-11-17) · PolyForm Noncommercial 1.0.0 ([설계안](design/licensing.md)) |
+| + | 1단계 한계 보완 (버전 범위·묶음 조회·탐지율·npx) | 🔵 설계 승인 (2026-11-19), 1주차 대기 ([설계안](design/stage1-improvements.md)) |
 | ★ | 대시보드·데모·정리 | ✅ 완료 (2026-11-17) · 데모 스크립트, CI 화면 검사 ([설계안](design/stage6-dashboard.md)) |
 
 ---
