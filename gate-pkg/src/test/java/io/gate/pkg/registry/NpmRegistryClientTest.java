@@ -69,8 +69,24 @@ class NpmRegistryClientTest {
     }
 
     @Test
-    void rangeFallsBackToLatestWithNote() {
+    void rangeIsResolvedWithNpmRules() {
+        // 범위는 npm처럼 푼다 (전에는 메모만 남기고 latest를 검사했다)
         PackageInfo info = found("lodash", "^4.17.0");
+        assertEquals("4.17.21", info.resolvedVersion(), "latest satisfies the range, so npm picks it");
+        assertNull(info.resolutionNote());
+        assertEquals("4.17.20", found("lodash", "~4.17.19 <4.17.21").resolvedVersion(), "an older version in range");
+    }
+
+    @Test
+    void rangeWithNoMatchingVersionIsMissing() {
+        PackageInfo info = found("lodash", "^5.0.0");
+        assertTrue(info.versionMissing(), "npm would fail with ETARGET");
+        assertNotNull(info.resolutionNote());
+    }
+
+    @Test
+    void unsupportedSyntaxStillFallsBackToLatestWithNote() {
+        PackageInfo info = found("lodash", "github:lodash/lodash");
         assertEquals("4.17.21", info.resolvedVersion());
         assertNotNull(info.resolutionNote());
     }
@@ -125,6 +141,48 @@ class NpmRegistryClientTest {
         assertInstanceOf(LookupResult.Unavailable.class, client.lookup(PackageRequest.npm(name, null)));
         assertTrue(http.calls().isEmpty());
         assertFalse(NpmRegistryClient.isValidName(name));
+    }
+
+    @Test
+    void bulkDownloadsAnswerManyPackagesWithOneRequest() {
+        FakeFetcher fake = new FakeFetcher()
+                .on(DL + "lodash,express,brand-new", 200, "{\"lodash\":{\"downloads\":204729283,\"package\":\"lodash\"},"
+                        + "\"express\":{\"downloads\":51000000,\"package\":\"express\"},\"brand-new\":null}")
+                .on(DL + "@types%2Fnode", 200, "{\"downloads\":99,\"package\":\"@types/node\"}")
+                .on(DL + "@types/node", 200, "{\"downloads\":99,\"package\":\"@types/node\"}");
+        NpmRegistryClient c = new NpmRegistryClient(fake);
+        c.prefetchDownloads(java.util.List.of("lodash", "express", "brand-new", "@types/node", "lodash"));
+        assertEquals(1, fake.calls().size(), "scoped names are left out of the bulk request");
+
+        assertEquals(204729283L, assertInstanceOf(DownloadsResult.Known.class, c.weeklyDownloads("lodash")).weekly());
+        assertEquals(51000000L, assertInstanceOf(DownloadsResult.Known.class, c.weeklyDownloads("express")).weekly());
+        assertEquals(0L, assertInstanceOf(DownloadsResult.Known.class, c.weeklyDownloads("brand-new")).weekly(),
+                "null in the bulk answer means no stats yet");
+        assertEquals(1, fake.calls().size(), "answers come from the prefetched values");
+        c.weeklyDownloads("@types/node");
+        assertEquals(2, fake.calls().size(), "scoped packages are asked one by one");
+    }
+
+    @Test
+    void failedBulkRequestFallsBackToSingleRequests() {
+        FakeFetcher fake = new FakeFetcher()
+                .on(DL + "lodash,express", 429, "")
+                .on(DL + "lodash", 200, "{\"downloads\":204729283,\"package\":\"lodash\"}");
+        NpmRegistryClient c = new NpmRegistryClient(fake);
+        c.prefetchDownloads(java.util.List.of("lodash", "express"));
+        assertEquals(204729283L, assertInstanceOf(DownloadsResult.Known.class, c.weeklyDownloads("lodash")).weekly());
+        assertEquals(2, fake.calls().size());
+    }
+
+    @Test
+    void bulkRequestsAreSplitAtTheLimit() {
+        FakeFetcher fake = new FakeFetcher();
+        java.util.List<String> names = new java.util.ArrayList<>();
+        for (int i = 0; i < NpmRegistryClient.BULK_LIMIT + 5; i++) {
+            names.add("pkg-" + i);
+        }
+        new NpmRegistryClient(fake).prefetchDownloads(names);
+        assertEquals(2, fake.calls().size(), "128 + 5 names -> two bulk requests");
     }
 
     @Test

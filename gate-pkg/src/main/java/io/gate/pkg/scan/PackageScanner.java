@@ -95,6 +95,7 @@ public final class PackageScanner {
             return t;
         });
         try {
+            prefetchDownloads(requests);
             List<CompletableFuture<PackageVerdict>> futures = new ArrayList<>();
             for (PackageRequest request : requests) {
                 futures.add(scanOne(runId, request, pool));
@@ -103,6 +104,28 @@ public final class PackageScanner {
         } finally {
             pool.shutdownNow();
         }
+    }
+
+    /**
+     * 패키지가 여럿이면 다운로드 수를 생태계별로 한꺼번에 받아 둔다 (요청 제한에 덜 걸리게).
+     * 철자 흉내 판단에 쓰는 원래 패키지(대상)의 다운로드 수도 함께 받는다.
+     */
+    private void prefetchDownloads(List<PackageRequest> requests) {
+        Map<Ecosystem, java.util.Set<String>> names = new EnumMap<>(Ecosystem.class);
+        for (PackageRequest r : requests) {
+            java.util.Set<String> set = names.computeIfAbsent(r.ecosystem(), e -> new java.util.LinkedHashSet<>());
+            set.add(r.name());
+            TypoDetector detector = typoDetectors.get(r.ecosystem());
+            if (detector != null) {
+                detector.find(r.name()).ifPresent(m -> set.add(m.target()));
+            }
+        }
+        names.forEach((eco, set) -> {
+            RegistryClient registry = registries.get(eco);
+            if (registry != null && set.size() > 1) {
+                registry.prefetchDownloads(set);
+            }
+        });
     }
 
     private CompletableFuture<PackageVerdict> scanOne(UUID runId, PackageRequest request, ExecutorService pool) {

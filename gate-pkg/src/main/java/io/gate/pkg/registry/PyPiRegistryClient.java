@@ -8,6 +8,11 @@ import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import tools.jackson.core.JacksonException;
@@ -120,8 +125,32 @@ public final class PyPiRegistryClient implements RegistryClient {
         } else if (exact.matches()) {
             resolved = findRelease(releases, exact.group(1)); // 없으면 null → 버전 없음
         } else {
-            resolved = latest;
-            note = "version specifier '" + spec + "' not resolved; checked latest (" + latest + ") instead";
+            Optional<Pep440.SpecifierSet> set = Pep440.parse(spec);
+            if (set.isPresent()) {
+                // pip과 같은 규칙: 맞는 것 중 가장 높은 정식판(철회된 릴리스 제외)
+                Set<String> yanked = new HashSet<>();
+                List<String> available = new ArrayList<>();
+                for (Map.Entry<String, JsonNode> r : releases.properties()) {
+                    if (r.getValue().isEmpty()) {
+                        continue; // 파일이 없는 릴리스는 설치할 수 없다
+                    }
+                    available.add(r.getKey());
+                    boolean allYanked = true;
+                    for (JsonNode f : r.getValue()) {
+                        allYanked &= f.path("yanked").asBoolean(false);
+                    }
+                    if (allYanked) {
+                        yanked.add(r.getKey());
+                    }
+                }
+                resolved = Pep440.pick(set.get(), available, yanked).orElse(null);
+                if (resolved == null) {
+                    note = "no release satisfies '" + spec + "'";
+                }
+            } else {
+                resolved = latest;
+                note = "version specifier '" + spec + "' not resolved; checked latest (" + latest + ") instead";
+            }
         }
 
         Instant created = null;

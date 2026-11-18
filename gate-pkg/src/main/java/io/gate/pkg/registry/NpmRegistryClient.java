@@ -20,7 +20,8 @@ import tools.jackson.databind.json.JsonMapper;
  * npm 레지스트리 조회.
  * <ul>
  *   <li>메타데이터: {@code GET registry.npmjs.org/{name}} 전체 문서. 축약 문서에는 게시 시각과 scripts가 없다</li>
- *   <li>다운로드: {@code GET api.npmjs.org/downloads/point/last-week/{name}}</li>
+ *   <li>다운로드: {@code GET api.npmjs.org/downloads/point/last-week/{name}}. 여러 개는 묶음 조회
+ *       {@code .../last-week/a,b,c}(최대 {@value #BULK_LIMIT}개, 스코프 패키지는 묶음 조회가 되지 않아 하나씩)</li>
  * </ul>
  */
 public final class NpmRegistryClient implements RegistryClient {
@@ -40,7 +41,12 @@ public final class NpmRegistryClient implements RegistryClient {
 
     private static final JsonMapper JSON = JsonMapper.builder().build();
 
+    /** npm 묶음 조회 한 번에 넣을 수 있는 패키지 수. */
+    static final int BULK_LIMIT = 128;
+
     private final HttpFetcher http;
+    /** 묶음 조회로 받아 둔 값 (이 클라이언트를 쓰는 동안만). */
+    private final Map<String, DownloadsResult> prefetched = new java.util.concurrent.ConcurrentHashMap<>();
 
     public NpmRegistryClient(HttpFetcher http) {
         this.http = http;
@@ -85,7 +91,41 @@ public final class NpmRegistryClient implements RegistryClient {
     }
 
     @Override
+    public void prefetchDownloads(java.util.Collection<String> names) {
+        List<String> bulk = names.stream().distinct().filter(NpmRegistryClient::isValidName)
+                .filter(n -> !n.startsWith("@") && !prefetched.containsKey(n)).toList();
+        if (bulk.size() < 2) {
+            return; // 하나면 묶음 조회의 응답 모양이 달라진다: 보통 조회로
+        }
+        for (int i = 0; i < bulk.size(); i += BULK_LIMIT) {
+            List<String> chunk = bulk.subList(i, Math.min(bulk.size(), i + BULK_LIMIT));
+            String url = DOWNLOADS + String.join(",", chunk);
+            try {
+                HttpResult result = http.get(URI.create(url));
+                if (!result.ok()) {
+                    continue; // 실패하면 나중에 하나씩 묻는다
+                }
+                JsonNode doc = JSON.readTree(result.body());
+                for (String name : chunk) {
+                    JsonNode entry = doc.path(name);
+                    if (entry.isNull()) {
+                        prefetched.put(name, new DownloadsResult.Known(0, url)); // 통계가 아직 없는 패키지
+                    } else if (entry.path("downloads").isNumber()) {
+                        prefetched.put(name, new DownloadsResult.Known(entry.path("downloads").asLong(), url));
+                    }
+                }
+            } catch (IOException | JacksonException e) {
+                // 하나씩 묻는 방법으로 돌아간다
+            }
+        }
+    }
+
+    @Override
     public DownloadsResult weeklyDownloads(String name) {
+        DownloadsResult cached = prefetched.get(name);
+        if (cached != null) {
+            return cached;
+        }
         String url = DOWNLOADS + name;
         if (!isValidName(name)) {
             return new DownloadsResult.Unknown(url, "invalid npm package name");
@@ -126,8 +166,18 @@ public final class NpmRegistryClient implements RegistryClient {
         } else if (EXACT_VERSION.matcher(spec).matches()) {
             resolved = null; // 요청한 정확한 버전이 없다
         } else {
-            resolved = latest;
-            note = "version range '" + spec + "' not resolved; checked latest (" + latest + ") instead";
+            java.util.Optional<NpmSemver.Range> range = NpmSemver.parse(spec);
+            if (range.isPresent()) {
+                // npm과 같은 규칙으로 실제 설치될 버전을 고른다. 맞는 버전이 없으면 npm도 설치하지 못한다(ETARGET)
+                resolved = NpmSemver.pick(range.get(), versions.propertyNames(), latest, deprecated(versions))
+                        .orElse(null);
+                if (resolved == null) {
+                    note = "no published version satisfies '" + spec + "'";
+                }
+            } else {
+                resolved = latest;
+                note = "version range '" + spec + "' not resolved; checked latest (" + latest + ") instead";
+            }
         }
 
         Map<String, String> scripts = new LinkedHashMap<>();
@@ -189,6 +239,17 @@ public final class NpmRegistryClient implements RegistryClient {
                 previous,
                 previous == null ? null : textOrNull(versions.path(previous).path("_npmUser").path("name")),
                 previousMaintainers);
+    }
+
+    /** 폐기(deprecated) 표시된 버전. npm은 범위 안에서 폐기되지 않은 버전을 먼저 고른다. */
+    private static Set<String> deprecated(JsonNode versions) {
+        Set<String> out = new LinkedHashSet<>();
+        for (String v : versions.propertyNames()) {
+            if (versions.path(v).path("deprecated").isString()) {
+                out.add(v);
+            }
+        }
+        return out;
     }
 
     private static String stripV(String spec) {

@@ -8,4 +8,11 @@ public interface RegistryClient {
     LookupResult lookup(PackageRequest request);
 
     DownloadsResult weeklyDownloads(String name);
+
+    /**
+     * 여러 패키지의 다운로드 수를 미리 한꺼번에 받아 둔다 (지원하는 레지스트리만). 이후 {@link #weeklyDownloads}는 받아 둔 값을 쓴다.
+     * 실패해도 아무 일도 하지 않는다: 그때는 패키지마다 따로 묻는다.
+     */
+    default void prefetchDownloads(java.util.Collection<String> names) {
+    }
 }

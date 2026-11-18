@@ -80,7 +80,7 @@ Pull requests (GitHub Action): checks only dependencies **added or changed** in 
 ```
 Optional result store: set `GATE_SERVER_URL` and results are sent to gate-server `POST /api/scan-runs`.
 
-**Measured false positives** on 600 legitimate packages (ranks 5,001-7,000): **0 blocked, 0 warned** by `PKG-TYPO` (similar but established packages are recorded as INFO, not prompted). See [docs/measurements/pkg-typo-fp.md](docs/measurements/pkg-typo-fp.md). Known limitations: npm version ranges are checked against the latest version; npm's downloads API rate-limits large batches.
+**Measured false positives** on 600 legitimate packages (ranks 5,001-7,000): **0 blocked, 0 warned** by `PKG-TYPO` (similar but established packages are recorded as INFO, not prompted). See [docs/measurements/pkg-typo-fp.md](docs/measurements/pkg-typo-fp.md). Version ranges are resolved the way npm (`^4.21.2` → the newest 4.x) and pip (`>=2,<3`, `~=2.1`) would, so the version that will actually be installed is checked; npm download counts are fetched in bulk.
 
 False positives: add `ecosystem:name@version  # reason` to `.gate/pkg-allow.txt` (exact version only; nonexistent or malicious packages cannot be allowed). Design: [docs/design/stage1-gate-pkg.md](docs/design/stage1-gate-pkg.md).
 
@@ -306,7 +306,7 @@ Claude Code 훅: 차단은 `deny`(이유를 Claude가 읽음), 경고는 `ask`(�
 
 PR 검사(GitHub Action): `package.json`·`requirements*.txt`·`pyproject.toml`에서 **새로 추가되거나 바뀐 의존성만** 검사하고, 해당 줄에 주석을 달고 Job Summary 표를 남깁니다. `GATE_SERVER_URL`을 설정하면 결과를 gate-server(`POST /api/scan-runs`)에 저장합니다.
 
-**오탐 측정**: 정상 패키지 600개(인기 5,001~7,000위)에서 `PKG-TYPO` **차단 0건, 경고 0건**입니다. 이름은 비슷하지만 자리 잡은 패키지는 확인 창 없이 기록(INFO)만 남깁니다([측정 보고서](docs/measurements/pkg-typo-fp.md)). 알려진 한계: npm 버전 범위는 최신판 기준으로 검사하고, npm 다운로드 API는 대량 조회 시 요청을 제한합니다.
+**오탐 측정**: 정상 패키지 600개(인기 5,001~7,000위)에서 `PKG-TYPO` **차단 0건, 경고 0건**입니다. 이름은 비슷하지만 자리 잡은 패키지는 확인 창 없이 기록(INFO)만 남깁니다([측정 보고서](docs/measurements/pkg-typo-fp.md)). 버전 범위는 npm(`^4.21.2` → 가장 높은 4.x)과 pip(`>=2,<3`, `~=2.1`)이 고르는 방식 그대로 풀어서, 실제로 설치될 버전을 검사합니다. npm 다운로드 수는 묶어서 한 번에 조회합니다.
 
 오탐 예외: `.gate/pkg-allow.txt`에 `생태계:이름@버전  # 이유`를 적습니다. 정확한 버전만 허용되고, 존재하지 않는 패키지와 악성 패키지는 예외로 풀 수 없습니다.
 

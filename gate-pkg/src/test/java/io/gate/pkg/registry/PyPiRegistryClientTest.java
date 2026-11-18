@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.gate.pkg.FakeFetcher;
@@ -55,8 +56,18 @@ class PyPiRegistryClientTest {
     }
 
     @Test
-    void rangeFallsBackToLatestWithNote() {
+    void specifierIsResolvedWithPipRules() {
+        // 지정자는 pip처럼 푼다 (전에는 메모만 남기고 최신판을 검사했다)
         PackageInfo info = found("requests", ">=2.0,<3");
+        assertEquals("2.32.3", info.resolvedVersion());
+        assertNull(info.resolutionNote());
+        assertEquals("2.31.0", found("requests", "~=2.31.0").resolvedVersion(), "an older release in range");
+        assertTrue(found("requests", "<1").versionMissing(), "0.0.1 has no files, so nothing can be installed");
+    }
+
+    @Test
+    void unsupportedSpecifierStillFallsBackToLatestWithNote() {
+        PackageInfo info = found("requests", "@ https://example.invalid/requests.tar.gz");
         assertEquals("2.32.3", info.resolvedVersion());
         assertNotNull(info.resolutionNote());
     }
