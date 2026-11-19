@@ -112,4 +112,48 @@ class ManifestParserTest {
             assertEquals(ref, GitReader.requireRef(ref));
         }
     }
+
+    // ---------- MCP 서버 설정 (1단계 한계 보완 2주차) ----------
+
+    @Test
+    void mcpServersLaunchedByRunnersAreDependencies() {
+        String json = """
+                {
+                  "mcpServers": {
+                    "fs": {"command": "npx", "args": ["-y", "@modelcontextprotocol/server-filesystem", "/my docs"]},
+                    "fetch": {"command": "uvx", "args": ["mcp-server-fetch@2025.4.7"]},
+                    "win": {"command": "cmd", "args": ["/c", "npx", "-y", "some-mcp-server"]},
+                    "local": {"command": "node", "args": ["./server.js"]},
+                    "remote": {"url": "https://mcp.example.invalid/sse"}
+                  }
+                }
+                """;
+        ManifestParser.Parsed p = ManifestParser.parse(".mcp.json", json);
+        assertEquals("npm:@modelcontextprotocol/server-filesystem pypi:mcp-server-fetch@==2025.4.7 "
+                + "npm:some-mcp-server", deps(p));
+        assertEquals(List.of(), p.unchecked());
+    }
+
+    @Test
+    void vsCodeServersSectionAndUncheckableSourcesAreReported() {
+        String json = "{\"servers\": {\"x\": {\"command\": \"npx\", \"args\": [\"github:evil/mcp\"]},"
+                + "\"y\": {\"command\": \"npx\", \"args\": [\"--registry\", \"https://r.example.invalid\", \"z\"]}}}";
+        ManifestParser.Parsed p = ManifestParser.parse(".vscode/mcp.json", json);
+        assertEquals("npm:z", deps(p));
+        assertEquals(2, p.unchecked().size(), p.unchecked().toString());
+        assertTrue(p.unchecked().get(0).contains("MCP server 'x'"), p.unchecked().get(0));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {".mcp.json", "tools/.mcp.json", ".cursor/mcp.json", ".vscode/mcp.json",
+        "claude_desktop_config.json", ".claude/settings.json", ".claude/settings.local.json", "app/.claude/settings.json"})
+    void mcpConfigFilesAreManifests(String path) {
+        assertTrue(ManifestParser.isManifest(path), path);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"settings.json", ".vscode/settings.json", "config/mcp.yaml", ".claude/agents.json"})
+    void otherJsonFilesAreNotMcpConfigs(String path) {
+        assertFalse(ManifestParser.isMcpConfig(path), path);
+    }
 }

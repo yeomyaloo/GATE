@@ -24,6 +24,10 @@ import tools.jackson.databind.json.JsonMapper;
  *   <li>{@code requirements*.txt}: 요구사항 줄. {@code -r}·{@code -e}·사설 인덱스 줄은 검사 불가로 기록</li>
  *   <li>{@code pyproject.toml}: PEP 621 {@code [project] dependencies}·optional-dependencies,
  *       Poetry {@code [tool.poetry(.group.*).dependencies]}. 완전한 TOML 파서가 아니라 흔한 형태만 읽는다</li>
+ *   <li><b>MCP 서버 설정</b>: {@code .mcp.json}, {@code mcp.json}({@code .cursor/}·{@code .vscode/}),
+ *       {@code claude_desktop_config.json}, {@code .claude/settings*.json}의 {@code mcpServers}(또는 {@code servers}).
+ *       서버의 {@code command}+{@code args}를 명령으로 보고, {@code npx}·{@code uvx}·{@code pipx} 등으로 받아 실행하는
+ *       패키지를 검사한다. AI 코딩 도구가 PR로 MCP 서버를 추가하는 경우를 막는다</li>
  * </ul>
  */
 public final class ManifestParser {
@@ -53,9 +57,18 @@ public final class ManifestParser {
         if (name.contains("node_modules/")) {
             return false;
         }
-        name = name.substring(name.lastIndexOf('/') + 1).toLowerCase(Locale.ROOT);
-        return name.equals("package.json") || name.equals("pyproject.toml")
-                || (name.startsWith("requirements") && name.endsWith(".txt"));
+        String file = name.substring(name.lastIndexOf('/') + 1).toLowerCase(Locale.ROOT);
+        return file.equals("package.json") || file.equals("pyproject.toml")
+                || (file.startsWith("requirements") && file.endsWith(".txt")) || isMcpConfig(name);
+    }
+
+    /** MCP 서버 설정 파일인지. */
+    public static boolean isMcpConfig(String path) {
+        String name = path.replace('\\', '/').toLowerCase(Locale.ROOT);
+        String file = name.substring(name.lastIndexOf('/') + 1);
+        return file.equals(".mcp.json") || file.equals("mcp.json") || file.equals("claude_desktop_config.json")
+                || (name.endsWith(".json") && (name.equals(".claude/" + file) || name.endsWith("/.claude/" + file))
+                        && file.startsWith("settings"));
     }
 
     public static Parsed parse(String path, String content) {
@@ -69,6 +82,9 @@ public final class ManifestParser {
         }
         if (name.equals("pyproject.toml")) {
             return pyproject(path, content);
+        }
+        if (isMcpConfig(path)) {
+            return mcpConfig(path, content);
         }
         return requirements(path, content);
     }
@@ -98,6 +114,58 @@ public final class ManifestParser {
             }
         }
         return new Parsed(deps, unchecked);
+    }
+
+    /**
+     * MCP 서버 설정: {@code {"mcpServers": {"이름": {"command": "npx", "args": ["-y", "pkg"]}}}}.
+     * VS Code 형식({@code "servers"})도 읽는다. 원격 서버({@code url}만 있음)는 설치가 없어 검사하지 않는다.
+     * 의존성 키에 서버 이름을 넣어, 같은 패키지라도 서버별로 바뀌었는지 본다.
+     */
+    static Parsed mcpConfig(String path, String content) {
+        Map<String, Dependency> deps = new LinkedHashMap<>();
+        List<String> unchecked = new ArrayList<>();
+        JsonNode root;
+        try {
+            root = JSON.readTree(content);
+        } catch (JacksonException e) {
+            return new Parsed(Map.of(), List.of(path + ": not valid JSON, MCP servers not checked"));
+        }
+        InstallCommandParser parser = new InstallCommandParser();
+        for (String section : List.of("mcpServers", "servers")) {
+            for (Map.Entry<String, JsonNode> server : root.path(section).properties()) {
+                JsonNode cfg = server.getValue();
+                String command = cfg.path("command").asString("");
+                if (command.isBlank()) {
+                    continue; // url만 있는 원격 서버
+                }
+                List<String> parts = new ArrayList<>();
+                parts.add(command);
+                for (JsonNode a : cfg.path("args")) {
+                    parts.add(a.asString(""));
+                }
+                // Windows 형식: "command": "cmd", "args": ["/c", "npx", "-y", "pkg"]
+                if (parts.size() > 2 && parts.get(0).replace(".exe", "").equalsIgnoreCase("cmd")
+                        && parts.get(1).equalsIgnoreCase("/c")) {
+                    parts = new ArrayList<>(parts.subList(2, parts.size()));
+                }
+                String line = String.join(" ", parts.stream().map(ManifestParser::shellQuote).toList());
+                var parsed = parser.parse(line);
+                parsed.unchecked().forEach(u -> unchecked.add(path + ": MCP server '" + server.getKey() + "': " + u));
+                for (PackageRequest r : parsed.packages()) {
+                    String k = "mcp:" + server.getKey() + ":" + key(r);
+                    deps.putIfAbsent(k, new Dependency(k, line, r));
+                }
+            }
+        }
+        return new Parsed(deps, unchecked);
+    }
+
+    /** 공백·따옴표가 든 인자를 셸 해석기가 하나로 읽도록 감싼다. */
+    private static String shellQuote(String s) {
+        if (!s.isEmpty() && s.chars().noneMatch(c -> Character.isWhitespace(c) || "'\"\\;&|`$<>()".indexOf(c) >= 0)) {
+            return s;
+        }
+        return "'" + s.replace("'", "'\"'\"'") + "'";
     }
 
     /** package.json 값은 버전 범위, 태그, 또는 Git·URL·파일 경로다. */

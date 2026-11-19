@@ -126,4 +126,59 @@ class InstallCommandParserTest {
         assertFalse(s.get(0).dynamic(), "single quotes are literal");
         assertTrue(s.get(1).dynamic());
     }
+
+    // ---------- 받아서 바로 실행 (npx 계열, 1단계 한계 보완 2주차) ----------
+
+    @ParameterizedTest(name = "{0}")
+    @CsvSource(delimiter = '|', value = {
+        "npx -y @modelcontextprotocol/server-filesystem /tmp     | npm:@modelcontextprotocol/server-filesystem",
+        "npx cowsay hello world                                    | npm:cowsay",
+        "npx create-vite@5.5.2 my-app --template react             | npm:create-vite@5.5.2",
+        "npx --yes lodahs                                          | npm:lodahs",
+        "npx -p typescript@5.6.3 tsc --version                     | npm:typescript@5.6.3",
+        "npx --package=@angular/cli ng new app                     | npm:@angular/cli",
+        "npx -p a-pkg -p b-pkg some-cmd                            | npm:a-pkg npm:b-pkg",
+        "npm exec -- prettier --write .                            | npm:prettier",
+        "npm exec --package=eslint@9 -- eslint src                 | npm:eslint@9",
+        "npm x serve                                               | npm:serve",
+        "pnpm dlx create-next-app@latest web                       | npm:create-next-app@latest",
+        "yarn dlx -p cowsay cowsay hi                              | npm:cowsay",
+        "uvx mcp-server-fetch                                      | pypi:mcp-server-fetch",
+        "uvx ruff@0.7.0 check .                                    | pypi:ruff@==0.7.0",
+        "uvx black@latest .                                        | pypi:black",
+        "uvx --from 'httpie==3.2.4' http example.invalid           | pypi:httpie@==3.2.4",
+        "uvx --with pandas jupyter-core                            | pypi:jupyter-core pypi:pandas",
+        "uv tool run reqeusts-cli                                  | pypi:reqeusts-cli",
+        "uv tool install ruff                                      | pypi:ruff",
+        "pipx run cowsay moo                                       | pypi:cowsay",
+        "pipx run --spec 'black==24.10.0' black .                  | pypi:black@==24.10.0",
+        "pipx install poetry                                       | pypi:poetry",
+        "npx.cmd -y some-mcp-server                                | npm:some-mcp-server",
+        "bash -c 'npx -y evil-mcp'                                 | npm:evil-mcp",
+    })
+    void runAndExecuteCommandsAreChecked(String command, String expected) {
+        assertEquals(expected, packages(command));
+    }
+
+    @Test
+    void argumentsAfterTheRunPackageAreNotPackages() {
+        // npx 뒤의 인자(파일명·옵션)는 실행할 프로그램의 인자다
+        assertEquals("npm:cowsay", packages("npx cowsay lodahs reqeusts"));
+        assertEquals("npm:tsx", packages("npx tsx script.ts --watch"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"npx --registry https://example.invalid foo", "npx github:user/repo",
+        "uvx --index-url https://example.invalid/simple tool", "npx ./local-bin"})
+    void runCommandsFromOtherSourcesAreReported(String command) {
+        ParsedCommand p = parser.parse(command);
+        assertTrue(p.isInstall(), command);
+        assertFalse(p.unchecked().isEmpty(), () -> command + " -> " + p);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"npx", "npm exec", "uv run script.py", "pipx list", "uv tool list", "npm x --help"})
+    void runCommandsWithoutAPackageAreIgnored(String command) {
+        assertEquals("", packages(command), command);
+    }
 }

@@ -98,6 +98,10 @@ jobs:
           in='{"tool_name":"Bash","tool_input":{"command":"npm ci"}}'
           out=$(printf '%s' "$in" | sh gate-pkg/bin/gate-pkg-hook)
           echo "$out"; echo "$out" | grep -q '"permissionDecision":"ask"'
+          # npx(받아서 바로 실행)는 빠른 통과 대상이 아니다: jar가 없으면 ask가 나와야 한다 (래퍼가 검사로 넘겼다는 뜻)
+          in='{"tool_name":"Bash","tool_input":{"command":"npx -y some-mcp-server"}}'
+          out=$(printf '%s' "$in" | GATE_PKG_JAR=/nonexistent.jar sh gate-pkg/bin/gate-pkg-hook)
+          echo "$out" | grep -q '"permissionDecision":"ask"'
 
       # 러너에는 Docker가 있으므로 통합 테스트가 건너뛰어지면 안 된다
       - name: Ensure integration tests actually ran

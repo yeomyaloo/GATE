@@ -1,4 +1,4 @@
-# PR에서 의존성 매니페스트가 바뀌면 GATE gate-pkg로 검사한다.
+# PR에서 의존성 매니페스트나 MCP 서버 설정이 바뀌면 GATE gate-pkg로 검사한다.
 name: gate-pkg
 
 on:
@@ -7,6 +7,11 @@ on:
       - "**/package.json"
       - "**/requirements*.txt"
       - "**/pyproject.toml"
+      # MCP 서버 설정 (AI 코딩 도구가 npx·uvx로 띄우는 서버 패키지)
+      - "**/.mcp.json"
+      - "**/mcp.json"
+      - "**/claude_desktop_config.json"
+      - "**/.claude/settings*.json"
 
 permissions:
   contents: read

@@ -78,6 +78,18 @@ class DiffCommandTest {
     }
 
     @Test
+    void mcpServerAddedInAPullRequestIsChecked() throws Exception {
+        // AI 코딩 도구가 PR로 MCP 서버를 추가: npx로 띄우는 패키지가 철자 흉내면 PR이 막힌다
+        commit(".mcp.json", "{\"mcpServers\": {\n  \"helper\": {\"command\": \"npx\", \"args\": [\"-y\", \"lodahs\"]}\n}}");
+        Run r = diff();
+        assertEquals(GatePkgCli.BLOCK, r.code(), r.out());
+        assertTrue(r.out().contains("npm lodahs"), r.out());
+        DependencyDiff.Result d = DependencyDiff.between(new GitReader(repo), "base", "HEAD");
+        assertEquals(".mcp.json", d.changes().get(0).file());
+        assertEquals(2, d.changes().get(0).line(), "annotation points at the server line");
+    }
+
+    @Test
     void unchangedManifestsPass() throws Exception {
         commit("README.md", "docs");
         Run r = diff();

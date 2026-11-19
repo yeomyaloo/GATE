@@ -12,7 +12,8 @@
 input=$(cat)
 
 case "$input" in
-  *npm*|*yarn*|*pnpm*|*pip*|*uv*|*poetry*) ;;
+  # npx·uvx·pipx(받아서 바로 실행)도 검사한다. uvx·pipx는 *uv*·*pip*에 이미 걸린다
+  *npm*|*npx*|*yarn*|*pnpm*|*pip*|*uv*|*poetry*) ;;
   *) exit 0 ;;
 esac
 

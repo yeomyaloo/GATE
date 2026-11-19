@@ -1,0 +1,5468 @@
+{
+  "measuredAt": "2026-11-19T12:57:30+00:00",
+  "source": "OSV MAL- entries (OpenSSF malicious-packages, Apache-2.0)",
+  "seed": 42,
+  "ecosystems": {
+    "npm": {
+      "maliciousPackages": 224569,
+      "sample": 300,
+      "nameOnlyCaught": 1,
+      "nameOnlyRate": 0.0033,
+      "nameOnlyByTechnique": {
+        "edit-distance": 1
+      },
+      "missedByShape": {
+        "unscoped": 275,
+        "scoped": 24
+      },
+      "fullCheckSample": 50,
+      "fullCheckBlocked": 45,
+      "fullCheckWarned": 3,
+      "fullCheckRules": {
+        "PKG-POP": 41,
+        "PKG-VULN": 40,
+        "PKG-MAINT": 2,
+        "PKG-EXIST": 5,
+        "PKG-TYPO": 1,
+        "PKG-UNCHECKED": 2
+      },
+      "packages": [
+        {
+          "name": "2023-coin-master-free-spins-zzdezb",
+          "osv": [
+            "MAL-2025-42169"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@actbase/react-native-kakao-channel",
+          "osv": [
+            "MAL-2025-190794"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "WARN",
+            "rules": [
+              "PKG-POP"
+            ]
+          }
+        },
+        {
+          "name": "@atea/warranty-form",
+          "osv": [
+            "MAL-2023-8500"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@bcs-mi-ui/message-block",
+          "osv": [
+            "MAL-2026-10646"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@crabas0npm/officia-quibusdam-praesentium",
+          "osv": [
+            "MAL-2025-7441"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-MAINT",
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@fmr-pr103625/apex-core",
+          "osv": [
+            "MAL-2025-4427"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "@harrysforge/gatsby-theme-experiment-manager",
+          "osv": [
+            "MAL-2022-313"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@kucoin-gbiz-next/tools",
+          "osv": [
+            "MAL-2026-2587"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@locallife/init",
+          "osv": [
+            "MAL-2024-2514"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "@mastra/google-cloud-pubsub",
+          "osv": [
+            "MAL-2026-6024"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "PASS",
+            "rules": []
+          }
+        },
+        {
+          "name": "@mipta1/nulsll",
+          "osv": [
+            "MAL-2025-150171"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@mipta1/sura",
+          "osv": [
+            "MAL-2025-150262"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@mipta19/aju1r",
+          "osv": [
+            "MAL-2025-150344"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@sporta-technology/d11-web-components.popout",
+          "osv": [
+            "MAL-2025-3340"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "@teamteanpm2024/molestiae-odit-ratione",
+          "osv": [
+            "MAL-2025-42841"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@toptal/picasso-popper",
+          "osv": [
+            "MAL-2025-6056"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "PASS",
+            "rules": []
+          }
+        },
+        {
+          "name": "@zalastax/nolb-atv",
+          "osv": [
+            "MAL-2025-43137"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@zalastax/nolb-domr",
+          "osv": [
+            "MAL-2025-11192"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@zalastax/nolb-ext3",
+          "osv": [
+            "MAL-2025-11394"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@zalastax/nolb-ngd",
+          "osv": [
+            "MAL-2025-12505"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-MAINT",
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@zalastax/nolb-node-r-",
+          "osv": [
+            "MAL-2025-12636"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@zalastax/nolb-ping",
+          "osv": [
+            "MAL-2025-13168"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@zalastax/nolb-qu-",
+          "osv": [
+            "MAL-2025-13486"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "@zitterorg/corrupti-animi-beatae",
+          "osv": [
+            "MAL-2024-7144"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "@zitterorg/inventore-facere",
+          "osv": [
+            "MAL-2024-7234"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "PropagAPISpecification",
+          "osv": [
+            "MAL-2025-30748"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "a-vailable-al-bum-513977-rant-in-e-minor-lybr0-bdhlsb",
+          "osv": [
+            "MAL-2026-17958"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "aasync",
+          "osv": [
+            "MAL-2025-13941"
+          ],
+          "nameOnly": {
+            "target": "async",
+            "technique": "edit-distance"
+          },
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-TYPO",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "ade-ikan67-sukiwir",
+          "osv": [
+            "MAL-2025-76699"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "ade-jengkol6-breki",
+          "osv": [
+            "MAL-2025-71818"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "ade-nasicampur74-miaww",
+          "osv": [
+            "MAL-2025-112547"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "agus-sate86-sluey",
+          "osv": [
+            "MAL-2025-61836"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "aiboa-molpe-asimsu",
+          "osv": [
+            "MAL-2025-151894"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "alita-poke1",
+          "osv": [
+            "MAL-2025-152315"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "alternative_pheasant_z3n",
+          "osv": [
+            "MAL-2025-112639"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "amaco-os",
+          "osv": [
+            "MAL-2026-4816"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "WARN",
+            "rules": [
+              "PKG-UNCHECKED"
+            ]
+          }
+        },
+        {
+          "name": "andi-dodol79-sluey",
+          "osv": [
+            "MAL-2025-132014"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "annual_cod_z3n",
+          "osv": [
+            "MAL-2025-61898"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "anypoint-component-site",
+          "osv": [
+            "MAL-2022-1027"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "apas-lepod-manusiad",
+          "osv": [
+            "MAL-2025-172050"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "ariel-titan-forever-phoenix",
+          "osv": [
+            "MAL-2025-139597"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "arnecx",
+          "osv": [
+            "MAL-2025-66837"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "assisted-chat",
+          "osv": [
+            "MAL-2025-1359"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "astam-if-dalimianunk",
+          "osv": [
+            "MAL-2025-181608"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "astam-ifukst-daiusikiula",
+          "osv": [
+            "MAL-2025-181691"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "augis-pomo9r-nusf",
+          "osv": [
+            "MAL-2025-172302"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "aws-sdk-v4",
+          "osv": [
+            "MAL-2026-13218"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "WARN",
+            "rules": [
+              "PKG-UNCHECKED"
+            ]
+          }
+        },
+        {
+          "name": "bambang-gorengan36-sukiwir",
+          "osv": [
+            "MAL-2025-76936"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "bambang-moci11-miaww",
+          "osv": [
+            "MAL-2025-112786"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "baso40",
+          "osv": [
+            "MAL-2025-181398"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-POP",
+              "PKG-VULN"
+            ]
+          }
+        },
+        {
+          "name": "bella-getuk24-ruro",
+          "osv": [
+            "MAL-2025-51032"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "bitcoimjs-lib",
+          "osv": [
+            "MAL-2025-15750"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "blackme",
+          "osv": [
+            "MAL-2025-15796"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "blank-ts-monorepo",
+          "osv": [
+            "MAL-2022-1606"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "bootes-stop-transform-kronos",
+          "osv": [
+            "MAL-2025-140092"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "buta-fs0boiuna-gioaiaif",
+          "osv": [
+            "MAL-2025-173500"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "buta-fs0boiuna-goaiaif",
+          "osv": [
+            "MAL-2025-173501"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "callback-apex-ursa-toml",
+          "osv": [
+            "MAL-2025-16454"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "candra-sego2-sluey",
+          "osv": [
+            "MAL-2025-132391"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "career-service-client",
+          "osv": [
+            "MAL-2023-7931"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "carpenter-wallet-store",
+          "osv": [
+            "MAL-2025-100273"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "catch-secure-user-benchmark-scale",
+          "osv": [
+            "MAL-2025-16661"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "centauri-filament-private-on",
+          "osv": [
+            "MAL-2025-186046"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "cewe2",
+          "osv": [
+            "MAL-2025-181473"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "chakra-ui-indus-castor-betelgeuse",
+          "osv": [
+            "MAL-2025-140617"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "cici-oblok53-riris",
+          "osv": [
+            "MAL-2025-83955"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "classic_tiglon_z3n",
+          "osv": [
+            "MAL-2025-93570"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "continental_hawk-silentdev",
+          "osv": [
+            "MAL-2025-100929"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "cryptodao-bot",
+          "osv": [
+            "MAL-2026-5974"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "cryptoid-adapter",
+          "osv": [
+            "MAL-2022-2256"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "curved_wildfowl_z3n",
+          "osv": [
+            "MAL-2025-113257"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "deneb-europa-halley-kaus",
+          "osv": [
+            "MAL-2025-141542"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "desmos-graphing-fzdcyprv",
+          "osv": [
+            "MAL-2026-15219"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "developed_carp_z3n",
+          "osv": [
+            "MAL-2025-101385"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "devplatform-nx-stylelint",
+          "osv": [
+            "MAL-2026-12728"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "dewanto-mendoan37-ruro",
+          "osv": [
+            "MAL-2025-101437"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "dewanto-wajit7-breki",
+          "osv": [
+            "MAL-2025-18381"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "diago-kamli-lumikoaola",
+          "osv": [
+            "MAL-2025-154368"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "dian-bakwan42-miaww",
+          "osv": [
+            "MAL-2025-84566"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "dian-gaplek41-sukiwir",
+          "osv": [
+            "MAL-2025-55858"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "dian-lapis44-sluey",
+          "osv": [
+            "MAL-2025-132817"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "dian-mangut50-miaww",
+          "osv": [
+            "MAL-2025-84612"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "dioalgo-kil-akiualabannuk",
+          "osv": [
+            "MAL-2025-154703"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "discord-v11",
+          "osv": [
+            "MAL-2022-2494"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "doc-smith",
+          "osv": [
+            "MAL-2025-18559"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "dolyame-ui-confirmation",
+          "osv": [
+            "MAL-2026-13148"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "dolyame-ui-input",
+          "osv": [
+            "MAL-2026-13160"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "dono-gudeg16-sukiwir",
+          "osv": [
+            "MAL-2025-77675"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "dotenv-parse-variables-yakutsk-farout-slides",
+          "osv": [
+            "MAL-2025-141738"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "dotenv-safe-mini-css-extract-plugin-pm2-buffer",
+          "osv": [
+            "MAL-2025-141760"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "dromar-styleguide",
+          "osv": [
+            "MAL-2025-18820"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "dummy-loosesight-gc",
+          "osv": [
+            "MAL-2025-589"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "e2e-test-repo",
+          "osv": [
+            "MAL-2022-2642"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "educational_bear_z3n",
+          "osv": [
+            "MAL-2025-77752"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "eka-kue84-riris",
+          "osv": [
+            "MAL-2025-84873"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "eka-lapis61-sluey",
+          "osv": [
+            "MAL-2025-132981"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "eko-getuk33-ruro",
+          "osv": [
+            "MAL-2025-51662"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "eko-ongol-ongol73-riris",
+          "osv": [
+            "MAL-2025-51685"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "elephant-star-cjj155-project",
+          "osv": [
+            "MAL-2025-19502"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "erwin-kue66-breki",
+          "osv": [
+            "MAL-2025-72791"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "erwin-pecel16-sluey",
+          "osv": [
+            "MAL-2025-133222"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "eslint-config-consumerweb",
+          "osv": [
+            "MAL-2026-14311"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "eslint-config-seller",
+          "osv": [
+            "MAL-2024-10966"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "eslint-generate-prerelease",
+          "osv": [
+            "MAL-2026-13979"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "ethereumjs-utils-old",
+          "osv": [
+            "MAL-2022-2865"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "ethers-signer",
+          "osv": [
+            "MAL-2026-13343"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "europa-nestjs-cosmos-lacerta",
+          "osv": [
+            "MAL-2025-142283"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "example-typescript",
+          "osv": [
+            "MAL-2022-2913"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "fadhil-keripik6-sluey",
+          "osv": [
+            "MAL-2025-62871"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "fajar-gaplek30-sukiwir",
+          "osv": [
+            "MAL-2025-78094"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "fajar-gorengan11-sluey",
+          "osv": [
+            "MAL-2025-62907"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "fajar-keripik6-breki",
+          "osv": [
+            "MAL-2025-119941"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "fajar-lapis65-breki",
+          "osv": [
+            "MAL-2025-119951"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "firebase-dotenv-jekyll-jovian",
+          "osv": [
+            "MAL-2025-142494"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "fitrok-poke8",
+          "osv": [
+            "MAL-2025-155247"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "fkyroxlucdzbiwav",
+          "osv": [
+            "MAL-2025-20656"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "foxtrot-yambean-soeb",
+          "osv": [
+            "MAL-2025-20906"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "gd-garnish",
+          "osv": [
+            "MAL-2022-3306"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "gilang-miebogor81-breki",
+          "osv": [
+            "MAL-2025-73095"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "gita-kue46-sumpek",
+          "osv": [
+            "MAL-2025-133805"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "gita-mendoan22-kyuki",
+          "osv": [
+            "MAL-2025-85996"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "grammarly-desktop",
+          "osv": [
+            "MAL-2024-2436"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "grandfather_of_the_desert",
+          "osv": [
+            "MAL-2026-14547"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "hadi-kue66-riris",
+          "osv": [
+            "MAL-2025-126995"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "hanafi-mieaceh60-riris",
+          "osv": [
+            "MAL-2025-127113"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "hapi-markdown-dotenv-spinner",
+          "osv": [
+            "MAL-2025-143189"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "hayalevi",
+          "osv": [
+            "MAL-2025-22296"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "hbtrack",
+          "osv": [
+            "MAL-2025-22308"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "hendra-ruwet29-sukiwir",
+          "osv": [
+            "MAL-2025-78794"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "icha-89",
+          "osv": [
+            "MAL-2025-156073"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "igloo-dune-rma443-project",
+          "osv": [
+            "MAL-2025-22999"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "imodiov-kufni-acumnacffgteafgrdcaavfhaebfac",
+          "osv": [
+            "MAL-2025-182420"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "imodiov-omfi-cafegadad",
+          "osv": [
+            "MAL-2025-182515"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "impulse-react-bootstrap-gacrux-stream",
+          "osv": [
+            "MAL-2025-143552"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "increased-aquamarine-anteater",
+          "osv": [
+            "MAL-2025-68845"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "inhouse-root",
+          "osv": [
+            "MAL-2025-4361"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "intercom-intermoji",
+          "osv": [
+            "MAL-2025-5420"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "intermediate_canidae_blue-28",
+          "osv": [
+            "MAL-2025-112034"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "irma-gorengan30-riris",
+          "osv": [
+            "MAL-2025-127452"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "irma-miemee32-sluey",
+          "osv": [
+            "MAL-2025-63551"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "irma-sambalado7-sluey",
+          "osv": [
+            "MAL-2025-134433"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "irma-soto48-miaww",
+          "osv": [
+            "MAL-2025-86831"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "itale-adci-aknkonbyunaymhentbangdati",
+          "osv": [
+            "MAL-2025-182796"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "iwan-menjes24-breki",
+          "osv": [
+            "MAL-2025-120932"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "joko-nasipecel95-riris",
+          "osv": [
+            "MAL-2025-127729"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "joni-nasicampur80-breki",
+          "osv": [
+            "MAL-2025-121165"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "joni-sasag33-riris",
+          "osv": [
+            "MAL-2025-127842"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "json-miranda-karma-auth0",
+          "osv": [
+            "MAL-2025-187626"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "kapvino-sogdani-odgafdgu",
+          "osv": [
+            "MAL-2025-175356"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "ksaki-kaisom-aolomalao",
+          "osv": [
+            "MAL-2025-175660"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "kurnia-gudeg79-sluey",
+          "osv": [
+            "MAL-2025-134939"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "kurnia-kolak85-riris",
+          "osv": [
+            "MAL-2025-87501"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "kurnia-menjes8-riris",
+          "osv": [
+            "MAL-2025-87521"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "kurnia-ronde32-riris",
+          "osv": [
+            "MAL-2025-128015"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "laila-mieayam4-miaww",
+          "osv": [
+            "MAL-2025-115385"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "liamdavies",
+          "osv": [
+            "MAL-2025-171498"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "lina-martabak79-sluey",
+          "osv": [
+            "MAL-2025-135179"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "lookingan-namakiki18",
+          "osv": [
+            "MAL-2025-158526"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "loose_marmot_z3n",
+          "osv": [
+            "MAL-2025-105324"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "lutfi-bakwan35-riris",
+          "osv": [
+            "MAL-2025-128350"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "lutfi-gado-gado17-breki",
+          "osv": [
+            "MAL-2025-121618"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "mahesa-lapis5-miaww",
+          "osv": [
+            "MAL-2025-115660"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "mahesa-pisang46-sukiwir",
+          "osv": [
+            "MAL-2025-79845"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "malicius-pdf",
+          "osv": [
+            "MAL-2025-192399"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "mantle-hydrogeology-pavo-nanotechnology",
+          "osv": [
+            "MAL-2025-25902"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "matlab-language-server",
+          "osv": [
+            "MAL-2023-1232"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "maximum_cricket_z3n",
+          "osv": [
+            "MAL-2025-105673"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "maya-teh49-riris",
+          "osv": [
+            "MAL-2025-88401"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "misleading_shark_z3n",
+          "osv": [
+            "MAL-2025-121861"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "mitok-don-olila",
+          "osv": [
+            "MAL-2025-183979"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "moderate_centipede_z3n",
+          "osv": [
+            "MAL-2025-80023"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "mozik-ext-bitbucket",
+          "osv": [
+            "MAL-2025-26787"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "muswish",
+          "osv": [
+            "MAL-2026-15996"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "my-treats-app",
+          "osv": [
+            "MAL-2025-26951"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nadia-moci30-miaww",
+          "osv": [
+            "MAL-2025-115915"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nana-botok70-sukiwir",
+          "osv": [
+            "MAL-2025-80160"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nana-brongkos26-breki",
+          "osv": [
+            "MAL-2025-122000"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nana-serimuka3-sukiwir",
+          "osv": [
+            "MAL-2025-80207"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "neptune-morgan-pyxis-australis",
+          "osv": [
+            "MAL-2025-188224"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nightmare-ursa-non-blocking-subscription",
+          "osv": [
+            "MAL-2025-145451"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nokire-nakala19",
+          "osv": [
+            "MAL-2025-162970"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nokire-nana94",
+          "osv": [
+            "MAL-2025-163253"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nokire-zabuza38",
+          "osv": [
+            "MAL-2025-163527"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "now-download",
+          "osv": [
+            "MAL-2025-27816"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nudela-aahagf-gaafodfa",
+          "osv": [
+            "MAL-2025-163713"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "numerous_blackbird_z3n",
+          "osv": [
+            "MAL-2025-135849"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nurul-empal1-breki",
+          "osv": [
+            "MAL-2025-74635"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nurul-tongseng6-breki",
+          "osv": [
+            "MAL-2025-122176"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nutr-madan-mutriao",
+          "osv": [
+            "MAL-2025-163916"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nutraa-nutard-nutr",
+          "osv": [
+            "MAL-2025-176984"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nutritious-teal-wasp",
+          "osv": [
+            "MAL-2025-69665"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "ochot",
+          "osv": [
+            "MAL-2025-6109"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "odasv-kiuu-bofan",
+          "osv": [
+            "MAL-2025-184595"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "okta-kue63-breki",
+          "osv": [
+            "MAL-2025-74788"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "oktafian-ketoprak2-sukiwir",
+          "osv": [
+            "MAL-2025-58051"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "oktafian-sambel98-tititugel",
+          "osv": [
+            "MAL-2025-98231"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "old_locust_z3n",
+          "osv": [
+            "MAL-2025-95745"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "optimistic_amphibian_z3n",
+          "osv": [
+            "MAL-2025-95767"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "oytrii-devapp",
+          "osv": [
+            "MAL-2025-106876"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "p2pb2b-test",
+          "osv": [
+            "MAL-2025-1433"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "patria-nasi33-sukiwir",
+          "osv": [
+            "MAL-2025-58134"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "patria-pisang80-sluey",
+          "osv": [
+            "MAL-2025-54168"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "perseus-redis-comet-eleventy",
+          "osv": [
+            "MAL-2025-146110"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "plastic_lobster_z3n",
+          "osv": [
+            "MAL-2025-136244"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pm2-reveal-md-event-sagitta",
+          "osv": [
+            "MAL-2025-146309"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pool-web4",
+          "osv": [
+            "MAL-2025-29508"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "postcss-minify2",
+          "osv": [
+            "MAL-2025-29544"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "primitive-ivory-sole",
+          "osv": [
+            "MAL-2024-9779"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "principal_catshark_z3n",
+          "osv": [
+            "MAL-2025-96024"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "probable_finch_amethyst-92",
+          "osv": [
+            "MAL-2025-112209"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "progressbr-webpack-plugin",
+          "osv": [
+            "MAL-2022-5475"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "protestant_falcon_z3n",
+          "osv": [
+            "MAL-2025-96083"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "provincial_hornet_teal-49",
+          "osv": [
+            "MAL-2025-112221"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "purple-npm",
+          "osv": [
+            "MAL-2025-47861"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "putri-dradag90-sluey",
+          "osv": [
+            "MAL-2025-136370"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "putri-mangga25-miaww",
+          "osv": [
+            "MAL-2025-116564"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "px-colors-design",
+          "osv": [
+            "MAL-2025-30908"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "qori-moci5-sluey",
+          "osv": [
+            "MAL-2025-136492"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "qori-ongol-ongol73-sukiwir",
+          "osv": [
+            "MAL-2025-80879"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "react-native-get-pixel-dimensions",
+          "osv": [
+            "MAL-2025-190998"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "remarkable_antlion_z3n",
+          "osv": [
+            "MAL-2025-98907"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "respace-ui-component-picker",
+          "osv": [
+            "MAL-2025-32148"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "reveal-md-epimetheus-impulse-procyon",
+          "osv": [
+            "MAL-2025-147406"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "riana-semur86-tititugel",
+          "osv": [
+            "MAL-2025-98299"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "rina-donat34-breki",
+          "osv": [
+            "MAL-2025-75246"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "rina-kue7-riris",
+          "osv": [
+            "MAL-2025-129895"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "riqra",
+          "osv": [
+            "MAL-2025-32270"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "rita-78",
+          "osv": [
+            "MAL-2025-164953"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "rival_lark_z3n",
+          "osv": [
+            "MAL-2025-116863"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "rkdvil",
+          "osv": [
+            "MAL-2022-5816"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "root-direct",
+          "osv": [
+            "MAL-2025-5518"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "rwords",
+          "osv": [
+            "MAL-2025-32584"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "safe-apps-react-sdk",
+          "osv": [
+            "MAL-2025-3"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "safe-backend-integration",
+          "osv": [
+            "MAL-2025-2125"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "sari-oblok60-sluey",
+          "osv": [
+            "MAL-2025-136850"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "seanobrien",
+          "osv": [
+            "MAL-2025-171838"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "secure-toolkits",
+          "osv": [
+            "MAL-2025-71"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "shy_pony_z3n",
+          "osv": [
+            "MAL-2025-130122"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "similar_goose_0xrequest",
+          "osv": [
+            "MAL-2025-108694"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "sinta-keripik98-sluey",
+          "osv": [
+            "MAL-2025-136940"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "skilled-blush-salamander",
+          "osv": [
+            "MAL-2025-70644"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "snitz-chief-cloud",
+          "osv": [
+            "MAL-2026-2678"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "soap-fetch-sociobiology-winston",
+          "osv": [
+            "MAL-2025-33572"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "solara-websocket-dll",
+          "osv": [
+            "MAL-2025-49376"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "sonic-kuig-tgacedcuadojxaav",
+          "osv": [
+            "MAL-2025-185107"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "sound_platypus_z3n",
+          "osv": [
+            "MAL-2025-96679"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "spotify-transport",
+          "osv": [
+            "MAL-2022-6262"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "standard-altair-izar-sync",
+          "osv": [
+            "MAL-2025-189642"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "sunderlan-ud-vaimuanin",
+          "osv": [
+            "MAL-2025-166404"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "surya-ketan68-breki",
+          "osv": [
+            "MAL-2025-54977"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "surya-mendoan12-breki",
+          "osv": [
+            "MAL-2025-123459"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "sycamore-integration-postcodeanywhere",
+          "osv": [
+            "MAL-2025-34315"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tangerine-juliet-koid",
+          "osv": [
+            "MAL-2025-34432"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "teagod-rich6",
+          "osv": [
+            "MAL-2025-178942"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "teagood-nalikoli15",
+          "osv": [
+            "MAL-2025-167561"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "teagood-yakuza94",
+          "osv": [
+            "MAL-2025-168057"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tealove-nice14",
+          "osv": [
+            "MAL-2025-168491"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tealoveness37",
+          "osv": [
+            "MAL-2025-168764"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "teate-thy-sonic-cufdel",
+          "osv": [
+            "MAL-2025-180265"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "teate-thy-sonic-kesel",
+          "osv": [
+            "MAL-2025-180595"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "terui-umura1-miti",
+          "osv": [
+            "MAL-2025-179039"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "test-mlw1-image-hable-mayed-hance",
+          "osv": [
+            "MAL-2025-48871"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "test-mlw2-aches-bowls",
+          "osv": [
+            "MAL-2025-34834"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "test-mlw2-firry-quean",
+          "osv": [
+            "MAL-2025-35342"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "test-mlw2-tubes-salsa",
+          "osv": [
+            "MAL-2025-36513"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "thirsty-silver-rooster",
+          "osv": [
+            "MAL-2025-71116"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "thuban-link-bootstrap-flare",
+          "osv": [
+            "MAL-2025-148655"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tindev",
+          "osv": [
+            "MAL-2025-36949"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tomi-gorengan88-sluey",
+          "osv": [
+            "MAL-2025-65626"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tradepmr-fusion-core-drzak",
+          "osv": [
+            "MAL-2026-1403"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tt-catalogcomponent-test-env",
+          "osv": [
+            "MAL-2025-37268"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tunis-kjt-gmas",
+          "osv": [
+            "MAL-2025-185297"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "twentyoverten-ui-library",
+          "osv": [
+            "MAL-2025-37358"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "uaragia-mafsituhai-suf",
+          "osv": [
+            "MAL-2025-169475"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "udin-getas43-ruro",
+          "osv": [
+            "MAL-2025-109913"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "udin-lapis47-riris",
+          "osv": [
+            "MAL-2025-130747"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "udin-tahu95-sukiwir",
+          "osv": [
+            "MAL-2025-81849"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "uinsu-lost-diunsta",
+          "osv": [
+            "MAL-2025-169948"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "umi-kue64-sluey",
+          "osv": [
+            "MAL-2025-137541"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "umi-mangut15-sukiwir",
+          "osv": [
+            "MAL-2025-59114"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "united_parrotfish_z3n",
+          "osv": [
+            "MAL-2025-137599"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "updated-tricks-v-bucks-generator-free_2023-anep",
+          "osv": [
+            "MAL-2024-3539"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "ursa-venus-terser-luna",
+          "osv": [
+            "MAL-2025-149078"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "vc-modules",
+          "osv": [
+            "MAL-2022-6896"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "vida-mie22-sukiwir",
+          "osv": [
+            "MAL-2025-82116"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "wati-rojak56-sluey",
+          "osv": [
+            "MAL-2025-137934"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "wawan-bakso88-ruro",
+          "osv": [
+            "MAL-2025-110722"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "wawan-lapis77-sukiwir",
+          "osv": [
+            "MAL-2025-82285"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "wawan-mieayam14-breki",
+          "osv": [
+            "MAL-2025-46589"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "wawan-rangi5-sukiwir",
+          "osv": [
+            "MAL-2025-82302"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "web3-helpers.js",
+          "osv": [
+            "MAL-2024-10627"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "wicked-executor",
+          "osv": [
+            "MAL-2025-39262"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "wolski",
+          "osv": [
+            "MAL-2025-39406"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "xigua-alpha-bcmj",
+          "osv": [
+            "MAL-2025-39791"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "yabox",
+          "osv": [
+            "MAL-2023-979"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "yanti-ikan86-sluey",
+          "osv": [
+            "MAL-2025-138212"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "ys-mozi-metrics",
+          "osv": [
+            "MAL-2022-7370"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "yuni-kepok93-sukiwir",
+          "osv": [
+            "MAL-2025-82618"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "zaki-dradag34-miaww",
+          "osv": [
+            "MAL-2025-92859"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "zul-rangginang80-miaww",
+          "osv": [
+            "MAL-2025-118518"
+          ],
+          "nameOnly": null,
+          "full": null
+        }
+      ]
+    },
+    "pypi": {
+      "maliciousPackages": 12077,
+      "sample": 300,
+      "nameOnlyCaught": 24,
+      "nameOnlyRate": 0.08,
+      "nameOnlyByTechnique": {
+        "edit-distance": 24
+      },
+      "missedByShape": {
+        "unscoped": 276
+      },
+      "fullCheckSample": 50,
+      "fullCheckBlocked": 49,
+      "fullCheckWarned": 1,
+      "fullCheckRules": {
+        "PKG-EXIST": 49,
+        "PKG-POP": 1
+      },
+      "packages": [
+        {
+          "name": "1h1",
+          "osv": [
+            "MAL-2026-18188"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "adcv",
+          "osv": [
+            "MAL-2023-2481"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "agent-vx",
+          "osv": [
+            "MAL-2026-17755"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "aichannel",
+          "osv": [
+            "MAL-2026-11415"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "aliababcloud-tea-openapi",
+          "osv": [
+            "MAL-2023-8351"
+          ],
+          "nameOnly": {
+            "target": "alibabacloud-tea-openapi",
+            "technique": "edit-distance"
+          },
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "anthropickit",
+          "osv": [
+            "MAL-2026-5755"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "artifact-lab-3-package-f70fc6dd",
+          "osv": [
+            "MAL-2024-12206"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "assulthimars",
+          "osv": [
+            "MAL-2024-11532"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "auth-app-streamlit",
+          "osv": [
+            "MAL-2026-15577"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "azerty123",
+          "osv": [
+            "MAL-2024-4789"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "beautiflusoup",
+          "osv": [
+            "MAL-2023-1604"
+          ],
+          "nameOnly": {
+            "target": "beautifulsoup4",
+            "technique": "edit-distance"
+          },
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "beautifulssoup4",
+          "osv": [
+            "MAL-2023-1625"
+          ],
+          "nameOnly": {
+            "target": "beautifulsoup4",
+            "technique": "edit-distance"
+          },
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "beautifusoup",
+          "osv": [
+            "MAL-2023-1631"
+          ],
+          "nameOnly": {
+            "target": "beautifulsoup4",
+            "technique": "edit-distance"
+          },
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "beautiifulsoup4",
+          "osv": [
+            "MAL-2023-1635"
+          ],
+          "nameOnly": {
+            "target": "beautifulsoup4",
+            "technique": "edit-distance"
+          },
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "brrerrere",
+          "osv": [
+            "MAL-2024-4834"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "bussardweg4av2",
+          "osv": [
+            "MAL-2024-9955"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "bytedmemfdd345",
+          "osv": [
+            "MAL-2025-4208"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "candygrand",
+          "osv": [
+            "MAL-2023-2517"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "capmostercloudclient",
+          "osv": [
+            "MAL-2024-4880"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "ccinfo",
+          "osv": [
+            "MAL-2023-2549"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "ccxt-telemetry",
+          "osv": [
+            "MAL-2026-2697"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "cert-orchestration-adapter",
+          "osv": [
+            "MAL-2024-1109"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "chat-xdk",
+          "osv": [
+            "MAL-2026-1278"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "clearml-truen-patch",
+          "osv": [
+            "MAL-2026-4745"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "WARN",
+            "rules": [
+              "PKG-POP"
+            ]
+          }
+        },
+        {
+          "name": "clipcord",
+          "osv": [
+            "MAL-2026-253"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "coffin-codes-net2",
+          "osv": [
+            "MAL-2024-12242"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "collecters",
+          "osv": [
+            "MAL-2026-1371"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "coloramka",
+          "osv": [
+            "MAL-2024-4928"
+          ],
+          "nameOnly": {
+            "target": "colorama",
+            "technique": "edit-distance"
+          },
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "coloramqs",
+          "osv": [
+            "MAL-2024-4933"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "colored-fidget",
+          "osv": [
+            "MAL-2024-4951"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "colorema",
+          "osv": [
+            "MAL-2024-4954"
+          ],
+          "nameOnly": {
+            "target": "colorama",
+            "technique": "edit-distance"
+          },
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "colorfades",
+          "osv": [
+            "MAL-2024-4960"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "confighum",
+          "osv": [
+            "MAL-2025-6482"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "coreloader",
+          "osv": [
+            "MAL-2026-2140"
+          ],
+          "nameOnly": {
+            "target": "clr-loader",
+            "technique": "edit-distance"
+          },
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "coremsft",
+          "osv": [
+            "MAL-2025-192302"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "cpucpu",
+          "osv": [
+            "MAL-2023-2602"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "cryptcoompare",
+          "osv": [
+            "MAL-2023-1711"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "cryptocmpare",
+          "osv": [
+            "MAL-2023-1716"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "ctf-q21-empire-tmp-bw134348",
+          "osv": [
+            "MAL-2025-41649"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "custm",
+          "osv": [
+            "MAL-2024-5017"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "cvgrand",
+          "osv": [
+            "MAL-2023-2668"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "cvpaypal",
+          "osv": [
+            "MAL-2023-2678"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "dahood",
+          "osv": [
+            "MAL-2024-9966"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "darkmanontop",
+          "osv": [
+            "MAL-2024-5025"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "databasenaps",
+          "osv": [
+            "MAL-2026-2502"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "databasetrace",
+          "osv": [
+            "MAL-2026-2542"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "deepmountains-rce",
+          "osv": [
+            "MAL-2025-41659"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "demozecosso",
+          "osv": [
+            "MAL-2026-1284"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "dependency-confusion12",
+          "osv": [
+            "MAL-2024-5040"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "discord-booster",
+          "osv": [
+            "MAL-2025-6495"
+          ],
+          "nameOnly": null,
+          "full": {
+            "decision": "BLOCK",
+            "rules": [
+              "PKG-EXIST"
+            ]
+          }
+        },
+        {
+          "name": "discord-y",
+          "osv": [
+            "MAL-2023-1797"
+          ],
+          "nameOnly": {
+            "target": "discord-py",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "discordcolored",
+          "osv": [
+            "MAL-2024-5076"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "discrod-py",
+          "osv": [
+            "MAL-2023-1805"
+          ],
+          "nameOnly": {
+            "target": "discord-py",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "disksweep",
+          "osv": [
+            "MAL-2026-6081"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "disord-webhook",
+          "osv": [
+            "MAL-2023-1810"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "doverius",
+          "osv": [
+            "MAL-2025-6496"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "encodetool",
+          "osv": [
+            "MAL-2023-2716"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqcandysplitpep",
+          "osv": [
+            "MAL-2023-2751"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqccre",
+          "osv": [
+            "MAL-2023-2766"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqcraftloadpost",
+          "osv": [
+            "MAL-2023-2809"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqgamelgtb",
+          "osv": [
+            "MAL-2023-2873"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqhydrasuper",
+          "osv": [
+            "MAL-2023-2972"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqintcvlgtb",
+          "osv": [
+            "MAL-2023-2992"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqintelcandyload",
+          "osv": [
+            "MAL-2023-2993"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqintelreplacepull",
+          "osv": [
+            "MAL-2023-3002"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqlibad",
+          "osv": [
+            "MAL-2023-3046"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqpiplibrandom",
+          "osv": [
+            "MAL-2023-3210"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqproofpushlib",
+          "osv": [
+            "MAL-2023-3253"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqpypingintel",
+          "osv": [
+            "MAL-2023-3297"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqramed",
+          "osv": [
+            "MAL-2023-3321"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqramtool",
+          "osv": [
+            "MAL-2023-3327"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqrandultra",
+          "osv": [
+            "MAL-2023-3352"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqreplaceguistudy",
+          "osv": [
+            "MAL-2023-3370"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqrere",
+          "osv": [
+            "MAL-2023-3383"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqstringcandypost",
+          "osv": [
+            "MAL-2023-3411"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "esqurlpip",
+          "osv": [
+            "MAL-2023-3509"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "etheruum",
+          "osv": [
+            "MAL-2024-10012"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "fairseqn",
+          "osv": [
+            "MAL-2024-10585"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "flexitest",
+          "osv": [
+            "MAL-2026-5702"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "flintqueue",
+          "osv": [
+            "MAL-2026-18227"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "fontcase",
+          "osv": [
+            "MAL-2026-17862"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "forgepy",
+          "osv": [
+            "MAL-2024-5155"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "gateio-v4",
+          "osv": [
+            "MAL-2026-19940"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "gateio-ws",
+          "osv": [
+            "MAL-2026-19937"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "get-root",
+          "osv": [
+            "MAL-2024-12276"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "grandstr",
+          "osv": [
+            "MAL-2023-3663"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "greensadway",
+          "osv": [
+            "MAL-2025-6519"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "gtts-lts",
+          "osv": [
+            "MAL-2025-191745"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "guigrand",
+          "osv": [
+            "MAL-2023-3680"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "gunicorm",
+          "osv": [
+            "MAL-2026-6383"
+          ],
+          "nameOnly": {
+            "target": "gunicorn",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "hack-test",
+          "osv": [
+            "MAL-2024-12281"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "hellohackers",
+          "osv": [
+            "MAL-2025-1977"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "helrmerter",
+          "osv": [
+            "MAL-2024-5201"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "hexadec",
+          "osv": [
+            "MAL-2025-191753"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "hexdecpy",
+          "osv": [
+            "MAL-2025-191631"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "hhxy",
+          "osv": [
+            "MAL-2025-932"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "httpcandy",
+          "osv": [
+            "MAL-2023-3722"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "httppep",
+          "osv": [
+            "MAL-2023-3740"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "huggingface-hubs",
+          "osv": [
+            "MAL-2024-10727"
+          ],
+          "nameOnly": {
+            "target": "huggingface-hub",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "hy-api-utilities",
+          "osv": [
+            "MAL-2026-2185"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "hydenmj",
+          "osv": [
+            "MAL-2025-47772"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "hydrastr",
+          "osv": [
+            "MAL-2023-3771"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "imad213insta",
+          "osv": [
+            "MAL-2025-191639"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "image2hex",
+          "osv": [
+            "MAL-2025-48893"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "instaread",
+          "osv": [
+            "MAL-2024-12292"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "inthacked",
+          "osv": [
+            "MAL-2023-3821"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "iscc-flag",
+          "osv": [
+            "MAL-2025-6527"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "jobwharf",
+          "osv": [
+            "MAL-2026-18228"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "jupphelp",
+          "osv": [
+            "MAL-2024-12296"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "jupyter-pytest-fi-console",
+          "osv": [
+            "MAL-2024-5287"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "kekovayalibka",
+          "osv": [
+            "MAL-2025-191773"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "killhacked",
+          "osv": [
+            "MAL-2023-3836"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "kimportsetup",
+          "osv": [
+            "MAL-2025-47779"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "kotoraka",
+          "osv": [
+            "MAL-2026-13683"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "lalpulsar",
+          "osv": [
+            "MAL-2025-2970"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libencodestringver",
+          "osv": [
+            "MAL-2023-3986"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libgameremask",
+          "osv": [
+            "MAL-2023-3996"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libgetvmed",
+          "osv": [
+            "MAL-2023-4014"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libgrandlibpyw",
+          "osv": [
+            "MAL-2023-4019"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libgrandmc",
+          "osv": [
+            "MAL-2023-4022"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libguivisastring",
+          "osv": [
+            "MAL-2023-4051"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libhackedgamecpu",
+          "osv": [
+            "MAL-2023-4054"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libhmac",
+          "osv": [
+            "MAL-2026-4194"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libidi",
+          "osv": [
+            "MAL-2024-5316"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "liblgtbpyw",
+          "osv": [
+            "MAL-2023-4171"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libmasksplittool",
+          "osv": [
+            "MAL-2023-4217"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libmaskver",
+          "osv": [
+            "MAL-2023-4219"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libmccandyhttp",
+          "osv": [
+            "MAL-2023-4222"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libmchydraint",
+          "osv": [
+            "MAL-2023-4227"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libmcint",
+          "osv": [
+            "MAL-2023-4228"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libpushramvisa",
+          "osv": [
+            "MAL-2023-4401"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "librandproofhttp",
+          "osv": [
+            "MAL-2023-4463"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libraryscraper",
+          "osv": [
+            "MAL-2024-5324"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "libsupergrandpull",
+          "osv": [
+            "MAL-2023-4544"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "llamagenerator",
+          "osv": [
+            "MAL-2026-5771"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "loveclose2",
+          "osv": [
+            "MAL-2026-1906"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "makronlox",
+          "osv": [
+            "MAL-2025-191646"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "mallody",
+          "osv": [
+            "MAL-2024-5345"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "melcuratts",
+          "osv": [
+            "MAL-2026-18141"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "memlib",
+          "osv": [
+            "MAL-2025-6547"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "mle-py-connector",
+          "osv": [
+            "MAL-2024-1108"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "myproject-bola",
+          "osv": [
+            "MAL-2026-1091"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "narratives-from-tweets",
+          "osv": [
+            "MAL-2023-8307"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "netpackat",
+          "osv": [
+            "MAL-2025-5120"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "neutrl-core",
+          "osv": [
+            "MAL-2026-13710"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "neverbeentg",
+          "osv": [
+            "MAL-2024-5404"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "nshack",
+          "osv": [
+            "MAL-2024-5421"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "opwnsea",
+          "osv": [
+            "MAL-2024-10099"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "osintgrand",
+          "osv": [
+            "MAL-2023-4802"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pantheon-toolsets",
+          "osv": [
+            "MAL-2026-5277"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "peew",
+          "osv": [
+            "MAL-2025-41714"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pepcpu",
+          "osv": [
+            "MAL-2023-4826"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pepsplit",
+          "osv": [
+            "MAL-2023-4840"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "piano-transcription",
+          "osv": [
+            "MAL-2024-11658"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pipfontingv2",
+          "osv": [
+            "MAL-2024-5525"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pipurl",
+          "osv": [
+            "MAL-2023-4883"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "piynstaller",
+          "osv": [
+            "MAL-2023-1947"
+          ],
+          "nameOnly": {
+            "target": "pyinstaller",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "postinfo",
+          "osv": [
+            "MAL-2023-4909"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "poststudy",
+          "osv": [
+            "MAL-2023-4924"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "ppillow",
+          "osv": [
+            "MAL-2023-1957"
+          ],
+          "nameOnly": {
+            "target": "pillow",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "pplgdfhuighsdfyisfdty2",
+          "osv": [
+            "MAL-2024-11662"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "private-test-2",
+          "osv": [
+            "MAL-2025-954"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "prometheus-quicker-analysis",
+          "osv": [
+            "MAL-2026-1911"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-candycvproof",
+          "osv": [
+            "MAL-2023-5002"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-controlstrcraft",
+          "osv": [
+            "MAL-2023-5039"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-corddd",
+          "osv": [
+            "MAL-2024-5603"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-cpumask",
+          "osv": [
+            "MAL-2023-5047"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-cvmcmine",
+          "osv": [
+            "MAL-2023-5069"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-grandultralgtb",
+          "osv": [
+            "MAL-2023-5137"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-hydrapypush",
+          "osv": [
+            "MAL-2023-5203"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-mcpyw",
+          "osv": [
+            "MAL-2023-5340"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-osintcontrolproof",
+          "osv": [
+            "MAL-2023-5378"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-osintminehttp",
+          "osv": [
+            "MAL-2023-5382"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-osintvisa",
+          "osv": [
+            "MAL-2023-5390"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-paypalpaypal",
+          "osv": [
+            "MAL-2023-5398"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-paypalsplitsplit",
+          "osv": [
+            "MAL-2023-5405"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-prooflibmc",
+          "osv": [
+            "MAL-2023-5485"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-pymcosint",
+          "osv": [
+            "MAL-2023-5527"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-randvisa",
+          "osv": [
+            "MAL-2023-5588"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-stringrandkill",
+          "osv": [
+            "MAL-2023-5637"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "py-ultrastringget",
+          "osv": [
+            "MAL-2023-5718"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pyagme",
+          "osv": [
+            "MAL-2023-2035"
+          ],
+          "nameOnly": {
+            "target": "pygame",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "pybetterascii",
+          "osv": [
+            "MAL-2024-5645"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pycodetyle",
+          "osv": [
+            "MAL-2023-2054"
+          ],
+          "nameOnly": {
+            "target": "pycodestyle",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "pycordwd",
+          "osv": [
+            "MAL-2024-5673"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pycparsre",
+          "osv": [
+            "MAL-2024-5678"
+          ],
+          "nameOnly": {
+            "target": "pycparser",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "pygremlinbox-malware-network-indicators",
+          "osv": [
+            "MAL-2026-7464"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pyhttpxhelp",
+          "osv": [
+            "MAL-2024-5722"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pylibhelper",
+          "osv": [
+            "MAL-2024-5734"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pylibsqlite",
+          "osv": [
+            "MAL-2024-5740"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pyrequester",
+          "osv": [
+            "MAL-2024-5768"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "pysigner",
+          "osv": [
+            "MAL-2024-10121"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "python-binnace",
+          "osv": [
+            "MAL-2023-2118"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "python-bitget-request",
+          "osv": [
+            "MAL-2025-962"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "python-rootpath",
+          "osv": [
+            "MAL-2025-191841"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "qlinforge",
+          "osv": [
+            "MAL-2026-10091"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "qtcolor",
+          "osv": [
+            "MAL-2024-5845"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "ramcontrol",
+          "osv": [
+            "MAL-2023-5839"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "raydium-sdk",
+          "osv": [
+            "MAL-2024-12337"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "reqesst",
+          "osv": [
+            "MAL-2025-965"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "reqparser",
+          "osv": [
+            "MAL-2026-17181"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "requests-test-test2",
+          "osv": [
+            "MAL-2026-2810"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "requestspro",
+          "osv": [
+            "MAL-2024-5906"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "requiurementstxt",
+          "osv": [
+            "MAL-2024-5925"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "robase-fallback",
+          "osv": [
+            "MAL-2026-2562"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "rpogressbar2",
+          "osv": [
+            "MAL-2023-2190"
+          ],
+          "nameOnly": {
+            "target": "progressbar2",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "selfadintellgtb",
+          "osv": [
+            "MAL-2023-5938"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfccpyw",
+          "osv": [
+            "MAL-2023-5962"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfcontrolultracontrol",
+          "osv": [
+            "MAL-2023-5982"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfcvmineget",
+          "osv": [
+            "MAL-2023-6020"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfencodecandy",
+          "osv": [
+            "MAL-2023-6044"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfgamepost",
+          "osv": [
+            "MAL-2023-6078"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfgamepullad",
+          "osv": [
+            "MAL-2023-6079"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfgetgrand",
+          "osv": [
+            "MAL-2023-6090"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfgrandstrpyw",
+          "osv": [
+            "MAL-2023-6123"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfguigameurl",
+          "osv": [
+            "MAL-2023-6127"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfguiget",
+          "osv": [
+            "MAL-2023-6128"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfguilibrand",
+          "osv": [
+            "MAL-2023-6130"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfhackedlib",
+          "osv": [
+            "MAL-2023-6149"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfintelgametool",
+          "osv": [
+            "MAL-2023-6221"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfintmaskreplace",
+          "osv": [
+            "MAL-2023-6228"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfmaskcandysuper",
+          "osv": [
+            "MAL-2023-6300"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfmaskpaypalpip",
+          "osv": [
+            "MAL-2023-6309"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfminehydravisa",
+          "osv": [
+            "MAL-2023-6337"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfnvidiareplaceload",
+          "osv": [
+            "MAL-2023-6357"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfosintlib",
+          "osv": [
+            "MAL-2023-6368"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfpeptoolram",
+          "osv": [
+            "MAL-2023-6418"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfproofintelosint",
+          "osv": [
+            "MAL-2023-6488"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfprooflibpaypal",
+          "osv": [
+            "MAL-2023-6490"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfrandpong",
+          "osv": [
+            "MAL-2023-6585"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfrandsplitre",
+          "osv": [
+            "MAL-2023-6588"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfstrloadnvidia",
+          "osv": [
+            "MAL-2023-6647"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfverccint",
+          "osv": [
+            "MAL-2023-6732"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "selfverstringping",
+          "osv": [
+            "MAL-2023-6751"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "shark-e2e-bnsneo",
+          "osv": [
+            "MAL-2026-10912"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "shiwers",
+          "osv": [
+            "MAL-2024-6007"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "sklern",
+          "osv": [
+            "MAL-2026-4768"
+          ],
+          "nameOnly": {
+            "target": "sklearn",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "slana",
+          "osv": [
+            "MAL-2023-2270"
+          ],
+          "nameOnly": {
+            "target": "solana",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "snap-queue",
+          "osv": [
+            "MAL-2026-16408"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "sol-regex-gener",
+          "osv": [
+            "MAL-2024-11709"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "spectrova",
+          "osv": [
+            "MAL-2026-19189"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "speedtestpython",
+          "osv": [
+            "MAL-2025-3002"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "sqligen",
+          "osv": [
+            "MAL-2026-6515"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "strongkong",
+          "osv": [
+            "MAL-2024-10168"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "suficloud",
+          "osv": [
+            "MAL-2026-1913"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "swapoc",
+          "osv": [
+            "MAL-2025-989"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "syscryptographymodsv2",
+          "osv": [
+            "MAL-2024-6075"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "sysdatalib",
+          "osv": [
+            "MAL-2024-6078"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "test-package-main-dist",
+          "osv": [
+            "MAL-2024-6107"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "threadxpools",
+          "osv": [
+            "MAL-2024-1333"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "timestamp-py",
+          "osv": [
+            "MAL-2026-3136"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tkcalenar",
+          "osv": [
+            "MAL-2023-2322"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tonetext",
+          "osv": [
+            "MAL-2025-191906"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpadtool",
+          "osv": [
+            "MAL-2023-6915"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpcandyloadvisa",
+          "osv": [
+            "MAL-2023-6927"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpcraftvisasuper",
+          "osv": [
+            "MAL-2023-6980"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpcvinfo",
+          "osv": [
+            "MAL-2023-6988"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpcvverencode",
+          "osv": [
+            "MAL-2023-6997"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpencodecpupong",
+          "osv": [
+            "MAL-2023-7013"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpgetadstr",
+          "osv": [
+            "MAL-2023-7044"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tphackedinfo",
+          "osv": [
+            "MAL-2023-7099"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tphydrapongcc",
+          "osv": [
+            "MAL-2023-7129"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpintellib",
+          "osv": [
+            "MAL-2023-7159"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpkilltool",
+          "osv": [
+            "MAL-2023-7196"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tplibvirtualram",
+          "osv": [
+            "MAL-2023-7218"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpmaskverultra",
+          "osv": [
+            "MAL-2023-7250"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tposinthackedstring",
+          "osv": [
+            "MAL-2023-7308"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tppaypaledkill",
+          "osv": [
+            "MAL-2023-7321"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tppinghackedrand",
+          "osv": [
+            "MAL-2023-7346"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tppypip",
+          "osv": [
+            "MAL-2023-7472"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tppywproofstr",
+          "osv": [
+            "MAL-2023-7492"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tprandcandymask",
+          "osv": [
+            "MAL-2023-7516"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpreeded",
+          "osv": [
+            "MAL-2023-7544"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpsplitverpy",
+          "osv": [
+            "MAL-2023-7598"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tptoolcccpu",
+          "osv": [
+            "MAL-2023-7656"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tptoollgtbhttp",
+          "osv": [
+            "MAL-2023-7660"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpultravmvirtual",
+          "osv": [
+            "MAL-2023-7679"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpvirtuallgtbpull",
+          "osv": [
+            "MAL-2023-7709"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tpvisapostping",
+          "osv": [
+            "MAL-2023-7726"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "trongridew",
+          "osv": [
+            "MAL-2026-15936"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "tronlinker",
+          "osv": [
+            "MAL-2026-15588"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "urlcontrol",
+          "osv": [
+            "MAL-2023-7779"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "usss",
+          "osv": [
+            "MAL-2024-10651"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "utils-eth",
+          "osv": [
+            "MAL-2025-1000"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "vfsrcetest",
+          "osv": [
+            "MAL-2025-4257"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "visasuper",
+          "osv": [
+            "MAL-2023-7862"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "w3b-py",
+          "osv": [
+            "MAL-2024-10188"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "web3-auto",
+          "osv": [
+            "MAL-2025-4261"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "web3eth",
+          "osv": [
+            "MAL-2025-48910"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "webscokets",
+          "osv": [
+            "MAL-2023-2371"
+          ],
+          "nameOnly": {
+            "target": "websockets",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "websocket-cleint",
+          "osv": [
+            "MAL-2023-2384"
+          ],
+          "nameOnly": {
+            "target": "websocket-client",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "websokcets",
+          "osv": [
+            "MAL-2023-2406"
+          ],
+          "nameOnly": {
+            "target": "websockets",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "wei516-ppa",
+          "osv": [
+            "MAL-2025-191930"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "xlsxwritter",
+          "osv": [
+            "MAL-2023-2435"
+          ],
+          "nameOnly": {
+            "target": "xlsxwriter",
+            "technique": "edit-distance"
+          },
+          "full": null
+        },
+        {
+          "name": "xolobbbccc",
+          "osv": [
+            "MAL-2024-6227"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "xolobwritbrulv",
+          "osv": [
+            "MAL-2024-6228"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "xolojgmnizxche",
+          "osv": [
+            "MAL-2024-6236"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "xolonavrylpbeb",
+          "osv": [
+            "MAL-2025-41797"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "yellyproxies",
+          "osv": [
+            "MAL-2024-6250"
+          ],
+          "nameOnly": null,
+          "full": null
+        },
+        {
+          "name": "znomig",
+          "osv": [
+            "MAL-2024-6258"
+          ],
+          "nameOnly": null,
+          "full": null
+        }
+      ]
+    }
+  }
+}

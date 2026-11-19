@@ -82,6 +82,10 @@ Optional result store: set `GATE_SERVER_URL` and results are sent to gate-server
 
 **Measured false positives** on 600 legitimate packages (ranks 5,001-7,000): **0 blocked, 0 warned** by `PKG-TYPO` (similar but established packages are recorded as INFO, not prompted). See [docs/measurements/pkg-typo-fp.md](docs/measurements/pkg-typo-fp.md). Version ranges are resolved the way npm (`^4.21.2` → the newest 4.x) and pip (`>=2,<3`, `~=2.1`) would, so the version that will actually be installed is checked; npm download counts are fetched in bulk.
 
+**Run-without-install commands and MCP servers.** `npx`, `npm exec`, `pnpm dlx`, `yarn dlx`, `uvx`, `uv tool run` and `pipx run` are checked like installs (AI tools often start MCP servers this way). In pull requests, MCP server configs (`.mcp.json`, `.cursor/mcp.json`, `.vscode/mcp.json`, `claude_desktop_config.json`, `.claude/settings*.json`) are read and the packages they launch are checked.
+
+**Measured detection** on real malicious packages from OSV (`MAL-`, npm 224,569 / PyPI 12,077 names): the full check blocked 45/50 npm and 49/50 PyPI samples; the 2 npm passes were legitimate packages where only one hijacked old version was malicious. By name alone (before OSV knows) only 0.3% (npm) and 8% (PyPI) are typosquats, so zero-day protection comes mostly from the popularity rule. See [docs/measurements/pkg-detection.md](docs/measurements/pkg-detection.md).
+
 False positives: add `ecosystem:name@version  # reason` to `.gate/pkg-allow.txt` (exact version only; nonexistent or malicious packages cannot be allowed). Design: [docs/design/stage1-gate-pkg.md](docs/design/stage1-gate-pkg.md).
 
 ### ② gate-review — static analysis + AI security review of PRs (stage 4, optional)
@@ -307,6 +311,13 @@ Claude Code 훅: 차단은 `deny`(이유를 Claude가 읽음), 경고는 `ask`(�
 PR 검사(GitHub Action): `package.json`·`requirements*.txt`·`pyproject.toml`에서 **새로 추가되거나 바뀐 의존성만** 검사하고, 해당 줄에 주석을 달고 Job Summary 표를 남깁니다. `GATE_SERVER_URL`을 설정하면 결과를 gate-server(`POST /api/scan-runs`)에 저장합니다.
 
 **오탐 측정**: 정상 패키지 600개(인기 5,001~7,000위)에서 `PKG-TYPO` **차단 0건, 경고 0건**입니다. 이름은 비슷하지만 자리 잡은 패키지는 확인 창 없이 기록(INFO)만 남깁니다([측정 보고서](docs/measurements/pkg-typo-fp.md)). 버전 범위는 npm(`^4.21.2` → 가장 높은 4.x)과 pip(`>=2,<3`, `~=2.1`)이 고르는 방식 그대로 풀어서, 실제로 설치될 버전을 검사합니다. npm 다운로드 수는 묶어서 한 번에 조회합니다.
+
+**받아서 바로 실행하는 명령과 MCP 서버.** `npx`, `npm exec`, `pnpm dlx`, `yarn dlx`, `uvx`, `uv tool run`, `pipx run`도 설치처럼 검사합니다(AI 도구가 MCP 서버를 띄울 때 자주 씁니다). PR에서는 MCP 서버 설정(`.mcp.json`, `.cursor/mcp.json`, `.vscode/mcp.json`, `claude_desktop_config.json`, `.claude/settings*.json`)을 읽어, 띄우는 패키지를 검사합니다.
+
+**탐지율 측정**: OSV의 실제 악성 패키지(`MAL-`, npm 224,569개·PyPI 12,077개)로 쟀습니다.
+- 전체 검사로 npm 50개 중 45개, PyPI 50개 중 49개를 막았습니다. npm에서 통과한 2개는 정상 패키지의 탈취된 옛 버전 하나만 악성인 경우였습니다.
+- 이름만으로(OSV에 올라가기 전) 잡는 비율은 npm 0.3%, PyPI 8%입니다. 실제 악성 패키지 대부분이 철자 흉내가 아니어서, 0일 방어는 주로 인기도 규칙이 맡습니다.
+- [측정 보고서](docs/measurements/pkg-detection.md)
 
 오탐 예외: `.gate/pkg-allow.txt`에 `생태계:이름@버전  # 이유`를 적습니다. 정확한 버전만 허용되고, 존재하지 않는 패키지와 악성 패키지는 예외로 풀 수 없습니다.
 

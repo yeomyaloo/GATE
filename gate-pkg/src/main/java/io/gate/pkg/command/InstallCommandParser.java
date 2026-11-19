@@ -16,6 +16,9 @@ import java.util.regex.Pattern;
  *   <li>npm: {@code npm install|i|add|…}, {@code yarn add}, {@code yarn global add}, {@code pnpm add|install}</li>
  *   <li>PyPI: {@code pip|pip3 install}, {@code python -m pip install}, {@code uv add}, {@code uv pip install},
  *       {@code poetry add}</li>
+ *   <li>받아서 바로 실행: {@code npx}, {@code npm exec|x}, {@code pnpm dlx}, {@code yarn dlx}, {@code uvx},
+ *       {@code uv tool run|install}, {@code pipx run|install}. AI 도구가 MCP 서버를 띄울 때 자주 쓴다. 실행 대상 패키지만
+ *       검사하고, 그 뒤의 인자(실행할 프로그램의 인자)는 패키지로 보지 않는다</li>
  *   <li>앞에 붙는 {@code sudo}, {@code env}, {@code VAR=값}, {@code time} 등은 건너뛰고,
  *       {@code bash -c "…"}는 안쪽 명령을 다시 해석한다</li>
  * </ul>
@@ -52,9 +55,19 @@ public final class InstallCommandParser {
     private static final Pattern GITHUB_SHORTHAND = Pattern.compile("^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(#.*)?$");
     /** 해석하지 못한 조각이라도 이렇게 생겼으면 설치 명령일 수 있다고 본다. */
     private static final Pattern INSTALL_LIKE = Pattern.compile(
-            "\\b(npm|yarn|pnpm|pip[0-9.]*|uv|poetry)\\b.*\\b(install|add|i|ci)\\b", Pattern.CASE_INSENSITIVE);
+            "\\b(npm|yarn|pnpm|pip[0-9.]*|pipx|uv|poetry)\\b.*\\b(install|add|i|ci|exec|x|dlx|run)\\b"
+                    + "|\\b(npx|uvx)\\b", Pattern.CASE_INSENSITIVE);
 
     private static final int MAX_DEPTH = 3;
+
+    /** 실행기 옵션 중 값을 하나 받는 것 (패키지 지정 옵션은 따로). */
+    private static final Set<String> RUNNER_VALUE_FLAGS = Set.of("--shell", "--python", "--cache", "--userconfig",
+            "--prefix", "--python-version", "--pip-args", "--suffix", "--loglevel", "--workspace", "-w_");
+    private static final Set<String> RUNNER_REGISTRY_FLAGS = Set.of("--registry", "--index-url", "--index",
+            "--default-index", "--extra-index-url", "-i");
+    private static final Set<String> NPM_RUNNER_PACKAGE_FLAGS = Set.of("-p", "--package");
+    private static final Set<String> UV_RUNNER_PACKAGE_FLAGS = Set.of("--from", "--with");
+    private static final Set<String> PIPX_RUNNER_PACKAGE_FLAGS = Set.of("--spec");
 
     public ParsedCommand parse(String command) {
         Set<PackageRequest> packages = new LinkedHashSet<>();
@@ -85,6 +98,15 @@ public final class InstallCommandParser {
             switch (program) {
                 case "npm":
                     npm(args, packages, unchecked);
+                    break;
+                case "npx":
+                    runner(args, Ecosystem.NPM, NPM_RUNNER_PACKAGE_FLAGS, "npx", packages, unchecked);
+                    break;
+                case "uvx":
+                    runner(args, Ecosystem.PYPI, UV_RUNNER_PACKAGE_FLAGS, "uvx", packages, unchecked);
+                    break;
+                case "pipx":
+                    pipx(args, packages, unchecked);
                     break;
                 case "yarn":
                     yarn(args, packages, unchecked);
@@ -127,6 +149,10 @@ public final class InstallCommandParser {
             return;
         }
         String sub = p.values.get(0);
+        if (sub.equals("exec") || sub.equals("x")) {
+            runner(after(args, sub), Ecosystem.NPM, NPM_RUNNER_PACKAGE_FLAGS, "npm " + sub, packages, unchecked);
+            return;
+        }
         if (NPM_INSTALL.contains(sub)) {
             List<String> specs = p.values.subList(1, p.values.size());
             if (specs.isEmpty()) {
@@ -150,6 +176,10 @@ public final class InstallCommandParser {
                     + "manifest installs are not checked in stage 1");
             return;
         }
+        if (v.get(0).equals("dlx")) {
+            runner(after(args, "dlx"), Ecosystem.NPM, NPM_RUNNER_PACKAGE_FLAGS, "yarn dlx", packages, unchecked);
+            return;
+        }
         int start = v.get(0).equals("add") ? 1 : v.size() > 1 && v.get(0).equals("global") && v.get(1).equals("add")
                 ? 2 : -1;
         if (start < 0) {
@@ -165,6 +195,10 @@ public final class InstallCommandParser {
             return;
         }
         String sub = v.get(0);
+        if (sub.equals("dlx")) {
+            runner(after(args, "dlx"), Ecosystem.NPM, NPM_RUNNER_PACKAGE_FLAGS, "pnpm dlx", packages, unchecked);
+            return;
+        }
         if (sub.equals("add") || ((sub.equals("install") || sub.equals("i")) && v.size() > 1)) {
             v.subList(1, v.size()).forEach(s -> npmSpec(s, packages, unchecked));
         } else if (sub.equals("install") || sub.equals("i")) {
@@ -246,6 +280,12 @@ public final class InstallCommandParser {
             pip(args.subList(1, args.size()), packages, unchecked);
             return;
         }
+        if (args.size() >= 2 && args.get(0).equals("tool")
+                && (args.get(1).equals("run") || args.get(1).equals("install"))) {
+            runner(args.subList(2, args.size()), Ecosystem.PYPI, UV_RUNNER_PACKAGE_FLAGS, "uv tool " + args.get(1),
+                    packages, unchecked);
+            return;
+        }
         Positionals p = positionals(args, PIP_VALUE_FLAGS, unchecked, "uv");
         if (!p.values.isEmpty() && p.values.get(0).equals("add")) {
             p.values.subList(1, p.values.size()).forEach(s -> pypiSpec(s, packages, unchecked));
@@ -294,6 +334,79 @@ public final class InstallCommandParser {
         }
         String version = m.group(3).strip();
         packages.add(new PackageRequest(Ecosystem.PYPI, m.group(1), version.isEmpty() ? null : version));
+    }
+
+    // ---------- 받아서 바로 실행 (npx 계열) ----------
+
+    private void pipx(List<String> args, Set<PackageRequest> packages, List<String> unchecked) {
+        if (!args.isEmpty() && (args.get(0).equals("run") || args.get(0).equals("install"))) {
+            runner(args.subList(1, args.size()), Ecosystem.PYPI, PIPX_RUNNER_PACKAGE_FLAGS, "pipx " + args.get(0),
+                    packages, unchecked);
+        }
+    }
+
+    /**
+     * {@code npx [옵션] 패키지[@버전] [인자...]} 모양을 해석한다.
+     * 패키지 지정 옵션({@code -p}, {@code --package}, {@code --from}, {@code --with}, {@code --spec})이 있으면 그 값이
+     * 패키지이고 첫 위치 인자는 실행할 명령 이름이다. 없으면 첫 위치 인자가 패키지다. 그 뒤는 실행 인자라 보지 않는다.
+     * ({@code uvx --with}는 추가로 설치되는 패키지라 첫 위치 인자와 함께 검사한다.)
+     */
+    private static void runner(List<String> args, Ecosystem eco, Set<String> packageFlags, String tool,
+            Set<PackageRequest> packages, List<String> unchecked) {
+        List<String> explicit = new ArrayList<>();
+        List<String> extra = new ArrayList<>();
+        String first = null;
+        for (int i = 0; i < args.size(); i++) {
+            String a = args.get(i);
+            if (a.equals("--")) {
+                first = i + 1 < args.size() ? args.get(i + 1) : null;
+                break;
+            }
+            if (a.startsWith("-")) {
+                boolean inline = a.contains("=");
+                String flag = inline ? a.substring(0, a.indexOf('=')) : a;
+                String value = inline ? a.substring(a.indexOf('=') + 1) : i + 1 < args.size() ? args.get(i + 1) : null;
+                if (packageFlags.contains(flag)) {
+                    if (value != null) {
+                        (flag.equals("--with") ? extra : explicit).add(value);
+                    }
+                    i += inline ? 0 : 1;
+                } else if (RUNNER_REGISTRY_FLAGS.contains(flag)) {
+                    unchecked.add("'" + tool + " " + flag + "' uses a non-default registry; results from the public "
+                            + "registry would not apply");
+                    i += inline ? 0 : 1;
+                } else if (flag.equals("-c") || flag.equals("--call")) {
+                    i += inline ? 0 : 1; // npx -c "명령": 안쪽은 셸 명령. 패키지는 -p로만 정해진다
+                } else if (RUNNER_VALUE_FLAGS.contains(flag) && !inline) {
+                    i++;
+                }
+                continue;
+            }
+            first = a;
+            break;
+        }
+        List<String> specs = new ArrayList<>(explicit.isEmpty() && first != null ? List.of(first) : explicit);
+        specs.addAll(extra);
+        for (String spec : specs) {
+            if (eco == Ecosystem.NPM) {
+                npmSpec(spec, packages, unchecked);
+            } else {
+                // uvx는 pkg@1.0, pkg@latest도 받는다 -> pkg==1.0, pkg
+                int at = spec.indexOf('@');
+                String s = spec;
+                if (at > 0 && !spec.contains("://") && !spec.contains(" @ ")) {
+                    String ver = spec.substring(at + 1);
+                    s = spec.substring(0, at) + (ver.equals("latest") ? "" : "==" + ver);
+                }
+                pypiSpec(s, packages, unchecked);
+            }
+        }
+    }
+
+    /** args에서 처음 나오는 sub 뒤의 인자들. */
+    private static List<String> after(List<String> args, String sub) {
+        int i = args.indexOf(sub);
+        return i < 0 ? List.of() : args.subList(i + 1, args.size());
     }
 
     // ---------- 공통 ----------

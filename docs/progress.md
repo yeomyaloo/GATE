@@ -14,7 +14,7 @@
 | 4 | ② gate-review AI 보안 코드 리뷰어 (선택) | ✅ 완료 (2026-11-13) · AI 측정은 **보류**(사용자 결정) · [측정](measurements/review-accuracy.md) ([설계안](design/stage4-gate-review.md)) |
 | 5 | ④ gate-prompt 프롬프트 인젝션 관문 (선택) | ✅ 완료 (2026-11-13) · [측정](measurements/prompt-injection.md): 출력 관문 공격 46/46 차단, 정상 30/30 ([설계안](design/stage5-gate-prompt.md)) |
 | + | 상업적 사용 유료화(라이선스·키·opt-in 사용 정보) | ✅ 완료 (2026-11-17) · PolyForm Noncommercial 1.0.0 ([설계안](design/licensing.md)) |
-| + | 1단계 한계 보완 (버전 범위·묶음 조회·탐지율·npx) | 🔵 1주차 완료 (버전 범위·묶음 조회), 2주차(npx·MCP·탐지율) 대기 ([설계안](design/stage1-improvements.md)) |
+| + | 1단계 한계 보완 (버전 범위·묶음 조회·탐지율·npx) | ✅ 완료 (2026-11-19) · [탐지율](measurements/pkg-detection.md) ([설계안](design/stage1-improvements.md)) |
 | ★ | 대시보드·데모·정리 | ✅ 완료 (2026-11-17) · 데모 스크립트, CI 화면 검사 ([설계안](design/stage6-dashboard.md)) |
 
 ---
@@ -46,8 +46,29 @@
 
 **테스트:** semver 59개(범위 38, `||` 1, 사전 배포판 8, 해석 거부 9, 고르기·폐기·정렬), PEP 440 34개(지정자 24, 해석 거부 7, 정렬·별칭, 고르기, 철회), 클라이언트 연결 5개, 묶음 조회 3개(한 번에 여러 개·스코프 따로·실패 시 하나씩·128개 나누기)
 
-### 다음 할 일 (2주차)
-npx 계열 명령(`npx`·`npm exec`·`pnpm dlx`·`yarn dlx`·`uvx`·`pipx`) 해석과 훅 빠른 통과 조건, PR의 MCP 설정 파일 검사, OSV 악성 패키지로 탐지율 측정, README·문서
+**CI 메모:** 1주차 푸시(9b999ed)에서 gate-pkg Action 데모 잡이 한 번 실패했다. 단계가 18초 만에 끝나(이전 성공 43초) 빌드 전에 멈춘 것으로 보였고, 같은 상황을 로컬에서 재현하면 정상적으로 막혔다. 로그는 로그인이 필요해 보지 못했다. 빈 커밋(fbc627c)으로 다시 돌려 **성공** → 일시적 오류
+
+### 2주차 구현 (2026-11-19) — 완료 → **1단계 한계 보완 완료**
+| 항목 | 내용 |
+|---|---|
+| npx 계열 명령 | `npx [-y] pkg`, `npx -p/--package`, `npm exec`/`npm x`, `pnpm dlx`, `yarn dlx`, `uvx`(`pkg@1.0`, `--from`, `--with`), `uv tool run`/`install`, `pipx run`/`install`(`--spec`). 실행 대상 패키지만 검사하고 **그 뒤 인자는 패키지로 보지 않는다**. 사설 레지스트리·Git·로컬 경로는 검사 불가로 기록 |
+| 훅 래퍼 | 빠른 통과 조건에 `npx` 추가(`uvx`·`pipx`는 기존 `uv`·`pip`에 걸림). CI 훅 계약에 "npx는 jar가 없으면 ask" 추가 |
+| MCP 설정 검사 | PR에서 `.mcp.json`, `.cursor/`·`.vscode/mcp.json`, `claude_desktop_config.json`, `.claude/settings*.json`의 `mcpServers`(VS Code는 `servers`)를 읽어, `command`+`args`를 명령으로 해석한다. Windows식 `cmd /c npx …`도 처리. 원격 서버(`url`만)는 설치가 없어 제외. 주석 위치는 서버가 적힌 줄. `gate-pkg.yml` 실행 조건에 이 파일들을 추가 |
+| 탐지율 측정 | OSV 악성 패키지(`MAL-`) npm 224,569개·PyPI 12,077개에서 표본 추출. **이름만으로(0일): npm 0.3%, PyPI 8%** / **전체 검사: npm BLOCK 45·WARN 3·PASS 2(50 중), PyPI BLOCK 49·WARN 1** → [측정 문서](measurements/pkg-detection.md) |
+
+**실제 레지스트리 확인 (훅)**
+- `npx -y <지어낸 패키지>` → 거부
+- `npx -y @modelcontextprotocol/server-filesystem` → 개입 없음
+- `uvx reqeusts` → 거부
+
+**측정에서 알게 된 것**
+- 실제 악성 패키지 대부분은 유명 패키지 흉내가 아니다(의존성 혼동용 내부 이름, 무작위·스팸 이름). 철자 흉내 탐지기는 좁고 정확한 도구이고, **0일 방어는 인기도 규칙(`PKG-POP`)이 맡는다**(npm 50개 중 41개)
+- npm PASS 2건은 정상 패키지의 탈취된 **특정 버전**만 악성인 경우다. 최신판은 깨끗하고, 그 버전을 고정하면 `PKG-VULN`으로 막힌다(OSV 항목에서 버전 확인)
+
+**테스트:** 명령 해석 +35(npx 계열 24, 인자 무시 1, 다른 출처 4, 패키지 없는 실행 6), MCP 설정 +14(해석 1, VS Code·검사 불가 1, 파일 이름 8, 아닌 파일 4), PR diff +1(MCP 서버 추가 → BLOCK, 주석 줄)
+
+### 다음 할 일
+남은 선택 작업: 4단계 AI 측정(사용자 API 키 준비 시)
 
 ---
 
