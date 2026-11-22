@@ -12,7 +12,7 @@ COPY dashboard/src ./src
 RUN npm run build
 
 # 2) 서버 빌드. 화면 빌드 결과를 정적 파일로 넣어 gate-server가 같은 주소에서 제공한다 (설계안 결정 1)
-FROM eclipse-temurin:17.0.21_9-jdk-alpine-3.24@sha256:efefbce46b0d79073a3a676d91ac6c4bf370d348af18e388bbf7482543d7866a AS build
+FROM eclipse-temurin:24-jdk-alpine-3.22@sha256:8fdbcb6bc6b846640cea7058e6eeb56c311fae4efaa506a213789134065c6b90 AS build
 WORKDIR /workspace
 COPY gradlew settings.gradle.kts build.gradle.kts ./
 COPY gradle ./gradle
@@ -29,7 +29,7 @@ COPY gate-license/build.gradle.kts ./gate-license/
 COPY gate-prompt/build.gradle.kts ./gate-prompt/
 RUN chmod +x gradlew && ./gradlew --no-daemon :gate-server:bootJar -x test
 
-FROM eclipse-temurin:17.0.21_9-jre-alpine-3.24@sha256:e2ba4e947bd5e236a9866fbdda03e4936036cb9e9d16ea0d84d103d6634a5c21
+FROM eclipse-temurin:24-jre-alpine-3.22@sha256:4044b6c87cb088885bcd0220f7dc7a8a4aab76577605fa471945d2e98270741f
 RUN addgroup -S gate && adduser -S gate -G gate
 WORKDIR /app
 COPY --from=build /workspace/gate-server/build/libs/gate-server.jar app.jar
