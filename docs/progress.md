@@ -67,6 +67,10 @@
 
 **테스트:** 명령 해석 +35(npx 계열 24, 인자 무시 1, 다른 출처 4, 패키지 없는 실행 6), MCP 설정 +14(해석 1, VS Code·검사 불가 1, 파일 이름 8, 아닌 파일 4), PR diff +1(MCP 서버 추가 → BLOCK, 주석 줄)
 
+### 데모 PR과 CI 수정 (2026-11-22)
+- **데모 PR [#1](https://github.com/yeomyaloo/GATE/pull/1)** (`demo/gate-review-pr2` → main, 병합하지 않음): gate-review가 `OrderExportController.java` 28번째 줄의 SQL 문자열 연결에 **BLOCK 줄 댓글**(`gate-java-sql-string-concat`, CWE-89, 코드 인용)과 요약 리뷰를 달고 검사를 실패시켰다. API 키가 없어 AI 리뷰는 "사용 안 함"으로 표시. 예전 데모 브랜치(`demo/gate-review-pr`)는 Semgrep 버전 확인 수정 전 코드라, 최신 main 기준으로 새 브랜치를 만들었다
+- **CI 원인 확인과 수정:** gate-pkg Action 데모 잡이 가끔 실패하던 원인은 Gradle이 플러그인을 받을 때 Maven 중앙 저장소가 돌려준 **429 Too Many Requests**였다(PR 실행 로그에서 확인). 다른 잡은 Gradle 캐시를 쓰지만 이 Action만 매번 빈 캐시로 빌드했다 → Action에 `setup-gradle`(SHA 고정) 추가. 수정 뒤 main과 PR 모두 성공
+
 ### 다음 할 일
 남은 선택 작업: 4단계 AI 측정(사용자 API 키 준비 시)
 
