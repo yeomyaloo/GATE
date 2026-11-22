@@ -2,7 +2,7 @@
 # ⚠️ gate-lab: 일부러 취약한 실습용 앱. 이 이미지를 레지스트리에 올리거나 외부에 노출하지 않는다.
 # 빌드 컨텍스트는 저장소 루트다 (docker-compose.yml의 lab 프로필 참고). 베이스 이미지는 태그 + digest로 고정.
 
-FROM eclipse-temurin:17.0.21_9-jdk-alpine-3.24@sha256:efefbce46b0d79073a3a676d91ac6c4bf370d348af18e388bbf7482543d7866a AS build
+FROM eclipse-temurin:17-jdk-alpine-3.21@sha256:da900be8c9c4fbcc8273e345acce8a5f5c01bf816ec8fbac5f04b2a51af5631d AS build
 WORKDIR /workspace
 COPY gradlew settings.gradle.kts build.gradle.kts ./
 COPY gradle ./gradle
@@ -17,7 +17,7 @@ COPY gate-review/build.gradle.kts ./gate-review/
 COPY gate-license/build.gradle.kts ./gate-license/
 RUN chmod +x gradlew && ./gradlew --no-daemon :gate-lab:bootJar -x test
 
-FROM eclipse-temurin:17.0.21_9-jre-alpine-3.24@sha256:e2ba4e947bd5e236a9866fbdda03e4936036cb9e9d16ea0d84d103d6634a5c21
+FROM eclipse-temurin:17-jre-alpine-3.21@sha256:3a31efca6e13f64e3b395941be5e2fac8ff968cfd71c7223fd8ab13617fc90c7
 RUN addgroup -S lab && adduser -S lab -G lab
 WORKDIR /app
 COPY --from=build /workspace/gate-lab/build/libs/gate-lab.jar app.jar
