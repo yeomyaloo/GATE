@@ -50,9 +50,10 @@ updates:
     cooldown:
       default-days: 14
     ignore:
-      # 이 프로젝트는 Java 17(LTS)로 고정한다. 17 안의 업데이트만 받는다
+      # Java 기본 이미지는 손으로 올린다. 태그(17.0.21_9-jdk-alpine-3.24)를 Dependabot이 제대로 읽지 못해
+      # 주 버전 변경(17→24)과 Alpine 내리기(3.24→3.21)를 제안했다(2026-11-22, PR #2·#4·#9·#10).
+      # 이 프로젝트는 Java 17(LTS)로 고정하고, 태그 + digest를 함께 바꾼다
       - dependency-name: "eclipse-temurin"
-        update-types: ["version-update:semver-major"]
   - package-ecosystem: docker-compose
     directory: "/"
     schedule:
