@@ -205,8 +205,16 @@ jobs:
           echo "::add-mask::$pw"
           sed -i "s/^GATE_LAB_DEMO_PASSWORD=.*/GATE_LAB_DEMO_PASSWORD=$pw/" .env
 
+      # 이미지 안에서 Gradle이 빈 캐시로 의존성을 받는다. Maven 중앙 저장소가 가끔 요청을 제한(429)해 빌드가 실패하므로
+      # 잠시 기다렸다가 다시 시도한다(최대 3번, 2026-11-22 CI에서 확인). 빌드가 아닌 실패(헬스체크 등)도 같은 방식으로 드러난다
       - name: docker compose up (wait for healthy)
-        run: docker compose up -d --build --wait --wait-timeout 300
+        run: |
+          for attempt in 1 2 3; do
+            docker compose up -d --build --wait --wait-timeout 300 && exit 0
+            echo "::warning title=docker compose up::attempt $attempt failed; retrying in $((attempt * 60))s"
+            sleep $((attempt * 60))
+          done
+          exit 1
 
       - name: Health check
         run: |
@@ -237,7 +245,13 @@ jobs:
 
       # gate-lab: 컨테이너로 잠깐 띄워 같은 공격이 vulnerable에서는 통하고 fixed에서는 막히는지 확인한 뒤 내린다
       - name: gate-lab containers (local-only practice app)
-        run: docker compose --profile lab up -d --build --wait --wait-timeout 300 lab-vulnerable lab-fixed
+        run: |
+          for attempt in 1 2 3; do
+            docker compose --profile lab up -d --build --wait --wait-timeout 300 lab-vulnerable lab-fixed && exit 0
+            echo "::warning title=gate-lab containers::attempt $attempt failed; retrying in $((attempt * 60))s"
+            sleep $((attempt * 60))
+          done
+          exit 1
 
       - name: gate-lab forged token works only on the vulnerable variant
         run: |
