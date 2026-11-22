@@ -28,13 +28,8 @@ updates:
       npm:
         patterns: ["*"]
 
-  # gate-review가 쓰는 고정 버전 Semgrep (pip)
-  - package-ecosystem: pip
-    directory: "/gate-review/semgrep"
-    schedule:
-      interval: weekly
-    cooldown:
-      default-days: 14
+  # Semgrep(gate-review/semgrep/requirements.txt)은 넣지 않는다: 버전이 코드(SemgrepRunner.PINNED_VERSION)와
+  # 녹화된 결과(fixtures)에 함께 고정돼 있어, 요구사항 파일만 바꾸면 CI가 실패한다. 올릴 때는 손으로 함께 바꾼다
 
   # GitHub Actions (커밋 SHA 고정은 그대로 두고 SHA와 버전 주석을 함께 올린다). 복합 Action도 포함
   - package-ecosystem: github-actions
@@ -54,6 +49,10 @@ updates:
       interval: weekly
     cooldown:
       default-days: 14
+    ignore:
+      # 이 프로젝트는 Java 17(LTS)로 고정한다. 17 안의 업데이트만 받는다
+      - dependency-name: "eclipse-temurin"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: docker-compose
     directory: "/"
     schedule:
