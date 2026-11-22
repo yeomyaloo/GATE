@@ -77,8 +77,10 @@ gate-pkg는 "새로 들어오는 순간"만 검사한다. 이미 들어와 있�
   - `io.opentelemetry:opentelemetry-api` 1.62.0: GHSA-ccrj-gw8r-854m / CVE-2026-118259 (중간, W3C `tracestate` 헤더 파싱 CPU 과다 → 서비스 거부). 경로: gate-review → Anthropic Java SDK → opentelemetry-api, Spring Boot BOM이 1.62.0으로 고정
   - 이 CLI는 들어오는 요청 헤더를 파싱하지 않아 실제로 닿지는 않지만, gate-review에 OpenTelemetry BOM 1.68.0(2026-11-06 공개, 알려진 취약점 없음)을 넣어 올렸다. 다시 검사해 **172개 모두 0건**, 대시보드 `npm audit` 0건
 - **계속 확인:** `.github/dependabot.yml` 추가. Gradle·npm·GitHub Actions(복합 Action 포함)·Docker·docker-compose를 매주 확인하고, 이 저장소 원칙대로 **공개 14일이 지난 버전만** 제안한다(cooldown). 같은 생태계 변경은 한 PR로 묶는다. 제안 PR도 gate-pkg 검사를 거친다
-- **Dependabot 알림**(취약점이 발표되면 바로 알림·보안 업데이트 PR)은 저장소 설정에서 켜야 한다(Settings → Security → Dependabot alerts / security updates)
+- **Dependabot 알림·보안 업데이트: 켬** (2026-11-23, 사용자 요청으로 Chrome에서 설정. 알림에 필요한 의존성 그래프도 함께 켜짐). 악성 패키지 알림(Malware alerts)은 꺼 둔 상태
 - **첫 실행에서 고친 것:** Dependabot이 바로 PR 7개(#2~#8)를 열었다. Java 기본 이미지 17→24(주 버전 변경, 프로젝트는 Java 17 고정)와 Semgrep 1.182.1→1.184.0(버전이 코드·녹화본에 함께 고정돼 파일만 바꾸면 CI 실패)은 원칙과 맞지 않아 설정에서 제외했다(Temurin은 주 버전 업데이트 제외, Semgrep은 손으로 올림)
+- **Temurin 이미지는 손으로:** 주 버전을 제외하자 Dependabot이 `17-jdk-alpine-3.21`(Alpine 3.24→3.21로 **내리기**)을 제안했다(#9·#10). 태그 형식을 제대로 읽지 못해 Temurin은 Dependabot 대상에서 완전히 뺐다. #2·#4·#9·#10은 Dependabot이 스스로 닫았고, #6(Semgrep)은 사용자 요청으로 닫았다
+- **남은 PR:** #3(redis 8.8.4→8.10.2), #5(Actions 2개), #7(Gradle 3개), #8(npm 6개, 대시보드). 모든 CI와 gate-pkg 검사(#8의 새 버전 검사 포함) 통과. 병합은 사용자 결정
 - **CI:** 같은 커밋에서 gate-server 이미지 빌드가 Maven 중앙 저장소의 요청 제한(429)으로 실패했다(이미지 안의 Gradle은 빈 캐시로 받는다). `docker compose up --build` 두 곳에 재시도(최대 3번, 대기 60·120초)를 넣었다
 
 ### 다음 할 일
