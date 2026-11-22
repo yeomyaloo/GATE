@@ -71,6 +71,14 @@
 - **데모 PR [#1](https://github.com/yeomyaloo/GATE/pull/1)** (`demo/gate-review-pr2` → main, 병합하지 않음): gate-review가 `OrderExportController.java` 28번째 줄의 SQL 문자열 연결에 **BLOCK 줄 댓글**(`gate-java-sql-string-concat`, CWE-89, 코드 인용)과 요약 리뷰를 달고 검사를 실패시켰다. API 키가 없어 AI 리뷰는 "사용 안 함"으로 표시. 예전 데모 브랜치(`demo/gate-review-pr`)는 Semgrep 버전 확인 수정 전 코드라, 최신 main 기준으로 새 브랜치를 만들었다
 - **CI 원인 확인과 수정:** gate-pkg Action 데모 잡이 가끔 실패하던 원인은 Gradle이 플러그인을 받을 때 Maven 중앙 저장소가 돌려준 **429 Too Many Requests**였다(PR 실행 로그에서 확인). 다른 잡은 Gradle 캐시를 쓰지만 이 Action만 매번 빈 캐시로 빌드했다 → Action에 `setup-gradle`(SHA 고정) 추가. 수정 뒤 main과 PR 모두 성공
 
+### 이미 쓰고 있는 라이브러리의 취약점 (2026-11-22)
+gate-pkg는 "새로 들어오는 순간"만 검사한다. 이미 들어와 있는 라이브러리에 나중에 발표되는 취약점, 간접 의존성, Java(Gradle)는 범위 밖이라 이렇게 보완했다.
+- **지금 상태 점검:** 직접 의존성 134개(Java·대시보드 npm)를 OSV로 검사해 0건. Spring Boot BOM이 버전을 정하는 9개와 간접 의존성은 이 검사로는 보이지 않아, **Gradle이 실제로 고른 172개(간접·테스트 포함)** 를 OSV 묶음 조회로 다시 검사했다 → **1건 발견**
+  - `io.opentelemetry:opentelemetry-api` 1.62.0: GHSA-ccrj-gw8r-854m / CVE-2026-118259 (중간, W3C `tracestate` 헤더 파싱 CPU 과다 → 서비스 거부). 경로: gate-review → Anthropic Java SDK → opentelemetry-api, Spring Boot BOM이 1.62.0으로 고정
+  - 이 CLI는 들어오는 요청 헤더를 파싱하지 않아 실제로 닿지는 않지만, gate-review에 OpenTelemetry BOM 1.68.0(2026-11-06 공개, 알려진 취약점 없음)을 넣어 올렸다. 다시 검사해 **172개 모두 0건**, 대시보드 `npm audit` 0건
+- **계속 확인:** `.github/dependabot.yml` 추가. Gradle·npm·pip(Semgrep)·GitHub Actions(복합 Action 포함)·Docker·docker-compose를 매주 확인하고, 이 저장소 원칙대로 **공개 14일이 지난 버전만** 제안한다(cooldown). 같은 생태계 변경은 한 PR로 묶는다. 제안 PR도 gate-pkg 검사를 거친다
+- **Dependabot 알림**(취약점이 발표되면 바로 알림·보안 업데이트 PR)은 저장소 설정에서 켜야 한다(Settings → Security → Dependabot alerts / security updates)
+
 ### 다음 할 일
 남은 선택 작업: 4단계 AI 측정(사용자 API 키 준비 시)
 

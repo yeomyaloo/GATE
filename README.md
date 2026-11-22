@@ -253,6 +253,7 @@ Build and test without Docker:
 Integration tests (`HealthCheckIT`) start real PostgreSQL and Redis containers and are skipped automatically when Docker is not available. CI always runs them (no Docker install needed locally).
 
 ### Security principles of this repo
+- Libraries already in use are re-checked continuously by Dependabot (`.github/dependabot.yml`: weekly, only versions at least 14 days old). gate-pkg guards what comes in; Dependabot watches what is already there.
 - No secrets in code, docs or commits. `.env` is git-ignored; `.env.example` holds key names only.
 - New dependencies are checked (name, maintainer, downloads) before they are added — this project must not create the problem it guards against.
 - Base images and GitHub Actions are pinned.
@@ -445,6 +446,7 @@ Docker 없이 빌드·테스트:
 통합 테스트(`HealthCheckIT`)는 실제 PostgreSQL·Redis 컨테이너를 띄우며, Docker가 없으면 자동으로 건너뜁니다. CI에서는 항상 실행되므로 로컬에 Docker가 없어도 검증됩니다.
 
 ### 이 저장소의 보안 원칙
+- 이미 쓰고 있는 라이브러리는 Dependabot이 계속 다시 확인합니다(`.github/dependabot.yml`: 매주, 공개 14일이 지난 버전만 제안). 새로 들어오는 것은 gate-pkg가, 이미 들어와 있는 것은 Dependabot이 지킵니다.
 - 비밀값(API 키, 토큰, DB 비밀번호, 서버 주소)을 코드·문서·커밋에 넣지 않습니다. `.env`는 Git에서 제외합니다.
 - 외부 라이브러리는 추가 전에 이름·관리자·다운로드 수를 확인합니다. 이 프로젝트가 막으려는 문제를 스스로 만들지 않습니다.
 - 베이스 이미지와 GitHub Actions 버전은 고정합니다.

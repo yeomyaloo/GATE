@@ -1,0 +1,62 @@
+# Dependabot: 이미 들어와 있는 라이브러리를 계속 다시 확인한다 (GATE gate-pkg는 "새로 들어오는 순간"을 막는다).
+# - 이 저장소 원칙대로, 공개된 지 14일이 지난 버전만 제안한다 (cooldown). 급한 보안 수정은 Dependabot 보안 업데이트가 따로 연다
+# - 같은 생태계의 변경은 한 PR로 묶어 소음을 줄인다
+# - 제안 PR도 GATE 검사를 거친다: package.json이 바뀌면 gate-pkg 워크플로가 새 버전을 검사한다
+version: 2
+updates:
+  # Java (Gradle: 버전 카탈로그 gradle/libs.versions.toml과 각 모듈 build.gradle.kts)
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+    open-pull-requests-limit: 5
+    groups:
+      gradle:
+        patterns: ["*"]
+
+  # 대시보드 (npm). .npmrc의 HTTPS 레지스트리·설치 스크립트 안 함 설정은 그대로 쓴다
+  - package-ecosystem: npm
+    directory: "/dashboard"
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+    open-pull-requests-limit: 5
+    groups:
+      npm:
+        patterns: ["*"]
+
+  # gate-review가 쓰는 고정 버전 Semgrep (pip)
+  - package-ecosystem: pip
+    directory: "/gate-review/semgrep"
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+
+  # GitHub Actions (커밋 SHA 고정은 그대로 두고 SHA와 버전 주석을 함께 올린다). 복합 Action도 포함
+  - package-ecosystem: github-actions
+    directories: ["/", "/.github/actions/gate-pkg"]
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # 컨테이너 기본 이미지 (태그 + digest 고정)
+  - package-ecosystem: docker
+    directories: ["/gate-server", "/gate-lab"]
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+  - package-ecosystem: docker-compose
+    directory: "/"
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
